@@ -1,38 +1,149 @@
 from django.db import models
+from djgango.core.validators import RegexValidator
 
 # Create your models here.
 class Status(models.Model):
-    pass
+    id = models.BigIntegerField(primary_key=True, increment=True, null=False)
+    name = models.CharField(max_length=255, null=False)
+    type = models.Choices(
+        ('priest', 'Priest'),
+        ('deacon', 'Deacon'),
+        ('lay', 'Lay Person'),
+        ('church', 'Church'),
+        ('campus_ministry', 'Campus Ministry'),
+        ('hospital/hospice', 'Hospital/Hospice'),
+        ('school', 'School'),
+        ('other_entity', 'Other Entity'),
+    )
+    
+    class Meta:
+        ordering = ['name']
+        db_table = 'status'
+        
+    def __str__(self):
+        return f"{self.name}"
 
 class EmailType(models.Model):
-    pass
+    id = models.BigIntegerField(primary_key=True, increment=True, null=False)
+    name = models.CharField(max_length=255, null=False)
+    
+    class Meta:
+        ordering = ['name']
+        db_table = 'email_type'
+        
+    def __str__(self):
+        return f"{self.name}"
 
 class PhoneType(models.Model):
-    pass
+    id = models.BigIntegerField(primary_key=True, increment=True, null=False)
+    name = models.CharField(max_length=255, null=False)
+    
+    class Meta:
+        ordering = ['name']
+        db_table = 'phone_type'
+        
+    def __str__(self):
+        return f"{self.name}"
 
 class Language(models.Model):
-    pass
+    id = models.BigIntegerField(primary_key=True, increment=True, null=False)
+    name = models.CharField(max_length=255, null=False)
+    
+    class Meta:
+        ordering = ['name']
+        db_table = 'language'
+    
+    def __str__(self):
+        return f"{self.name}"
 
 class LanguageProficiency(models.Model):
-    pass
+    id = models.BigIntegerField(primary_key=True, increment=True, null=False)
+    name = models.CharField(max_length=255, null=False)
+    
+    class Meta:
+        ordering = ['name']
+        db_table = 'language_proficiency'
+        
+    def __str__(self):
+        return f"{self.name}"
 
 class SubjectMatter(models.Model):
-    pass
+    id = models.BigIntegerField(primary_key=True, increment=True, null=False)
+    name = models.CharField(max_length=255, null=False)
+    
+    class Meta:
+        ordering = ['name']
+        db_table = 'subject_matter'
+        
+    def __str__(self):
+        return f"{self.name}"
 
 class TypeOfDegree(models.Model):
-    pass
+    id = models.BigIntegerField(primary_key=True, increment=True, null=False)
+    name = models.CharField(max_length=255, null=False)
+
+    class Meta:
+        ordering = ['name']
+        db_table = 'type_of_degree'
+    
+    def __str__(self):
+        return f"{self.name}"
 
 class DegreeCertificate(models.Model):
-    pass
+    id = models.BigIntegerField(primary_key=True, increment=True, null=False)
+    institute = models.CharField(max_length=255, null=False)
+    lkp_subjectMatter_id = models.ForeignKey(SubjectMatter,
+                                        on_delete=models.CASCADE,
+                                        null=True)
+    lkp_typeOfDegree_id = models.ForeignKey(TypeOfDegree,
+                                        on_delete=models.CASCADE,
+                                        null=True)
+    
+    class Meta:
+        ordering = ['institute']
+        db_table = 'degree_certificate'
+        
+    def __str__(self):
+        return f"{self.institute}: {self.lkp_subjectMatter_id} - {self.lkp_typeOfDegree_id}"
 
 class RelationshipType(models.Model):
-    pass
+    id = models.BigIntegerField(primary_key=True, increment=True, null=False)
+    name = models.CharField(max_length=255, null=False)
+    
+    class Meta:
+        ordering = ['name']
+        db_table = 'relationship_type'
+        
+    def __str__(self):
+        return f"{self.name}"
 
 class Title(models.Model):
-    pass
+    id = models.BigIntegerField(primary_key=True, increment=True, null=False)
+    name = models.CharField(max_length=255, null=False)
+    personType = models.Choices(
+        ('priest', 'Priest'),
+        ('deacon', 'Deacon'),
+        ('lay', 'Lay Person'),
+    )
+    is_ecclesiastical = models.BooleanField(null=False)
+    
+    class Meta:
+        ordering = ['name']
+        db_table = 'title'
+        
+    def __str__(self):
+        return f"{self.name}"
 
 class FacultiesGrantType(models.Model):
-    pass
+    id = models.BigIntegerField(primary_key=True, increment=True, null=False)
+    name = models.CharField(max_length=255, null=False)
+    
+    class Meta:
+        ordering = ['name']
+        db_table = 'faculties_grant_type'
+        
+    def __str__(self):
+        return f"{self.name}"
 
 class Address(models.Model):
     id = models.BigIntegerField(primary_key=True, increment=True, null=False)
@@ -146,28 +257,160 @@ class Person(models.Model):
             return f"{self.name_last}, {self.name_first}"
 
 class Person_Title(models.Model):
-    pass
+    id = models.BigIntegerField(primary_key=True, increment=True, null=False)
+    lkp_person_id = models.ForeignKey(Person,
+                                    on_delete=models.CASCADE,
+                                    null=False)
+    lkp_title_id = models.ForeignKey(Title,
+                                    on_delete=models.CASCADE,
+                                    null=False)
+    date_assigned = models.DateField(null=False)
+    date_expiration = models.DateField(null=True)
+    # Only used for special titles
+    lkp_vicariate_id = models.ForeignKey(Vicariate,
+                                        on_delete=models.CASCADE,
+                                        null=True)
+    
+    class Meta:
+        ordering = ['lkp_person_id__name_last']
+        db_table = 'person_title'
+        
+    def __str__(self):
+        return f"{lkp_person_id.name_last}, {self.lkp_person_id.name_first} - {self.lkp_title_id.name}: {self.date_assigned} - {self.date_expiration}"
 
 class Person_FacultiesGrant(models.Model):
-    pass
+    id = models.BigIntegerField(primary_key=True, increment=True, null=False)
+    lkp_person_id = models.ForeignKey(Person,
+                                    on_delete=models.CASCADE,
+                                    null=False)
+    lkp_faultiesGrantType_id = models.ForeignKey(FacultiesGrantType,
+                                        on_delete=models.CASCADE,
+                                        null=False)
+    date_granted = models.DateField(null=False)
+    date_modified = models.DateField(null=True)
+    date_removed = models.DateField(null=True)
+    
+    class Meta:
+        ordering = ['lkp_person_id__name_last']
+        db_table = 'person_faculties_grant'
+        
+    def __str__(self):
+        return f"{self.lkp_person_id.name_last}, {self.lkp_person_id.name_first} - {self.lkp_faultiesGrantType_id.name}: {self.date_granted} - {self.date_modified} - {self.date_removed}"
 
 class Person_Relationship(models.Model):
-    pass
+    id = models.BigIntegerField(primary_key=True, increment=True, null=False)
+    lkp_relationshipType_id = models.ForeignKey(RelationshipType,
+                                        on_delete=models.CASCADE,
+                                        null=False)
+    lkp_firstPerson_id = models.ForeignKey(Person,
+                                        on_delete=models.CASCADE,
+                                        null=False,
+                                        related_name='first_person')
+    lkp_secondPerson_id = models.ForeignKey(Person,
+                                        on_delete=models.CASCADE,
+                                        null=False,
+                                        related_name='second_person')
+    
+    class Meta:
+        ordering = ['lkp_firstPerson_id__name_last']
+        db_table = 'person_relationship'
+        
+    def __str__(self):
+        return f"{self.lkp_firstPerson_id.name_last}, {self.lkp_firstPerson_id.name_first} - {self.lkp_relationshipType_id.name}: {self.lkp_secondPerson_id.name_last}, {self.lkp_secondPerson_id.name_first}"
 
 class Person_DegreeCertificate(models.Model):
-    pass
+    id = models.BigIntegerField(primary_key=True, increment=True, null=False)
+    lkp_person_id = models.ForeignKey(Person,
+                                    on_delete=models.CASCADE,
+                                    null=False)
+    lkp_degreeCertificate_id = models.ForeignKey(DegreeCertificate,
+                                        on_delete=models.CASCADE,
+                                        null=False)
+    date_acquired = models.DateField(null=True)
+    date_expiration = models.DateField(null=True)
+    
+    class Meta:
+        ordering = ['lkp_person_id__name_last']
+        db_table = 'person_degree_certificate'
+    
+    def __str__(self):
+        return f"{self.lkp_person_id.name_last}, {self.lkp_person_id.name_first} - {self.lkp_degreeCertificate_id.institute}: {self.lkp_degreeCertificate_id.lkp_subjectMatter_id} - {self.lkp_degreeCertificate_id.lkp_typeOfDegree_id}"
 
 class Person_Phone(models.Model):
-    pass
+    id = models.BigIntegerField(primary_key=True, increment=True, null=False)
+    lkp_person_id = models.ForeignKey(Person,
+                                    on_delete=models.CASCADE,
+                                    null=False)
+    lkp_phoneType_id = models.ForeignKey(PhoneType,
+                                        on_delete=models.CASCADE,
+                                        null=False)
+    phone_regex = RegexValidator(regex=r'^\+?1?\d{9,15}$', message="Phone number must be entered in the format: '+999999999'. Up to 15 digits allowed.")
+    phoneNumber = models.CharField(validators=[phone_regex], max_length=17,blank=True, null=False) # validators should be a list
+    is_primary = models.BooleanField(null=False)
+    
+    class Meta:
+        ordering = ['lkp_person_id__name_last']
+        db_table = 'person_phone'
+        
+    def __str__(self):
+        return f"{self.lkp_person_id.name_last}, {self.lkp_person_id.name_first} - {self.lkp_phoneType_id.name}: {self.phoneNumber}"
 
 class Person_Email(models.Model):
-    pass
+    id = models.BigIntegerField(primary_key=True, increment=True, null=False)
+    lkp_person_id = models.ForeignKey(Person,
+                                    on_delete=models.CASCADE,
+                                    null=False)
+    lkp_emailType_id = models.ForeignKey(EmailType,
+                                        on_delete=models.CASCADE,
+                                        null=False)
+    email_regex = RegexValidator(regex=r'^[a-zA-Z0-9\.\-_+%]+@[a-zA-Z0-9]+\.[a-zA-Z0-9]+$', message="Email must be in a valid format.")
+    email = models.EmailField(validators=[email_regex], max_length=255, blank=True, null=False) # validators should be a list
+    is_primary = models.BooleanField(null=False)
+    
+    class Meta:
+        ordering = ['lkp_person_id__name_last']
+        db_table = 'person_email'
+        
+    def __str__(self):
+        return f"{self.lkp_person_id.name_last}, {self.lkp_person_id.name_first} - {self.lkp_emailType_id.name}: {self.email}"
 
 class Person_Language(models.Model):
-    pass
+    id = models.BigIntegerField(primary_key=True, increment=True, null=False)
+    lkp_person_id = models.ForeignKey(Person,
+                                    on_delete=models.CASCADE,
+                                    null=False)
+    lkp_language_id = models.ForeignKey(Language,
+                                        on_delete=models.CASCADE,
+                                        null=False)
+    lkp_languageProficiency_id = models.ForeignKey(LanguageProficiency,
+                                        on_delete=models.CASCADE,
+                                        null=False)
+    
+    class Meta:
+        ordering = ['lkp_person_id__name_last']
+        db_table = 'person_language'
+        
+    def __str__(self):
+        return f"{self.lkp_person_id.name_last}, {self.lkp_person_id.name_first} - {self.lkp_language_id.name}: {self.lkp_languageProficiency_id.name}"
 
 class Person_Status(models.Model):
-    pass
+    id = models.BigIntegerField(primary_key=True, increment=True, null=False)
+    lkp_person_id = models.ForeignKey(Person,
+                                    on_delete=models.CASCADE,
+                                    null=False)
+    lkp_status_id = models.ForeignKey(Status,
+                                        on_delete=models.CASCADE,
+                                        null=False)
+    date_assigned = models.DateField(null=False)
+    date_released = models.DateField(null=True)
+    details = models.TextField(null=True)
+    
+    class Meta:
+        ordering = ['lkp_person_id__name_last']
+        db_table = 'person_status'
+        
+    def __str__(self):
+        return f"{self.lkp_person_id.name_last}, {self.lkp_person_id.name_first} - {self.lkp_status_id.name}: {self.date_assigned} - {self.date_released}"
 
 class Vicariate(models.Model):
     id = models.BigIntegerField(primary_key=True, increment=True, null=False)
@@ -229,13 +472,62 @@ class Location(models.Model):
         return f"{self.locationName}"
 
 class Location_Status(models.Model):
-    pass
+    id = models.BigIntegerField(primary_key=True, increment=True, null=False)
+    lkp_location_id = models.ForeignKey(Location,
+                                    on_delete=models.CASCADE,
+                                    null=False)
+    lkp_status_id = models.ForeignKey(Status,
+                                        on_delete=models.CASCADE,
+                                        null=False)
+    date_assigned = models.DateField(null=False)
+    date_released = models.DateField(null=True)
+    details = models.TextField(null=True)
+    
+    class Meta:
+        ordering = ['lkp_location_id__name']
+        db_table = 'location_status'
+        
+    def __str__(self):
+        return f"{self.lkp_location_id.name} - {self.lkp_status_id.name}: {self.date_assigned} - {self.date_released}"
 
 class Location_Email(models.Model):
-    pass
+    id = models.BigIntegerField(primary_key=True, increment=True, null=False)
+    lkp_location_id = models.ForeignKey(Location,
+                                    on_delete=models.CASCADE,
+                                    null=False)
+    lkp_emailType_id = models.ForeignKey(EmailType,
+                                        on_delete=models.CASCADE,
+                                        null=False)
+    email_regex = RegexValidator(regex=r'^[a-zA-Z0-9\.\-_+%]+@[a-zA-Z0-9]+\.[a-zA-Z0-9]+$', message="Email must be in a valid format.")
+    email = models.EmailField(validators=[email_regex], max_length=255, blank=True, null=False) # validators should be a list
+    is_primary = models.BooleanField(null=False)
+    
+    class Meta:
+        ordering = ['lkp_location_id__name']
+        db_table = 'location_email'
+        
+    def __str__(self):
+        return f"{self.lkp_location_id.name} - {self.lkp_emailType_id.name}: {self.email}"
 
 class Location_Phone(models.Model):
-    pass
+    id = models.BigIntegerField(primary_key=True, increment=True, null=False)
+    lkp_location_id = models.ForeignKey(Location,
+                                    on_delete=models.CASCADE,
+                                    null=False)
+    lkp_phoneType_id = models.ForeignKey(PhoneType,
+                                        on_delete=models.CASCADE,
+                                        null=False)
+    phone_regex = RegexValidator(regex=r'^\+?1?\d{9,15}$', message="Phone number must be entered in the format: '+999999999'. Up to 15 digits allowed.")
+    phoneNumber = models.CharField(validators=[phone_regex], max_length=17,blank=True, null=False) # validators should be a list
+    is_primary = models.BooleanField(null=False)
+    
+    class Meta:
+        ordering = ['lkp_location_id__name']
+        db_table = 'location_phone'
+        
+    def __str__(self):
+        return f"{self.lkp_location_id.name} - {self.lkp_phoneType_id.name}: {self.phoneNumber}"
+
 class Lay_Detail(models.Model):
     id = models.BigIntegerField(primary_key=True, increment=True, null=False)
     lkp_person_id = models.ForeignKey(Person,
@@ -405,7 +697,21 @@ class Church_Detail(models.Model):
         return f"{self.lkp_location_id.name}"
 
 class Church_Language(models.Model):
-    pass
+    id = models.BigIntegerField(primary_key=True, increment=True, null=False)
+    lkp_church_id = models.ForeignKey(Location,
+                                    on_delete=models.CASCADE,
+                                    null=False)
+    lkp_language_id = models.ForeignKey(Language,
+                                        on_delete=models.CASCADE,
+                                        null=False)
+    massTime = models.TimeField(null=False)
+    
+    class Meta:
+        ordering = ['lkp_church_id__name']
+        db_table = 'church_language'
+        
+    def __str__(self):
+        return f"{self.lkp_church_id.name} - {self.lkp_language_id.name}: {self.massTime}"
 
 class CampusMinistry_Detail(models.Model):
     id = models.BigIntegerField(primary_key=True, increment=True, null=False)
