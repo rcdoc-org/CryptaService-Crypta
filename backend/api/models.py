@@ -1,5 +1,5 @@
 from django.db import models
-from djgango.core.validators import RegexValidator
+from django.core.validators import RegexValidator
 
 # Create your models here.
 class Status(models.Model):
@@ -13,7 +13,7 @@ class Status(models.Model):
         ('school', 'School'),
         ('other_entity', 'Other Entity'),
     ]
-    id = models.BigIntegerField(primary_key=True, increment=True, null=False)
+    id = models.BigIntegerField(primary_key=True, null=False)
     name = models.CharField(max_length=255, null=False)
     type = models.CharField(max_length=255, choices=choice_type, null=False)
     class Meta:
@@ -24,7 +24,7 @@ class Status(models.Model):
         return f"{self.name}"
 
 class EmailType(models.Model):
-    id = models.BigIntegerField(primary_key=True, increment=True, null=False)
+    id = models.BigIntegerField(primary_key=True, null=False)
     name = models.CharField(max_length=255, null=False)
     
     class Meta:
@@ -35,7 +35,7 @@ class EmailType(models.Model):
         return f"{self.name}"
 
 class PhoneType(models.Model):
-    id = models.BigIntegerField(primary_key=True, increment=True, null=False)
+    id = models.BigIntegerField(primary_key=True, null=False)
     name = models.CharField(max_length=255, null=False)
     
     class Meta:
@@ -46,7 +46,7 @@ class PhoneType(models.Model):
         return f"{self.name}"
 
 class Language(models.Model):
-    id = models.BigIntegerField(primary_key=True, increment=True, null=False)
+    id = models.BigIntegerField(primary_key=True, null=False)
     name = models.CharField(max_length=255, null=False)
     
     class Meta:
@@ -57,7 +57,7 @@ class Language(models.Model):
         return f"{self.name}"
 
 class LanguageProficiency(models.Model):
-    id = models.BigIntegerField(primary_key=True, increment=True, null=False)
+    id = models.BigIntegerField(primary_key=True, null=False)
     name = models.CharField(max_length=255, null=False)
     
     class Meta:
@@ -68,7 +68,7 @@ class LanguageProficiency(models.Model):
         return f"{self.name}"
 
 class SubjectMatter(models.Model):
-    id = models.BigIntegerField(primary_key=True, increment=True, null=False)
+    id = models.BigIntegerField(primary_key=True, null=False)
     name = models.CharField(max_length=255, null=False)
     
     class Meta:
@@ -79,7 +79,7 @@ class SubjectMatter(models.Model):
         return f"{self.name}"
 
 class TypeOfDegree(models.Model):
-    id = models.BigIntegerField(primary_key=True, increment=True, null=False)
+    id = models.BigIntegerField(primary_key=True, null=False)
     name = models.CharField(max_length=255, null=False)
 
     class Meta:
@@ -90,7 +90,7 @@ class TypeOfDegree(models.Model):
         return f"{self.name}"
 
 class DegreeCertificate(models.Model):
-    id = models.BigIntegerField(primary_key=True, increment=True, null=False)
+    id = models.BigIntegerField(primary_key=True, null=False)
     institute = models.CharField(max_length=255, null=False)
     lkp_subjectMatter_id = models.ForeignKey(SubjectMatter,
                                         on_delete=models.CASCADE,
@@ -107,7 +107,7 @@ class DegreeCertificate(models.Model):
         return f"{self.institute}: {self.lkp_subjectMatter_id} - {self.lkp_typeOfDegree_id}"
 
 class RelationshipType(models.Model):
-    id = models.BigIntegerField(primary_key=True, increment=True, null=False)
+    id = models.BigIntegerField(primary_key=True, null=False)
     name = models.CharField(max_length=255, null=False)
     
     class Meta:
@@ -123,7 +123,7 @@ class Title(models.Model):
         ('deacon', 'Deacon'),
         ('lay', 'Lay Person'),
         ]
-    id = models.BigIntegerField(primary_key=True, increment=True, null=False)
+    id = models.BigIntegerField(primary_key=True, null=False)
     name = models.CharField(max_length=255, null=False)
     personType = models.CharField(max_length=255, choices=choice_personType, null=False)
     is_ecclesiastical = models.BooleanField(null=False)
@@ -136,7 +136,7 @@ class Title(models.Model):
         return f"{self.name}"
 
 class FacultiesGrantType(models.Model):
-    id = models.BigIntegerField(primary_key=True, increment=True, null=False)
+    id = models.BigIntegerField(primary_key=True, null=False)
     name = models.CharField(max_length=255, null=False)
     
     class Meta:
@@ -147,7 +147,7 @@ class FacultiesGrantType(models.Model):
         return f"{self.name}"
 
 class Address(models.Model):
-    id = models.BigIntegerField(primary_key=True, increment=True, null=False)
+    id = models.BigIntegerField(primary_key=True, null=False)
     friendlyName = models.CharField(max_length=255, null=False)
     address1 = models.CharField(max_length=255, null=False)
     address2 = models.CharField(max_length=255, null=True)
@@ -164,7 +164,7 @@ class Address(models.Model):
         return f"{self.friendlyName}: {self.address1}"
 
 class DioceseOrder(models.Model):
-    id = models.BigIntegerField(primary_key=True, increment=True, null=False)
+    id = models.BigIntegerField(primary_key=True, null=False)
     name = models.CharField(max_length=255, null=False)
     is_order = models.BooleanField(null=False)
     
@@ -176,7 +176,7 @@ class DioceseOrder(models.Model):
         return f"{self.name}"
 
 class EasternChurch(models.Model):
-    id = models.BigIntegerField(primary_key=True, increment=True, null=False)
+    id = models.BigIntegerField(primary_key=True, null=False)
     name = models.CharField(max_length=255, null=False)
     
     class Meta:
@@ -226,7 +226,7 @@ class Person(models.Model):
         ('unsure', 'Unsure'),
     ]
     
-    id = models.BigIntegerField(primary_key=True, increment=True, null=False)
+    id = models.BigIntegerField(primary_key=True, null=False)
     personType = models.CharField(max_length=255, choices=choice_personType, null=False)
     prefix = models.CharField(max_length=255, choices=choice_prefix, null=True)
     residencyType = models.CharField(max_length=255, choices=choice_residencyType, null=True)
@@ -244,10 +244,12 @@ class Person(models.Model):
     is_safeEnvironmentTraining = models.BooleanField(null=True)
     lkp_residence_id = models.ForeignKey(Address,
                                         on_delete=models.CASCADE,
-                                         ull=True)
+                                        null=True,
+                                        related_name='person_residence')
     lkp_mailing_id = models.ForeignKey(Address,
                                         on_delete=models.CASCADE,
-                                        null=True)
+                                        null=True,
+                                        related_name='person_mailing')
     
     class Meta:
         ordering = ['name_last']
@@ -264,7 +266,7 @@ class Person(models.Model):
             return f"{self.name_last}, {self.name_first}"
 
 class Person_FacultiesGrant(models.Model):
-    id = models.BigIntegerField(primary_key=True, increment=True, null=False)
+    id = models.BigIntegerField(primary_key=True, null=False)
     lkp_person_id = models.ForeignKey(Person,
                                     on_delete=models.CASCADE,
                                     null=False)
@@ -280,10 +282,10 @@ class Person_FacultiesGrant(models.Model):
         db_table = 'person_faculties_grant'
         
     def __str__(self):
-        return f"{self.lkp_person_id.name_last}, {self.lkp_person_id.name_first} - {self.lkp_faultiesGrantType_id.name}: {self.date_granted} - {self.date_modified} - {self.date_removed}"
+        return f"{self.lkp_person_id.name_last if self.lkp_person_id else ''}, {self.lkp_person_id.name_first if self.lkp_person_id else ''} - {self.lkp_faultiesGrantType_id.name if self.lkp_faultiesGrantType_id else ''}: {self.date_granted} - {self.date_modified} - {self.date_removed}"
 
 class Person_Relationship(models.Model):
-    id = models.BigIntegerField(primary_key=True, increment=True, null=False)
+    id = models.BigIntegerField(primary_key=True, null=False)
     lkp_relationshipType_id = models.ForeignKey(RelationshipType,
                                         on_delete=models.CASCADE,
                                         null=False)
@@ -304,7 +306,7 @@ class Person_Relationship(models.Model):
         return f"{self.lkp_firstPerson_id.name_last}, {self.lkp_firstPerson_id.name_first} - {self.lkp_relationshipType_id.name}: {self.lkp_secondPerson_id.name_last}, {self.lkp_secondPerson_id.name_first}"
 
 class Person_DegreeCertificate(models.Model):
-    id = models.BigIntegerField(primary_key=True, increment=True, null=False)
+    id = models.BigIntegerField(primary_key=True, null=False)
     lkp_person_id = models.ForeignKey(Person,
                                     on_delete=models.CASCADE,
                                     null=False)
@@ -322,7 +324,7 @@ class Person_DegreeCertificate(models.Model):
         return f"{self.lkp_person_id.name_last}, {self.lkp_person_id.name_first} - {self.lkp_degreeCertificate_id.institute}: {self.lkp_degreeCertificate_id.lkp_subjectMatter_id} - {self.lkp_degreeCertificate_id.lkp_typeOfDegree_id}"
 
 class Person_Phone(models.Model):
-    id = models.BigIntegerField(primary_key=True, increment=True, null=False)
+    id = models.BigIntegerField(primary_key=True, null=False)
     lkp_person_id = models.ForeignKey(Person,
                                     on_delete=models.CASCADE,
                                     null=False)
@@ -341,7 +343,7 @@ class Person_Phone(models.Model):
         return f"{self.lkp_person_id.name_last}, {self.lkp_person_id.name_first} - {self.lkp_phoneType_id.name}: {self.phoneNumber}"
 
 class Person_Email(models.Model):
-    id = models.BigIntegerField(primary_key=True, increment=True, null=False)
+    id = models.BigIntegerField(primary_key=True, null=False)
     lkp_person_id = models.ForeignKey(Person,
                                     on_delete=models.CASCADE,
                                     null=False)
@@ -360,7 +362,7 @@ class Person_Email(models.Model):
         return f"{self.lkp_person_id.name_last}, {self.lkp_person_id.name_first} - {self.lkp_emailType_id.name}: {self.email}"
 
 class Person_Language(models.Model):
-    id = models.BigIntegerField(primary_key=True, increment=True, null=False)
+    id = models.BigIntegerField(primary_key=True, null=False)
     lkp_person_id = models.ForeignKey(Person,
                                     on_delete=models.CASCADE,
                                     null=False)
@@ -379,7 +381,7 @@ class Person_Language(models.Model):
         return f"{self.lkp_person_id.name_last}, {self.lkp_person_id.name_first} - {self.lkp_language_id.name}: {self.lkp_languageProficiency_id.name}"
 
 class Person_Status(models.Model):
-    id = models.BigIntegerField(primary_key=True, increment=True, null=False)
+    id = models.BigIntegerField(primary_key=True, null=False)
     lkp_person_id = models.ForeignKey(Person,
                                     on_delete=models.CASCADE,
                                     null=False)
@@ -398,7 +400,7 @@ class Person_Status(models.Model):
         return f"{self.lkp_person_id.name_last}, {self.lkp_person_id.name_first} - {self.lkp_status_id.name}: {self.date_assigned} - {self.date_released}"
 
 class Vicariate(models.Model):
-    id = models.BigIntegerField(primary_key=True, increment=True, null=False)
+    id = models.BigIntegerField(primary_key=True, null=False)
     name = models.CharField(max_length=255, null=False)
     map = models.FileField(upload_to='../media/maps/', null=True)
     lkp_vicarForane_id = models.ForeignKey(Person,
@@ -413,7 +415,7 @@ class Vicariate(models.Model):
         return f"{self.name}"
 
 class Person_Title(models.Model):
-    id = models.BigIntegerField(primary_key=True, increment=True, null=False)
+    id = models.BigIntegerField(primary_key=True, null=False)
     lkp_person_id = models.ForeignKey(Person,
                                     on_delete=models.CASCADE,
                                     null=False)
@@ -432,10 +434,10 @@ class Person_Title(models.Model):
         db_table = 'person_title'
         
     def __str__(self):
-        return f"{lkp_person_id.name_last}, {self.lkp_person_id.name_first} - {self.lkp_title_id.name}: {self.date_assigned} - {self.date_expiration}"
+        return f"{self.lkp_person_id.name_last}, {self.lkp_person_id.name_first} - {self.lkp_title_id.name}: {self.date_assigned} - {self.date_expiration}"
 
 class County(models.Model):
-    id = models.BigIntegerField(primary_key=True, increment=True, null=False)
+    id = models.BigIntegerField(primary_key=True, null=False)
     name = models.CharField(max_length=255, null=False)
     
     class Meta:
@@ -454,7 +456,7 @@ class Location(models.Model):
         ('other_entity', 'Other Entity'),
     ]
 
-    id = models.BigIntegerField(primary_key=True, increment=True, null=False)
+    id = models.BigIntegerField(primary_key=True, null=False)
     name = models.CharField(max_length=255, null=False)
     type = models.CharField(max_length=255, choices=choice_type, null=False)
     latitude = models.DecimalField(max_digits=9, decimal_places=6, null=True)
@@ -462,10 +464,12 @@ class Location(models.Model):
     website = models.URLField(max_length=255, null=True)
     lkp_physicalAddress_id = models.ForeignKey(Address,
                                                on_delete=models.CASCADE,
-                                               null=True)
+                                               null=True,
+                                               related_name='location_physicalAddress')
     lkp_mailingAddress_id = models.ForeignKey(Address,
                                                on_delete=models.CASCADE,
-                                               null=True)
+                                               null=True,
+                                               related_name='location_mailingAddress')
     lkp_vicariate_id = models.ForeignKey(Vicariate,
                                         on_delete=models.CASCADE,
                                         null=True)
@@ -481,7 +485,7 @@ class Location(models.Model):
         return f"{self.locationName}"
 
 class Location_Status(models.Model):
-    id = models.BigIntegerField(primary_key=True, increment=True, null=False)
+    id = models.BigIntegerField(primary_key=True, null=False)
     lkp_location_id = models.ForeignKey(Location,
                                     on_delete=models.CASCADE,
                                     null=False)
@@ -500,7 +504,7 @@ class Location_Status(models.Model):
         return f"{self.lkp_location_id.name} - {self.lkp_status_id.name}: {self.date_assigned} - {self.date_released}"
 
 class Location_Email(models.Model):
-    id = models.BigIntegerField(primary_key=True, increment=True, null=False)
+    id = models.BigIntegerField(primary_key=True, null=False)
     lkp_location_id = models.ForeignKey(Location,
                                     on_delete=models.CASCADE,
                                     null=False)
@@ -519,7 +523,7 @@ class Location_Email(models.Model):
         return f"{self.lkp_location_id.name} - {self.lkp_emailType_id.name}: {self.email}"
 
 class Location_Phone(models.Model):
-    id = models.BigIntegerField(primary_key=True, increment=True, null=False)
+    id = models.BigIntegerField(primary_key=True, null=False)
     lkp_location_id = models.ForeignKey(Location,
                                     on_delete=models.CASCADE,
                                     null=False)
@@ -538,7 +542,7 @@ class Location_Phone(models.Model):
         return f"{self.lkp_location_id.name} - {self.lkp_phoneType_id.name}: {self.phoneNumber}"
 
 class Lay_Detail(models.Model):
-    id = models.BigIntegerField(primary_key=True, increment=True, null=False)
+    id = models.BigIntegerField(primary_key=True, null=False)
     lkp_person_id = models.ForeignKey(Person,
                                     on_delete=models.CASCADE,
                                     null=False)
@@ -556,9 +560,10 @@ class Lay_Detail(models.Model):
             return f"{self.lkp_person_id.name_last}, {self.lkp_person_id.name_first} {self.lkp_person_id.suffix}"
         elif not self.lkp_person_id.name_middle and not self.lkp_person_id.suffix:
             return f"{self.lkp_person_id.name_last}, {self.lkp_person_id.name_first}" 
+        return "Unknown Person"
 
 class Deacon_Detail(models.Model):
-    id = models.BigIntegerField(primary_key=True, increment=True, null=False)
+    id = models.BigIntegerField(primary_key=True, null=False)
     lkp_person_id = models.ForeignKey(Person,
                                     on_delete=models.CASCADE,
                                     null=False)
@@ -598,31 +603,36 @@ class Priest_Detail(models.Model):
         ('diocesan', 'Diocesan'),
     ]
 
-    id = models.BigIntegerField(primary_key=True, increment=True, null=False)
+    id = models.BigIntegerField(primary_key=True, null=False)
     lkp_person_id = models.ForeignKey(Person,
                                     on_delete=models.CASCADE,
                                     null=False)
     lkp_dioceseOrder_id = models.ForeignKey(DioceseOrder,
                                         on_delete=models.CASCADE,
-                                        null=True)
+                                        null=True,
+                                        related_name='priest_dioceseOrder')
     lkp_residenceDiocese_id = models.ForeignKey(DioceseOrder,
                                         on_delete=models.CASCADE,
-                                        null=True)
+                                        null=True,
+                                        related_name='priest_residenceDiocese')
     lkp_dioceseOrderOrdination_id = models.ForeignKey(DioceseOrder,
                                         on_delete=models.CASCADE,
-                                        null=True)
+                                        null=True,
+                                        related_name='priest_dioceseOrderOrdination')
     lkp_dioceseOrderIncardination_id = models.ForeignKey(DioceseOrder,
                                         on_delete=models.CASCADE,
-                                        null=True)
-    lkp_easternChurchName_id = models.ForeignKey(EasternChurch,
+                                        null=True,
+                                        related_name='priest_dioceseOrderIncardination')
+    lkp_easternChurch_id = models.ForeignKey(EasternChurch,
                                                 on_delete=models.CASCADE,
                                                 null=True)
-    lkp_emergencyContact1_id = models.ForeignKey(Person,
-                                        on_delete=models.CASCADE,
-                                        null=True)
-    lkp_emergencyContact2_id = models.ForeignKey(Person,
-                                        on_delete=models.CASCADE,
-                                        null=True)
+    """ Moved this to relationships so its no longer needed here."""
+    # lkp_emergencyContact1_id = models.ForeignKey(Person,
+    #                                     on_delete=models.CASCADE,
+    #                                     null=True)
+    # lkp_emergencyContact2_id = models.ForeignKey(Person,
+    #                                     on_delete=models.CASCADE,
+    #                                     null=True)
     lkp_placeOfBaptism_id = models.ForeignKey(Location,
                                         on_delete=models.CASCADE,
                                         null=True)
@@ -674,7 +684,7 @@ class Priest_Detail(models.Model):
     
     class Meta:
         ordering = ['lkp_person_id__name_last']
-        db_table = 'priest'
+        db_table = 'priestDetail'
         
     def __str__(self):
         if self.lkp_person_id.name_middle and self.lkp_person_id.suffix:
@@ -687,10 +697,16 @@ class Priest_Detail(models.Model):
             return f"{self.lkp_person_id.name_last}, {self.lkp_person_id.name_first}" 
     
 class Church_Detail(models.Model):
-    id = models.BigIntegerField(primary_key=True, increment=True, null=False)
+    id = models.BigIntegerField(primary_key=True, null=False)
     lkp_location_id = models.ForeignKey(Location,
                                     on_delete=models.CASCADE,
-                                    null=False)
+                                    null=False,
+                                    related_name='churchDetail_location')
+    lkp_missionOf_id = models.ForeignKey(Location,
+                                      on_delete=models.CASCADE,
+                                      null=True,
+                                      limit_choices_to={'church_detail__lkp_location_id__isnull': False},
+                                      related_name='churchDetail_mission')
     parishUniqueName = models.CharField(max_length=255, null=False)
     boundary = models.FileField(upload_to='../media/boundaries/', null=True)
     is_mission = models.BooleanField(null=False)
@@ -707,13 +723,13 @@ class Church_Detail(models.Model):
     
     class Meta:
         ordering = ['lkp_location_id__name']
-        db_table = 'church'
+        db_table = 'churchDetail'
         
     def __str__(self):
         return f"{self.lkp_location_id.name}"
 
 class Church_Language(models.Model):
-    id = models.BigIntegerField(primary_key=True, increment=True, null=False)
+    id = models.BigIntegerField(primary_key=True, null=False)
     lkp_church_id = models.ForeignKey(Location,
                                     on_delete=models.CASCADE,
                                     null=False)
@@ -729,28 +745,30 @@ class Church_Language(models.Model):
     def __str__(self):
         return f"{self.lkp_church_id.name} - {self.lkp_language_id.name}: {self.massTime}"
 
-class CampusMinistryDetail(models.Model):
-    id = models.BigIntegerField(primary_key=True, increment=True, null=False)
+class CampusMinistry_Detail(models.Model):
+    id = models.BigIntegerField(primary_key=True, null=False)
     lkp_location_id = models.ForeignKey(Location,
                                     on_delete=models.CASCADE,
-                                    null=False)
+                                    null=False,
+                                    related_name='campusMinistry_location')
     is_massAtParish = models.BooleanField(null=False)
     lkp_church_id = models.ForeignKey(Location,
                                     on_delete=models.CASCADE,
-                                    null=True)
+                                    null=True,
+                                    limit_choices_to={'church_detail__lkp_location_id__isnull': False},
+                                    related_name='campusMinistry_church')
     universityServed = models.CharField(max_length=255, null=True)
     sundayMassSchedule = models.TextField(null=True)
     campusMinistryHours = models.TextField(null=True)
     
     class Meta:
         ordering = ['lkp_location_id__name']
-        db_table = 'campus_ministry'
+        db_table = 'campusMinistryDetail'
     
     def __str__(self):
         return f"{self.lkp_location_id.name}"
 
-
-class HospitalDetail(models.Model):
+class Hospital_Detail(models.Model):
     choice_diocese = [
         ('diocese_of_charlotte', 'Diocese of Charlotte'),
         ('diocese_of_raleigh', 'Diocese of Raleigh'),
@@ -760,44 +778,48 @@ class HospitalDetail(models.Model):
         ('hospice', 'Hospice'),
     ]
 
-    id = models.BigIntegerField(primary_key=True, increment=True, null=False)
+    id = models.BigIntegerField(primary_key=True, null=False)
     lkp_location_id = models.ForeignKey(Location,
                                     on_delete=models.CASCADE,
-                                    null=False)
+                                    null=False,
+                                    related_name='hospital_location')
     facilityType = models.CharField(max_length=255, choices=choice_facilityType, null=False)
     diocese = models.CharField(max_length=255, choices=choice_diocese, null=False)
     lkp_parishBoundary_id = models.ForeignKey(Location,
                                     on_delete=models.CASCADE,
-                                    null=True)
+                                    null=True,
+                                    related_name='hospital_boundary')
     
     class Meta:
         ordering = ['lkp_location_id__name']
-        db_table = 'hospital'
+        db_table = 'hospitalDetail'
         
     def __str__(self):
         return f"{self.lkp_location_id.name}"
 
-class OtherEntityDetail(models.Model):
-    id = models.BigIntegerField(primary_key=True, increment=True, null=False)
+class OtherEntity_Detail(models.Model):
+    id = models.BigIntegerField(primary_key=True, null=False)
     lkp_location_id = models.ForeignKey(Location,
                                     on_delete=models.CASCADE,
                                     null=False)
     
     class Meta:
         ordering = ['lkp_location_id__name']
-        db_table = 'other_entity'
+        db_table = 'otherEntityDetail'
         
     def __str__(self):
         return f"{self.lkp_location_id.name}"
 
 class MissionConnection(models.Model):
-    id = models.BigIntegerField(primary_key=True, increment=True, null=False)
+    id = models.BigIntegerField(primary_key=True, null=False)
     lkp_mission_id = models.ForeignKey(Location,
                                     on_delete=models.CASCADE,
-                                    null=False)
+                                    null=False,
+                                    related_name='mission')
     lkp_parish_id = models.ForeignKey(Location,
                                     on_delete=models.CASCADE,
-                                    null=False)
+                                    null=False,
+                                    related_name='parish')
     
     class Meta:
         ordering = ['lkp_mission_id__name']
@@ -836,57 +858,60 @@ class SchoolDetail(models.Model):
         ('co-ed', 'Co-Ed'),   
     ]
     
-    id = models.BigIntegerField(primary_key=True, increment=True, null=False)
+    id = models.BigIntegerField(primary_key=True, null=False)
     lkp_location_id = models.ForeignKey(Location,
                                     on_delete=models.CASCADE,
-                                    null=False)
+                                    null=False,
+                                    related_name='school_location')
     schoolCode = models.BigIntegerField(null=False)
     schoolType = models.CharField(max_length=255, choices=choices_schoolType, null=False)
     gradeLevels = models.CharField(max_length=255, choices=choices_gradeLevels, null=False)
-    lkp_affliliatedParish_id = models.ForeignKey(Location,
+    lkp_affiliatedParishParish_id = models.ForeignKey(Location,
                                     on_delete=models.CASCADE,
                                     null=True,
-                                    limit_choices_to={'church_detail__lkp_location_id__isnull': False})
+                                    limit_choices_to={'church_detail__lkp_location_id__isnull': False},
+                                    related_name='school_affiliatedParish')
     lkp_parishProperty_id = models.ForeignKey(Location,
                                     on_delete=models.CASCADE,
                                     null=True,
-                                    limit_choices_to={'church_detail__lkp_location_id__isnull': False})
+                                    limit_choices_to={'church_detail__lkp_location_id__isnull': False},
+                                    related_name='school_parishProperty')
     lkp_president_id = models.ForeignKey(Person,
                                     on_delete=models.CASCADE,
                                     null=True,
-                                    ) 
+                                    related_name='school_president') 
     lkp_principal_id = models.ForeignKey(Person,
                                     on_delete=models.CASCADE,
                                     null=True,
-                                    )
+                                    related_name='school_principal')
     lkp_vicePrincipal_id = models.ForeignKey(Person,
                                     on_delete=models.CASCADE,
                                     null=True,
-                                    )
+                                    related_name='school_vicePrincipal')
     lkp_campusMinister_id = models.ForeignKey(Person,
                                     on_delete=models.CASCADE,
                                     null=True,
-                                    )
+                                    related_name='school_campusMinister')
     lkp_assistantPrincipal1_id = models.ForeignKey(Person,
                                     on_delete=models.CASCADE,
                                     null=True,
-                                    )
+                                    related_name='school_assistantPrincipal1')
     lkp_assistantPrincipal2_id = models.ForeignKey(Person,
                                     on_delete=models.CASCADE,
                                     null=True,
-                                    )
+                                    related_name='school_assistantPrincipal2')
     lkp_assistantPrinciapl3_id = models.ForeignKey(Person,
                                     on_delete=models.CASCADE,
                                     null=True,
-                                    )
+                                    related_name='school_assistantPrincipal3')
     lkp_deanOfStudents1_id = models.ForeignKey(Person,
                                     on_delete=models.CASCADE,
                                     null=True,
-                                    )
+                                    related_name='school_deanOfStudents1')
     lkp_deanOfStudents2_id = models.ForeignKey(Person,
                                     on_delete=models.CASCADE,
                                     null=True,
-                                    )
+                                    related_name='school_deanOfStudents2')
     locationType = models.CharField(max_length=255, choices=choices_locationType, null=False)
     sponsorship = models.CharField(max_length=255, choices=choices_sponsorship, null=False)
     schoolGender = models.CharField(max_length=255, choices=choice_schoolGender, null=False)
@@ -896,7 +921,8 @@ class SchoolDetail(models.Model):
     lkp_chaplain_id = models.ForeignKey(Person,
                                     on_delete=models.CASCADE,
                                     null=True,
-                                    limit_choices_to={'priest_detail__lkp_person_id__isnull': False})
+                                    limit_choices_to={'priest_detail__lkp_person_id__isnull': False},
+                                    related_name='school_chaplain')
     academicPriest = models.BigIntegerField(null=True)
     academicBrother = models.BigIntegerField(null=True)
     academicSister = models.BigIntegerField(null=True)
@@ -912,4 +938,74 @@ class SchoolDetail(models.Model):
         return f"{self.lkp_location_id.name}"
 
 class Enrollment(models.Model):
-    pass
+    choice_year = [
+        ('2023-2024', '2023 - 2024'),
+        ('2024-2025', '2024 - 2025'),
+        ('2024-2025', '2024 - 2025'),
+        ('2025-2026', '2025 - 2026'),
+    ]
+    
+    id = models.BigIntegerField(primary_key=True, null=False)
+    lkp_school_id = models.ForeignKey(Location,
+                                      on_delete=models.CASCADE,
+                                      null=False)
+    year = models.CharField(max_length=255,choices=choice_year, null=False)
+    prek = models.BigIntegerField(null=True)
+    transitionalKindergarden = models.BigIntegerField(null=True)
+    kindergarden = models.BigIntegerField(null=True)
+    grade_1 = models.BigIntegerField(null=True)
+    grade_2 = models.BigIntegerField(null=True)
+    grade_3 = models.BigIntegerField(null=True)
+    grade_4 = models.BigIntegerField(null=True)
+    grade_5 = models.BigIntegerField(null=True)
+    grade_6 = models.BigIntegerField(null=True)
+    grade_7 = models.BigIntegerField(null=True)
+    grade_8 = models.BigIntegerField(null=True)
+    grade_9 = models.BigIntegerField(null=True)
+    grade_10 = models.BigIntegerField(null=True)
+    grade_11 = models.BigIntegerField(null=True)
+    grade_12 = models.BigIntegerField(null=True)
+
+    class Meta:
+        ordering = ['lkp_school_id__name']
+        db_table = 'enrollment'
+    
+    def __str__(self):
+        return f'{self.lkp_school_id.name} - {self.year}'
+
+class AssignmentType(models.Model):
+    choice_personType = [
+        ('deacon', 'Deacon'),
+        ('priest', 'Priest'),
+        ('lay', 'Lay')
+    ]   
+    id = models.BigIntegerField(primary_key=True, null=False)
+    title = models.CharField(max_length=255, null=False)
+    personType = models.CharField(max_length=255, choices=choice_personType, null=False)
+    class Meta:
+        ordering = ['title']
+        db_table = 'assignmentType'
+    def __str__(self):
+        return f'{self.title}'
+
+class Assignment(models.Model):
+    id = models.BigIntegerField(primary_key=True, null=False)
+    lkp_assignmentType_id = models.ForeignKey(AssignmentType,
+                                              on_delete=models.CASCADE,
+                                              null=False)
+    lkp_location_id = models.ForeignKey(Location,
+                                        on_delete=models.CASCADE,
+                                        null=False)
+    lkp_person_id = models.ForeignKey(Person,
+                                      on_delete=models.CASCADE,
+                                      null=False)
+    date_assigned = models.DateField(null=False)
+    date_released = models.DateField(null=True)
+    term = models.BigIntegerField(null=False)
+    
+    class Meta:
+        ordering = ['lkp_assignmentType_id__title']
+        db_table = 'assignment'
+
+    def __str__(self):
+        return f'{self.lkp_assignmentType_id.name}:{self.lkp_person_id.name_last}, {self.lkp_person_id.name_first} at {self.lkp_location_id.name}'
