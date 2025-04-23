@@ -5,4 +5,5 @@ Dockerfile
 manifest*/
 0*.py
 *.sql
-dataImport.py
+dataImport*.py
+*.csv
