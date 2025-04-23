@@ -1033,7 +1033,7 @@ class StatusAnimarum(models.Model):
                                       null=False,
                                       limit_choices_to={'church_detail__lkp_location_id__isnull': False},
                                       related_name='statusAnimarum_church')
-    year = models.CharField(default=choice_year[-1],choices=choice_year, null=False)
+    year = models.CharField(max_length=255, default=choice_year[-1],choices=choice_year, null=False)
     percentFullTime_deacons = models.DecimalField(max_digits = 5, 
                                                   decimal_places =2 , 
                                                   default = 0.0, 
@@ -1258,7 +1258,7 @@ class StatusAnimarum(models.Model):
     has_columbarium = models.BooleanField(default=False, null=False)
     has_cemetary = models.BooleanField(default=False, null=False)
     has_schoolOnSite = models.BooleanField(default=False, null=False)
-    schoolType = models.CharField(choices=choice_schoolType, null=True)
+    schoolType = models.CharField(max_length=255,choices=choice_schoolType, null=True)
     is_nonParochialSchoolUsingFacilities = models.BooleanField(default=False, null=False)
     
     class Meta:
@@ -1309,10 +1309,10 @@ class OctoberMassCount(models.Model):
         return f'{self.year}: {self.lkp_church_id.name}'
     
 class BuildingOnSite(models.Model):
-    name = models.CharField(null=False)
+    name = models.CharField(max_length=255, null=False)
     #Only do this if no other fields required in many to many relationship
     statusAnimarum = models.ManyToManyField(StatusAnimarum,
-                                            related_name='statusAnimarum')
+                                            related_name='building_on_site')
     class Meta:
         ordering = ['name']
         db_table = 'buildingsOnSite'
@@ -1320,10 +1320,10 @@ class BuildingOnSite(models.Model):
         return f'{self.name}'
 
 class SocialOutreachProgram(models.Model):
-    name = models.CharField(null=False)
+    name = models.CharField(max_length=255, null=False)
     #Only do this if no other fields required in many to many relationship
     StatusAnimarum = models.ManyToManyField(StatusAnimarum,
-                                            related_name='statusAnimarum')
+                                            related_name='social_outreach_program')
     
     class Meta:
         ordering = ['name']
