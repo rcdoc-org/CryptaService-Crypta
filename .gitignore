@@ -3,3 +3,7 @@ venv
 Dockerfile
 .dockerignore
 manifest*/
+0*.py
+*.sql
+dataImport*.py
+*.csv
