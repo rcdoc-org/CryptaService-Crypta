@@ -90,6 +90,7 @@
     }
 
     // Delegate toggle and checkbox events
+    updateView();
     filterSidebar.addEventListener('change', updateView);
     baseRadios.forEach(r => r.addEventListener('change', updateView));
   });
