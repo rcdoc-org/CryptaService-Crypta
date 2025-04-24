@@ -3,7 +3,7 @@
 <ul class="list-unstyled">
     {% for group in filter_tree %}
       <li class="mb-3">
-        <h6>{{ group.field|capfirst }}</h6>
+        <h6>{{ group.display|capfirst }}</h6>
         <ul class="ps-3">
           {% for opt in group.options %}
             <li>
