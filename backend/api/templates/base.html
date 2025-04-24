@@ -3,90 +3,237 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    {% load static %}
+
+    <!-- Third-Party CSS -->
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    
+    <!-- Custom Styles -->
+    <link
+      rel='stylesheet'
+      href="{% static 'css/header.css' %}"
+    />
+
+    <link
+      rel='stylesheet'
+      href="{% static 'css/nav.css' %}"
+    />
+
+    <link
+      rel='stylesheet'
+      href="{% static 'css/footer.css'%}"
+    />
+
+    <!-- Custom Styles on Sub Pages -->
+     {% block stylesheets %}
+     {% endblock %}
+
     <title>
       {% block title %}
         Crypta
       {% endblock %}
     </title>
+
     <style>
       {% block style %}
       {% endblock%}
     </style>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/css/bootstrap.min.css"  rel="stylesheet" />
   </head>
   <body>
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    {% load static %}
+    <header class="custom-header">
+      <!--Top Bar-->
+      <div class="container">
+        <div class="row align-items-center">
+          <!-- Logo -->
+          <div class="col-6 col-md-4">
+            <a href="{% url 'home' %}">
+              <img src="{% static 'images/logo.png' %}"
+                   alt="Diocese of Charlotte"
+                   loading="lazy"
+                   class="header-logo">
+              <span class="org-title" >Diocese of Charlotte </span>
+            </a>
+          </div>
+    
+          <!-- Navigation Links -->
+          <div class="col-12 col-md-8 d-flex justify-content-end align-items-center">
+            <nav class="ms-4">
+              <ul class="navbar-nav flex-row">
+                <li class="nav-item"><a class="nav-link px-2" href="https://doccs.sharepoint.com/SitePages/Events.aspx" target="_blank">Events</a></li>
+                <li class="nav-item"><a class="nav-link px-2" href="https://catholicnewsherald.com/" target="_blank">News</a></li>
+                <li class="nav-item"><a class="nav-link px-2" href="https://doccs.sharepoint.com/sites/Human_Resources/SitePages/Careers.aspx" target="_blank">Careers</a></li>
+                <li class="nav-item"><a class="nav-link px-2" href="#">Contact</a></li>
+              </ul>
+            </nav>
+          </div>
+        </div>
+    
+        <!-- Search Bar and Social Media Icons -->
+        <div class="row mt-3">
+          <div class="col-12 d-flex justify-content-between align-items-center">
+            <!-- Social Media Icons -->
+            <div class="d-flex align-items-center ms-auto">
+              <a href="https://www.instagram.com/charlottediocese/" target="_blank" class="header-icon me-3">
+                <i class="fab fa-instagram"></i>
+              </a>
+              <a href="https://www.youtube.com/DioceseOfCharlotte" target="_blank" class="header-icon me-3">
+                <i class="fab fa-youtube"></i>
+              </a>
+            </div>
+        
+            <!-- Search Bar -->
+            <form class="d-flex w-50 ms-3" action="#" method="get" role="search">
+              <input class="form-control search-input flex-grow-1 me-2"
+                     type="search"
+                     name="s"
+                     placeholder="Search"
+                     aria-label="Search">
+              <button class="btn btn-primary" type="submit" aria-label="Submit search">
+                <i class="fas fa-search"></i>
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </header>
+    <nav class="navbar navbar-expand bg-white py-2">
       <div class="container-fluid">
-        <a class="navbar-brand" href="http://127.0.0.1:8000/home">Nimbus</a>
+    
+        <!-- Burger toggle + label -->
         <button
           class="navbar-toggler"
           type="button"
           data-bs-toggle="collapse"
-          data-bs-target="#navbarNav"
-          aria-controls="navbarNav"
+          data-bs-target="#mobileMainMenu"
+          aria-controls="mobileMainMenu"
           aria-expanded="false"
-          aria-label="Toggle navigation"
+          aria-label="Toggle main menu"
         >
           <span class="navbar-toggler-icon"></span>
         </button>
-        <div class="collapse navbar-collapse" id="navbarNav">
-          <ul class="navbar-nav ms-auto">
+        <!-- Main Menu - I chose to hide this text-->
+        <span class="navbar-text ms-2 fw-bold"></span>
+    
+        <!-- Collapsed menu -->
+        <div class="collapse navbar-collapse mt-2" id="mobileMainMenu">
+          <ul class="navbar-nav w-100 justify-content-around">
             <li class="nav-item">
-              <a class="nav-link" href="http://127.0.0.1:8000/home">Home</a>
+              <a class="nav-link text-center" href="#">About</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="http://127.0.0.1:8000/crypta">Crypta</a>
+              <a class="nav-link text-center" href="#">Parishes</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="http://127.0.0.1:8000/test-404">Test 404</a>
+              <a class="nav-link text-center" href="#">Schools</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link text-center" href="#">Faith Education</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link text-center" href="#">Faith Life</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link text-center" href="#">Vocations</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link text-center" href="#">Giving</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link text-center" href="#">Español</a>
             </li>
           </ul>
         </div>
+    
       </div>
     </nav>
+    
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/js/bootstrap.bundle.min.js" ></script>
     {% block content %}
     {% endblock%}
 
-    <footer class="bg-dark text-white pt-4">
+    {% block footer %}
+    <footer class="custom-footer py-5">
       <div class="container">
-        <div class="row">
-          <!-- Contact Information -->
-          <div class="col-md-4">
-            <h5>Contact Us</h5>
-            <p>Email: <a href="mailto:helpdesk@rcdoc.org" class="text-white">helpdesk@rcdoc.org</a></p>
-            <p>Phone: <a href="tel:+17043703388" class="text-white">+1 (704) 370-3388</a></p>
-            <p>Address: 1123 S. Church Street, Charlotte, NC</p>
-          </div>
     
-          <!-- Quick Links -->
-          <div class="col-md-4">
-            <h5>Quick Links</h5>
-            <ul class="list-unstyled">
-              <li><a href="http://127.0.0.1:8000/home" class="text-white">Home</a></li>
-              <li><a href="http://127.0.0.1:8000/crypta" class="text-white">Crypta</a></li>
-              <li><a href="http://127.0.0.1:8000/test-404" class="text-white">Test 404</a></li>
+        <!-- mobile-only nav -->
+        <nav class="navbar navbar-expand d-md-none py-2">
+          <div class="container-fluid px-0">
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#footerMobileNav">
+              <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="footerMobileNav">
+              <ul class="navbar-nav w-100 justify-content-around">
+                <li class="nav-item"><a class="nav-link" href="https://goeucharist.com/" target="_blank">Eucharistic Congress</a></li>
+                <li class="nav-item"><a class="nav-link" href="https://accountability.charlottediocese.org/report-abuse/" target="_blank">Report Abuse</a></li>
+                <li class="nav-item"><a class="nav-link" href="https://nimbus.rcdoc.org/" target="_blank">Nimbus</a></li>
+              </ul>
+            </div>
+          </div>
+        </nav>
+    
+        <!-- desktop-only nav -->
+        <nav class="navbar navbar-expand d-none d-md-flex py-2 justify-content-center">
+          <ul class="navbar-nav">
+            <li class="nav-item"><a class="nav-link px-3" href="https://goeucharist.com/" target="_blank">Eucharistic Congress</a></li>
+            <li class="nav-item"><a class="nav-link px-3" href="https://accountability.charlottediocese.org/report-abuse/" target="_blank">Report Abuse</a></li>
+            <li class="nav-item"><a class="nav-link px-3" href="https://nimbus.rcdoc.org/" target="_blank">Nimbus</a></li>
+          </ul>
+        </nav>
+    
+        <!-- contact & logo row -->
+        <div class="row align-items-center my-4">
+          <div class="col-md-6 text-center text-md-start mb-3 mb-md-0">
+            <a href="{% url 'home' %}">
+              <img src="{% static 'images/logo.png' %}"
+                   alt="Diocese of Charlotte"
+                   class="img-fluid"
+                   style="max-width: 250px;">
+              <span class='org-title'>Diocese of Charlotte </span>
+            </a>
+          </div>
+          <div class="col-md-6">
+            <ul class="list-unstyled mb-0">
+              <li class="mb-2">
+                <i class="fas fa-envelope me-2"></i>
+                <a href="mailto:helpdesk@rcdoc.org"
+                   class="text-white">
+                   helpdesk@rcdoc.org
+                </a>
+              </li>
+              <li class="mb-2">
+                <i class="fas fa-phone me-2"></i>
+                <a href="tel:+17043703388" class="text-white" target="_blank">
+                  (704) 370-6299
+                </a>
+              </li>
+              <li>
+                <i class="fas fa-map-marker-alt me-2"></i>
+                <a href="https://www.google.com/maps?q=1123+S.+Church+Street,+Charlotte,+NC"
+                   class="text-white" 
+                   target="_blank"> 
+                   1123 South Church Street, Charlotte, NC 28203
+                </a>
+              </li>
             </ul>
           </div>
-    
-          <!-- Social Media -->
-          <div class="col-md-4">
-            <h5>Follow Us</h5>
-            <a href="https://catholicnewsherald.com/" class="text-white me-3">
-              <i class="bi bi-facebook" style="font-size: 1.5rem;">Catholic News & Herald</i>
-            </a>
-            <a href="https://charlottediocese.org" class="text-white me-3">
-              <i class="bi bi-twitter" style="font-size: 1.5rem;">Public Website</i>
-            </a>
-            <a href="https://www.youtube.com/DioceseOfCharlotte" class="text-white me-3">
-              <i class="bi bi-instagram" style="font-size: 1.5rem;">Youtube</i>
-            </a>
-          </div>
         </div>
-        <div class="text-center mt-4">
-          <p>&copy; 2025 RCDOC. All rights reserved.</p>
+    
+        <!-- copyright & privacy -->
+        <div class="text-center">
+          <small class="text-muted">
+            &copy; 2025 Diocese of Charlotte
+          </small>
         </div>
       </div>
     </footer>
+    {% endblock %}
   </body>
 </html>
