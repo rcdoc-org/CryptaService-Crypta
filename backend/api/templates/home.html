@@ -33,9 +33,43 @@ Home Page
       <p class="mb-5 text-muted">
         <em>Note: This is a demo. All data and functionality shown here are for preview purposes only.</em>
       </p>
-      <a href="#features" class="btn btn-primary btn-lg me-2">Explore Features</a>
+      <a href="#features" 
+      class="btn btn-primary btn-lg me-2"
+      data-bs-toggle='modal'
+      data-bs-target='#featureModal'
+      >Explore Features</a>
     </div>
 </section>
+
+<!-- Modal -->
+<div class="modal fade" id="featureModal" tabindex="-1" 
+     aria-labelledby="featureModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="featureModalLabel">
+          What’s New in the Demo
+        </h5>
+        <button type="button" class="btn-close" 
+                data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <!-- Put your explanatory text, images, whatever here -->
+        <p>
+          Here’s a guided tour of our new enhanced filtering system…<br/>
+          <br/>
+            You can find the enhanced filtering system here: <a href="{% url 'api:enhanced_filter' %}">Links</a> <br/>
+            You'll find it more user friendly and similar to Amazon purchasing experiences.
+        </p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" 
+                data-bs-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 {% endblock %}
 
 

@@ -54,7 +54,7 @@
         <div class="row align-items-center">
           <!-- Logo -->
           <div class="col-6 col-md-4">
-            <a href="{% url 'home' %}">
+            <a href="{% url 'api:home' %}">
               <img src="{% static 'images/logo.png' %}"
                    alt="Diocese of Charlotte"
                    loading="lazy"
@@ -128,7 +128,7 @@
             <li class="nav-item"><a class="nav-link" href="#">Parishes</a></li>
             <li class="nav-item"><a class="nav-link" href="#">Schools</a></li>
             <li class="nav-item"><a class="nav-link" href="#">Priest</a></li>
-            <li class="nav-item"><a class="nav-link" href="#">Enhanced Filtering &amp; Sorting</a></li>
+            <li class="nav-item"><a class="nav-link" href="{% url 'api:enhanced_filter' %}">Enhanced Filtering &amp; Sorting</a></li>
           </ul>
         </div>
     
@@ -174,7 +174,7 @@
         <!-- contact & logo row -->
         <div class="row align-items-center my-4">
           <div class="col-md-6 text-center text-md-start mb-3 mb-md-0">
-            <a href="{% url 'home' %}">
+            <a href="{% url 'api:home' %}">
               <img src="{% static 'images/logo.png' %}"
                    alt="Diocese of Charlotte"
                    class="img-fluid"

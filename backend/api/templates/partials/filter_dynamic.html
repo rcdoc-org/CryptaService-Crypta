@@ -1,0 +1,25 @@
+{% load filter_extras %}
+
+<ul class="list-unstyled">
+    {% for group in filter_tree %}
+      <li class="mb-3">
+        <h6>{{ group.field|capfirst }}</h6>
+        <ul class="ps-3">
+          {% for opt in group.options %}
+            <li>
+              <div class="form-check">
+                <input class="form-check-input filter-checkbox"
+                       type="checkbox"
+                       id="filter_{{ group.field }}_{{ opt.value }}"
+                       value="{{ group.field }}:{{ opt.value }}"
+                       {% if applied|get_item:group.field == opt.value %}checked{% endif %}>
+                <label class="form-check-label" for="filter_{{ group.field }}_{{ opt.value }}">
+                  {{ opt.label }} <span class="text-muted">({{ opt.count }})</span>
+                </label>
+              </div>
+            </li>
+          {% endfor %}
+        </ul>
+      </li>
+    {% endfor %}
+  </ul>
