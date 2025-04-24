@@ -1,10 +1,45 @@
 {% extends "base.html" %} 
+<!-- Enter Any Style sheet imports here -->
+{% block stylesheets %}
+
+{% endblock %}
+
+<!-- Change the Title here -->
 {% block title %} 
 Home Page 
 {% endblock %}
+
+<!-- Any unique styles no on the Stylesheets goes here -->
 {% block style %}
 
-{% endblock %}  
-{% block content %}
-
 {% endblock %}
+
+<!-- Any body content goes here-->
+{% block content %}
+<section class="py-5 bg-light text-center">
+    <div class="container">
+      <h1 class="display-5 fw-bold mb-4">Welcome to Nimbus / Crypta</h1>
+      <p class="lead mb-4">
+        In the spirit of our Catholic mission—to evangelize, serve, and unite the Body of Christ—we’re pleased to introduce a demo of our new diocesan portal.
+      </p>
+      <p class="mb-4">
+        This demonstration environment highlights:
+      </p>
+      <ul class="list-unstyled mb-4">
+        <li>✅ An <strong>enhanced filtering &amp; sorting system</strong> to find parishes, schools, and resources instantly</li>
+        <li>✅ A dedicated <strong>Parish Portal</strong> for streamlined communication and sacramental scheduling</li>
+        <li>✅ Complete <strong>flexibility</strong>—we can add any feature you need, from ministry calendars to volunteer sign-ups</li>
+      </ul>
+      <p class="mb-5 text-muted">
+        <em>Note: This is a demo. All data and functionality shown here are for preview purposes only.</em>
+      </p>
+      <a href="#features" class="btn btn-primary btn-lg me-2">Explore Features</a>
+    </div>
+</section>
+{% endblock %}
+
+
+<!-- Any footer changes goes here -->
+ {% block footer %}
+
+ {% endblock %}
