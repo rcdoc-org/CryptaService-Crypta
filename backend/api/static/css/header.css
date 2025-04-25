@@ -1,0 +1,28 @@
+/* Header gradient & padding */
+.custom-header {
+    background: linear-gradient(90deg, rgb(223, 241, 255) 0%, #0a315d 100%);
+    padding: 0.5rem 0;
+  }
+.custom-header a {
+    text-decoration: none;
+}
+.custom-header a:hover{
+    text-decoration: none;
+}
+
+  /* Logo sizing */
+.header-logo {
+    max-height: 100px;
+  }
+  
+  /* Social icon color & size */
+  .header-icon {
+    font-size: 1.25rem;
+    color: #ffffff;
+  }
+
+  /* Organization title */
+.org-title {
+    color: rgb(253, 253, 253);
+    font-size: 20px;
+  }

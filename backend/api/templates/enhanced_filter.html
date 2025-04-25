@@ -1,0 +1,130 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Enhanced Filtering & Sorting Demo{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+  <!-- Toggle between Person and Location base -->
+  <div class="d-flex align-items-center mb-4">
+    <div class="form-check form-check-inline">
+      <input class="form-check-input" type="radio" name="baseToggle" id="basePerson" value="person" checked>
+      <label class="form-check-label" for="basePerson">Person Based</label>
+    </div>
+    <div class="form-check form-check-inline ms-3">
+      <input class="form-check-input" type="radio" name="baseToggle" id="baseLocation" value="location">
+      <label class="form-check-label" for="baseLocation">Location Based</label>
+    </div>
+  </div>
+
+  <div class="row">
+    <!-- Sidebar: Recursive Filters -->
+    <aside class="col-md-4">
+      <h5>Filters</h5>
+        <div id="activeFilters" class="mb-3"></div>
+        <div id="filterSidebar">
+          {% include "partials/filter_dynamic.html"
+            with filter_tree=filter_tree
+              applied=applied %}
+        </div> 
+    </aside>
+
+    <!-- Main Content: Results -->
+    <section class="col-md-8">
+      <h5>Results</h5>
+      <div id="resultsList">
+        {% for item in items %}
+          <div class="card mb-2">
+            <div class="card-body">
+              <h6 class="card-title">{{ item }}</h6>
+              {% if item.description %}
+                <p class="card-text">{{ item.description }}</p>
+              {% endif %}
+            </div>
+          </div>
+        {% empty %}
+          <p>No items match the current filters.</p>
+        {% endfor %}
+      </div>
+    </section>
+  </div>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const csrfToken = '{{ csrf_token }}';
+    const filterSidebar = document.getElementById('filterSidebar');
+    const resultsList = document.getElementById('resultsList');
+    const baseRadios = document.getElementsByName('baseToggle');
+
+    function gatherFilters() {
+      const checked = Array.from(filterSidebar.querySelectorAll('input.filter-checkbox:checked'))
+        .map(chk => chk.value);
+      const base = Array.from(baseRadios).find(r => r.checked).value;
+      return { base, filters: checked };
+    }
+
+    function renderFilters(html) {
+      filterSidebar.innerHTML = html;
+    }
+
+    function renderResults(html) {
+      resultsList.innerHTML = html;
+    }
+
+    function renderActiveFilters(data) {
+      const container = document.getElementById('activeFilters');
+      container.innerHTML = '';
+
+      data.filters.forEach(f => {
+        const [field, value] = f.split(':', 2);
+        // find the checkbox so we can read it's data-display
+        const cb = filterSidebar.querySelector(`input[value="${field}:${value}"]`);
+        const label = cb?.dataset.display ?? field;
+
+        const badge = document.createElement('span');
+        badge.className = 'badge bg-secondary me-1';
+        //badge.textContext = `${field}: ${value}`;
+        badge.textContent = `${label}: ${value}`;
+
+        const x = document.createElement('i');
+        x.className = 'fas fa-times ms-1';
+        x.style.cursor = 'pointer';
+        x.addEventListener('click', () => {
+          // uncheck the corresponding box and re-renderActiveFilters
+          const checkbox = filterSidebar.querySelector(`input[value="${field}:${value}"]`);
+          if (checkbox) checkbox.checked = false;
+          updateView();
+        });
+
+        badge.appendChild(x);
+        container.appendChild(badge);
+      });
+    }
+
+    function updateView() {
+      const data = gatherFilters();
+      renderActiveFilters(data);
+      fetch('{% url "api:filter_results" %}', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': csrfToken,
+        },
+        body: JSON.stringify(data)
+      })
+      .then(res => res.json())
+      .then(payload => {
+        // payload.filters_html and payload.results_html
+        renderFilters(payload.filters_html);
+        renderResults(payload.results_html);
+      });
+    }
+
+    // Delegate toggle and checkbox events
+    updateView();
+    filterSidebar.addEventListener('change', updateView);
+    baseRadios.forEach(r => r.addEventListener('change', updateView));
+  });
+</script>
+{% endblock %}

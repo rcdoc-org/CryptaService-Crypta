@@ -256,19 +256,26 @@ class Person(models.Model):
                                         null=True,
                                         related_name='person_mailing')
     
+    @property
+    def name(self):
+        parts = [self.prefix, self.name_first, self.name_middle, self.name_last]
+        return " ".join([p for p in parts if p != 'nan'])
+        
+    
     class Meta:
         ordering = ['name_last']
         db_table = 'person'
         
     def __str__(self):
-        if self.name_middle and self.suffix:
-            return f"{self.name_last}, {self.name_first} {self.name_middle} {self.suffix}"
-        elif self.name_middle and not self.suffix:
-            return f"{self.name_last}, {self.name_first} {self.name_middle}"
-        elif self.suffix and not self.name_middle:
-            return f"{self.name_last}, {self.name_first} {self.suffix}"
-        elif not self.name_middle and not self.suffix:
-            return f"{self.name_last}, {self.name_first}"
+        return self.name
+        # if self.name_middle and self.suffix:
+        #     return f"{self.name_last}, {self.name_first} {self.name_middle} {self.suffix}"
+        # elif self.name_middle and not self.suffix:
+        #     return f"{self.name_last}, {self.name_first} {self.name_middle}"
+        # elif self.suffix and not self.name_middle:
+        #     return f"{self.name_last}, {self.name_first} {self.suffix}"
+        # elif not self.name_middle and not self.suffix:
+        #     return f"{self.name_last}, {self.name_first}"
 
 class Person_FacultiesGrant(models.Model):
     #id = models.BigIntegerField(primary_key=True, null=False)
@@ -487,7 +494,7 @@ class Location(models.Model):
         db_table = 'location'
         
     def __str__(self):
-        return f"{self.locationName}"
+        return f"{self.name}"
 
 class Location_Status(models.Model):
     #id = models.BigIntegerField(primary_key=True, null=False)
@@ -1331,3 +1338,32 @@ class SocialOutreachProgram(models.Model):
         
     def __str__(self):
         return f'{self.name}'
+
+class FilterOption(models.Model):
+    name = models.CharField(max_length=255, unique=True)
+    parent = models.ForeignKey(
+        'self',
+        null=True, blank=True,
+        related_name='children',
+        on_delete=models.CASCADE,
+        help_text="Optional parent filter—used to build a tree"
+    )
+    persons = models.ManyToManyField(
+        'Person',
+        blank=True,
+        related_name='filteroptions',
+        help_text="Which Person records match this filter"
+    )
+    locations = models.ManyToManyField(
+        'Location',
+        blank=True,
+        related_name='filteroptions',
+        help_text="Which Location records match this filter"
+    )
+
+    class Meta:
+        ordering = ['name']
+        db_table = 'filterOptions'
+
+    def __str__(self):
+        return self.name

@@ -1,0 +1,43 @@
+/* Search input styling */
+  .search-input {
+    width: 100%;
+    max-width: 600px;
+    padding: 0.75rem;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 1.2rem;
+  }
+  
+  /* Navbar link colors */
+  .navbar-nav .nav-link {
+    color: rgb(0, 0, 0);
+    font-weight: 500;
+  }
+  .navbar-nav .nav-link:hover {
+    color: #c0c0c0;
+  }
+
+  /* Mobile-only nav background */
+  .navbar.d-md-none {
+    background-color: #ffffff;
+  }
+  
+  /* Toggler icon for white background */
+  .navbar-light .navbar-toggler-icon {
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='%23002855' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
+  }
+  
+  /* Generic nav-link styling */
+  .nav-link {
+    color: rgb(0, 0, 0);
+    font-weight: 500;
+  }
+  .nav-link:hover {
+    color: #0a315d;
+  }
+  
+  /* “Main Menu” label */
+  .navbar-text {
+    color: #002855;
+    font-size: 1rem;
+  }
