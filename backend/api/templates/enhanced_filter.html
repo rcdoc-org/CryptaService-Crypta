@@ -21,6 +21,7 @@
     <!-- Sidebar: Recursive Filters -->
     <aside class="col-md-4">
       <h5>Filters</h5>
+        <div id="activeFilters" class="mb-3"></div>
         <div id="filterSidebar">
           {% include "partials/filter_dynamic.html"
             with filter_tree=filter_tree
@@ -71,8 +72,39 @@
       resultsList.innerHTML = html;
     }
 
+    function renderActiveFilters(data) {
+      const container = document.getElementById('activeFilters');
+      container.innerHTML = '';
+
+      data.filters.forEach(f => {
+        const [field, value] = f.split(':', 2);
+        // find the checkbox so we can read it's data-display
+        const cb = filterSidebar.querySelector(`input[value="${field}:${value}"]`);
+        const label = cb?.dataset.display ?? field;
+
+        const badge = document.createElement('span');
+        badge.className = 'badge bg-secondary me-1';
+        //badge.textContext = `${field}: ${value}`;
+        badge.textContent = `${label}: ${value}`;
+
+        const x = document.createElement('i');
+        x.className = 'fas fa-times ms-1';
+        x.style.cursor = 'pointer';
+        x.addEventListener('click', () => {
+          // uncheck the corresponding box and re-renderActiveFilters
+          const checkbox = filterSidebar.querySelector(`input[value="${field}:${value}"]`);
+          if (checkbox) checkbox.checked = false;
+          updateView();
+        });
+
+        badge.appendChild(x);
+        container.appendChild(badge);
+      });
+    }
+
     function updateView() {
       const data = gatherFilters();
+      renderActiveFilters(data);
       fetch('{% url "api:filter_results" %}', {
         method: 'POST',
         headers: {

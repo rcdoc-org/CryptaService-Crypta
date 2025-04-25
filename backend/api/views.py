@@ -118,20 +118,22 @@ def filter_results(request):
     else:
         qs = Person.objects.all()
 
-    # Apply filters passed as 'field:value'
+    
+    # *** NEW: build a dict of lists ***
     applied = {}
     for rf in raw_filters:
         if ':' in rf:
             field, val = rf.split(':', 1)
-            applied[field] = val
-    if applied:
-        qs = qs.filter(**applied).distinct()
+            applied.setdefault(field, []).append(val)
+
+    # *** NEW: apply each list as a __in filter ***
+    for field, values in applied.items():
+        qs = qs.filter(**{f"{field}__in": values})
+    qs = qs.distinct()
 
     # Build dynamic filter tree based on remaining queryset
     filter_tree = []
     for path in DYNAMIC_FILTER_FIELDS.get(base, []):
-        if path in applied:
-            continue
         buckets = (
             qs.values(path)
               .annotate(count=Count(path))
