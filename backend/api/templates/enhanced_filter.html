@@ -1,7 +1,15 @@
 {% extends "base.html" %}
 {% load static %}
-
 {% block title %}Enhanced Filtering & Sorting Demo{% endblock %}
+
+{% block scripts %}
+<link 
+  href="https://unpkg.com/tabulator-tables@5.5.0/dist/css/tabulator.min.css" 
+  rel="stylesheet">
+<script 
+  src="https://unpkg.com/tabulator-tables@5.5.0/dist/js/tabulator.min.js">
+</script>
+{% endblock %}
 
 {% block content %}
 <div class="container my-5">
@@ -23,9 +31,7 @@
       <h5>Filters</h5>
         <div id="activeFilters" class="mb-3"></div>
         <div id="filterSidebar">
-          {% include "partials/filter_dynamic.html"
-            with filter_tree=filter_tree
-              applied=applied %}
+          {% include "partials/filter_dynamic.html" with filter_tree=filter_tree applied=applied %}
         </div> 
     </aside>
 
@@ -33,18 +39,8 @@
     <section class="col-md-8">
       <h5>Results</h5>
       <div id="resultsList">
-        {% for item in items %}
-          <div class="card mb-2">
-            <div class="card-body">
-              <h6 class="card-title">{{ item }}</h6>
-              {% if item.description %}
-                <p class="card-text">{{ item.description }}</p>
-              {% endif %}
-            </div>
-          </div>
-        {% empty %}
-          <p>No items match the current filters.</p>
-        {% endfor %}
+        <!-- Tabulator Rendering-->
+        <div id="data-grid"></div> 
       </div>
     </section>
   </div>
@@ -54,22 +50,21 @@
   document.addEventListener('DOMContentLoaded', function() {
     const csrfToken = '{{ csrf_token }}';
     const filterSidebar = document.getElementById('filterSidebar');
-    const resultsList = document.getElementById('resultsList');
     const baseRadios = document.getElementsByName('baseToggle');
 
+    // Tabulator Instance
+    let table;
+
     function gatherFilters() {
-      const checked = Array.from(filterSidebar.querySelectorAll('input.filter-checkbox:checked'))
-        .map(chk => chk.value);
+      const checked = Array.from(
+        filterSidebar.querySelectorAll('input.filter-checkbox:checked')
+        ).map(chk => chk.value);
       const base = Array.from(baseRadios).find(r => r.checked).value;
       return { base, filters: checked };
     }
 
     function renderFilters(html) {
       filterSidebar.innerHTML = html;
-    }
-
-    function renderResults(html) {
-      resultsList.innerHTML = html;
     }
 
     function renderActiveFilters(data) {
@@ -84,7 +79,6 @@
 
         const badge = document.createElement('span');
         badge.className = 'badge bg-secondary me-1';
-        //badge.textContext = `${field}: ${value}`;
         badge.textContent = `${label}: ${value}`;
 
         const x = document.createElement('i');
@@ -92,8 +86,9 @@
         x.style.cursor = 'pointer';
         x.addEventListener('click', () => {
           // uncheck the corresponding box and re-renderActiveFilters
-          const checkbox = filterSidebar.querySelector(`input[value="${field}:${value}"]`);
-          if (checkbox) checkbox.checked = false;
+          //const checkbox = filterSidebar.querySelector(`input[value="${field}:${value}"]`);
+          //if (checkbox) checkbox.checked = false;
+          cb.checked = false;
           updateView();
         });
 
@@ -115,9 +110,20 @@
       })
       .then(res => res.json())
       .then(payload => {
-        // payload.filters_html and payload.results_html
+        // 1) Update the side bar
         renderFilters(payload.filters_html);
-        renderResults(payload.results_html);
+
+        // 2) Initialize or update Tabulator
+        if (!table) {
+          table = new Tabulator('#data-grid', {
+            layout: 'fitColumns',
+            data: payload.grid.data,
+            columns: payload.grid.columns,
+            placeholder: 'No Data Available',
+          });
+        } else {
+          table.setData(payload.grid.data);
+        }
       });
     }
 
