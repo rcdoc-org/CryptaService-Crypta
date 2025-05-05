@@ -7,10 +7,9 @@
     const columnForm        = document.getElementById('columnForm');
     const applyBtn          = document.getElementById('applyColumnsBtn');
     
-    let currentColumns = []; // will hold {title, field}[]
+    let currentColumns      = [];   // will hold {title, field}[]
 
-    // Tabulator Instance
-    let table;
+    let table;                      // Tabulator Instance
 
     function gatherFilters() {
         const checked = Array.from(
@@ -42,9 +41,6 @@
             x.className = 'fas fa-times ms-1';
             x.style.cursor = 'pointer';
             x.addEventListener('click', () => {
-            // uncheck the corresponding box and re-renderActiveFilters
-            //const checkbox = filterSidebar.querySelector(`input[value="${field}:${value}"]`);
-            //if (checkbox) checkbox.checked = false;
                 cb.checked = false;
                 updateView();
             });
@@ -91,7 +87,6 @@
     }
     
     function populateColumnForm() {
-        console.log('populateColumnForm: currentColumns=', currentColumns);
         columnForm.innerHTML = '';
         currentColumns.forEach(col => {
             // Tabulator's isColumnVisible api

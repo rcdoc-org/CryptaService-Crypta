@@ -1,44 +1,43 @@
 /* Footer background & text */
-  .custom-footer {
-    background: linear-gradient(90deg, rgb(223, 241, 255) 0%, #0a315d 100%);
-    padding: 0.5rem 0;
-  }
-  
-  .custom-footer a {
-    text-decoration: none;
-  }
-  .custom-footer a:hover{
-    text-decoration: none;
-  }
+.custom-footer {
+  background: linear-gradient(90deg, rgb(223, 241, 255) 0%, #0a315d 100%);
+  padding: 0.5rem 0;
+}
 
-  .custom-footer .navbar {
-    background: linear-gradient(90deg, rgb(223, 241, 255) 0%, #54616f 100%);
-  }
+.custom-footer a {
+  text-decoration: none;
+}
+.custom-footer a:hover{
+  text-decoration: none;
+}
 
-  /* Footer nav links */
-  .custom-footer .nav-link {
-    color: #002855;
-    font-weight: 500;
-  }
-  .custom-footer .nav-link:hover {
-    color: #6385ad;
-  }
-  
-  /* Toggler icon on light bg */
-  .custom-footer .navbar-light .navbar-toggler-icon {
-    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='%23002855' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
-  }
-  
-  /* Icon list styling */
-  .custom-footer .fas {
-    color: #002855;
-  }
-  .custom-footer .text-white {
-    color: white;
-  }
-  
-  /* Small text (copyright) */
-  .custom-footer small {
-    font-size: 0.875rem;
-  }
-  
+.custom-footer .navbar {
+  background: linear-gradient(90deg, rgb(223, 241, 255) 0%, #54616f 100%);
+}
+
+/* Footer nav links */
+.custom-footer .nav-link {
+  color: #002855;
+  font-weight: 500;
+}
+.custom-footer .nav-link:hover {
+  color: #6385ad;
+}
+
+/* Toggler icon on light bg */
+.custom-footer .navbar-light .navbar-toggler-icon {
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='%23002855' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
+}
+
+/* Icon list styling */
+.custom-footer .fas {
+  color: #002855;
+}
+.custom-footer .text-white {
+  color: white;
+}
+
+/* Small text (copyright) */
+.custom-footer small {
+  font-size: 0.875rem;
+}
