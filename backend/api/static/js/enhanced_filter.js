@@ -121,18 +121,22 @@
         
         // When "Apply" is clicked, show/hide columns then close modal
         applyBtn.addEventListener('click', () => {
-        const checkFields = Array.from(columnForm.querySelectorAll('input:checked'))
-                                .map(i=>i.value)
-        currentColumns.forEach(col => {
-            if (checkFields.includes(col.field)) {
-            table.showColumn(col.field);
-            } else {
-            table.hideColumn(col.field);
-            }
-        });
-        //bootstrap modal hide 
-        const modalEl = document.getElementById('columnModal');
-        bootstrap.Modal.getInstance(modalEl).hide();
+            const checkFields = Array.from(columnForm.querySelectorAll('input:checked'))
+                                    .map(i=>i.value);
+            
+            currentColumns.forEach(col => {
+                if (checkFields.includes(col.field)) {
+                table.showColumn(col.field);
+                } else {
+                table.hideColumn(col.field);
+                }
+            });
+
+            table.redraw(true);
+
+            //bootstrap modal hide 
+            const modalEl = document.getElementById('columnModal');
+            bootstrap.Modal.getInstance(modalEl).hide();
         })
 
         // Delegate toggle and checkbox events
