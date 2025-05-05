@@ -1,6 +1,9 @@
 import json
+import os
+from datetime import datetime
 import pandas as pd
 from django.http import JsonResponse
+from django.conf import settings
 from django.shortcuts import render
 from django.template.loader import render_to_string
 from django.db.models import Count
@@ -111,3 +114,22 @@ def filter_results(request):
       "grid":         grid,
     })
 
+@csrf_exempt
+def upload_temp(request):
+    if request.method == 'POST' and request.FILES.get('attachment'):
+        f = request.FILES['attachment']
+        ts = datetime.now().strftime('%Y%m%d%H%M%S')
+        filename = f'{ts}_{f.name}'
+        tmp_dir = os.path.join(settings.MEDIA_ROOT, 'tmp')
+        os.makedirs(tmp_dir, exist_ok=True)
+
+        save_path = os.path.join(tmp_dir, filename)
+        with open(save_path, 'wb') as dest:
+            for chunk in f.chunks():
+                dest.write(chunk)
+
+        return JsonResponse({
+            'filename': filename,
+            'url': settings.MEDIA_URL + f'tmp/{filename}'
+        })
+    return JsonResponse({'error': 'No file provided.'}, status=400)

@@ -120,20 +120,43 @@
         el.style.height = el.scrollHeight + 'px';
     }
 
+    function getCookie(name) {
+        let cookieValue = null;
+        document.cookie.split(';').forEach(c => {
+            c = c.trim();
+            if (c.startsWith(name + '=')) {
+            cookieValue = decodeURIComponent(c.slice(name.length + 1));
+            }
+        });
+        return cookieValue;
+    }
+
+    async function uploadAttachment() {
+        const fileInput = document.getElementById('attachment');
+        if (!fileInput || fileInput.files.length === 0) {
+            return null;
+        }
+
+        const file = fileInput.files[0];
+        const fd = new FormData();
+        fd.append('attachment', file);
+
+        const response = await fetch('/api/upload-tmp', {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': getCookie('csrfToken'),
+            },
+            body: fd
+        });
+
+        if(!response.ok) {
+            throw new Error('Upload failed');
+        }
+        return response.json();
+    }
+
     // 7) Wire up events and inital load
     function init(){
-        function getCookie(name) {
-            let cookieValue = null;
-            document.cookie.split(';').forEach(c => {
-                c = c.trim();
-                if (c.startsWith(name + '=')) {
-                cookieValue = decodeURIComponent(c.slice(name.length + 1));
-                }
-            });
-            return cookieValue;
-        }
-        
-
 
         // Email Checker and confirmation system
         // Ensures no missing mandatory items and gives user confirmation box before sending
@@ -147,7 +170,7 @@
             {el: document.getElementById('diocesanEmail'), label: 'Diocesan Emails'},
         ];
 
-        sendBtn.addEventListener('click', (e) => {
+        sendBtn.addEventListener('click', async (e) => {
             e.preventDefault();
 
             // trim and test mandatory items
@@ -176,6 +199,24 @@
 
             if(!confirm(summary)) {
                 // user cancelled
+                return;
+            }
+
+            try {
+                const uploadResult = await uploadAttachment();
+                if (uploadResult && uploadResult.url) {
+                    // inject hidden field with temp path
+                    let hidden = form.querySelector('input[name="temp_attachment_path"]');
+                    if (!hidden) {
+                        hidden = document.createElement('input');
+                        hidden.type = 'hidden';
+                        hidden.name = 'temp_attachment_path';
+                        form.appendChild(hidden);
+                    }
+                    hidden.value = uploadResult.url;
+                }
+            } catch (err) {
+                alert('Failed to upload attachment: ' + err.message);
                 return;
             }
 
