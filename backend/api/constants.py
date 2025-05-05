@@ -1,3 +1,5 @@
+""" This module is only used for storing and handling constant values
+used by other modules. """
 # Dynamic filter configuration mapping base types to model fields or joins
 DYNAMIC_FILTER_FIELDS = {
     'person': [
@@ -18,25 +20,25 @@ DYNAMIC_FILTER_FIELDS = {
 
         # ForeignKey → Address (residence & mailing)
         'lkp_residence_id__city',    # Residence city
-        'lkp_residence_id__state',   # Residence state (if exists)
+        'lkp_residence_id__state',   # Residence state 
         'lkp_mailing_id__city',      # Mailing address city
-        'lkp_mailing_id__state',     # Mailing state (if exists)
+        'lkp_mailing_id__state',     # Mailing state 
 
         # Reverse rel’n from Assignment
         'assignment__lkp_assignmentType_id__title',   # Assignment type title
         'assignment__lkp_location_id__name',          # Location name from assignments
-        'assignment__date_assigned',                  # Assignment date (if you want)
+        'assignment__date_assigned',                  # Assignment date
 
         # Reverse rel’n from Person_Status
         'person_status__lkp_status_id__name',         # Status name
         'person_status__date_assigned',               # When status assigned
     ],
     'location': [
-        'type',                                   # Location type (Church / School / etc.) :contentReference[oaicite:2]{index=2}&#8203;:contentReference[oaicite:3]{index=3}
-        'lkp_physicalAddress_id__city',           # Physical address city :contentReference[oaicite:4]{index=4}&#8203;:contentReference[oaicite:5]{index=5}
-        'lkp_mailingAddress_id__city',            # Mailing address city :contentReference[oaicite:10]{index=10}&#8203;:contentReference[oaicite:11]{index=11}
-        'lkp_vicariate_id__name',                 # Vicariate name :contentReference[oaicite:16]{index=16}&#8203;:contentReference[oaicite:17]{index=17}
-        'lkp_county_id__name',          # simple field
+        'type',                                   # Location type (Church / School / etc.)
+        'lkp_physicalAddress_id__city',           # Physical address city 
+        'lkp_mailingAddress_id__city',            # Mailing address city 
+        'lkp_vicariate_id__name',                 # Vicariate name 
+        'lkp_county_id__name',                    # Country name
     ],
 }
 
@@ -71,7 +73,7 @@ FIELD_LABLES = {
         # Reverse rel’n from Person_Status
         'person_status__lkp_status_id__name':           'Status',
         'person_status__date_assigned':                 'Status Assigned',
-        
+
         # Locations Based Filters
         'type':                                         'Location Type',
         'lkp_physicalAddress_id__city':                 'Physical City',
