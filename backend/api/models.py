@@ -174,17 +174,16 @@ class Address(models.Model):
     Though this will be long and complicated table it will allows us to better
     follow normalization rules and avoid duplicate data."""
     friendlyName = models.CharField(max_length=255, null=False)
-    address1 = models.CharField(max_length=255, null=False)
+    address1 = models.CharField(max_length=191, null=False)
     address2 = models.CharField(max_length=255, null=True)
-    city = models.CharField(max_length=255, null=False)
-    state = models.CharField(max_length=255, null=False)
+    city = models.CharField(max_length=100, null=False)
+    state = models.CharField(max_length=150, null=False)
     zip_code = models.CharField(max_length=10, null=False)
     country = models.CharField(max_length=255, null=False)
 
     class Meta:
         ordering = ['friendlyName']
         db_table = 'address'
-        unique_together = (('address1', 'city', 'state', 'zip_code'),)
 
     def __str__(self):
         return f"{self.friendlyName}: {self.address1}"
@@ -273,7 +272,7 @@ class Person(models.Model):
     date_deceased = models.DateField(null=True)
     date_baptism = models.DateField(null=True)
     is_safeEnvironmentTraining = models.BooleanField(null=True)
-    is_paidEmployee = models.BooleanField(null=False)
+    is_paidEmployee = models.BooleanField(null=False, default=True)
     lkp_residence_id = models.ForeignKey(Address,
                                         on_delete=models.CASCADE,
                                         null=True,
