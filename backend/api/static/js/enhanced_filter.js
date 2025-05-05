@@ -11,6 +11,7 @@
 
     let table;                      // Tabulator Instance
 
+    // 1) Gather which filters are check + which base (person/location) is selected.
     function gatherFilters() {
         const checked = Array.from(
             filterSidebar.querySelectorAll('input.filter-checkbox:checked')
@@ -19,10 +20,12 @@
         return { base, filters: checked };
     }
 
+    // 2) Replace the sidebar HTML wholesale with the server-rendered version
     function renderFilters(html) {
         filterSidebar.innerHTML = html;
     }
-    
+
+    // 3) Render 'active' filter badges at the top, with an X to remove each one.
     function renderActiveFilters(data) {
         const container = document.getElementById('activeFilters');
         container.innerHTML = '';
@@ -30,6 +33,7 @@
         data.filters.forEach(f => {
             const [field, value] = f.split(':', 2);
             // find the checkbox so we can read it's data-display
+            // Uses a friendly label
             const cb = filterSidebar.querySelector(`input[value="${field}:${value}"]`);
             const label = cb?.dataset.display ?? field;
 
@@ -41,15 +45,17 @@
             x.className = 'fas fa-times ms-1';
             x.style.cursor = 'pointer';
             x.addEventListener('click', () => {
-                cb.checked = false;
-                updateView();
+                cb.checked = false;         // uncheck it
+                updateView();               // and re-fetch/update everything
             });
 
             badge.appendChild(x);
             container.appendChild(badge);
         });
     }
-    
+
+    // 4) Core Function: gather filters, show badges, POST to Django, then update sidebar
+    // and table
     function updateView() {
         const data = gatherFilters();
         renderActiveFilters(data);
@@ -85,7 +91,8 @@
             populateColumnForm();
         });
     }
-    
+
+    // 5) Build the column-chooser form inside the modal
     function populateColumnForm() {
         columnForm.innerHTML = '';
         currentColumns.forEach(col => {
@@ -107,6 +114,7 @@
         });
     }
 
+    // 6) Wire up events and inital load
     function init(){
         function getCookie(name) {
             let cookieValue = null;
@@ -139,12 +147,15 @@
             bootstrap.Modal.getInstance(modalEl).hide();
         })
 
-        // Delegate toggle and checkbox events
-        updateView();
+        // Whenever a filter checkbox or the base-toggle radio changes, re-fetch
         filterSidebar.addEventListener('change', updateView);
         baseRadios.forEach(r => r.addEventListener('change', updateView));
+
+        // Delegate toggle and checkbox events
+        updateView();
         }
 
+        // run init() once the DOM is ready
         if(document.readyState === 'loading') {
             document.addEventListener('DOMContentLoaded', init);
         } else {
