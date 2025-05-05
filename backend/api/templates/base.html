@@ -4,6 +4,8 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     {% load static %}
+    {% block extra_meta %}
+    {% endblock %}
 
     <!-- Third-Party CSS -->
     <link
@@ -45,6 +47,8 @@
       {% block style %}
       {% endblock%}
     </style>
+    {% block headScripts %}
+    {% endblock %}
   </head>
   <body>
     {% load static %}
@@ -217,5 +221,8 @@
         </div>
       </div>
     </footer>
+
+    {% block bodyScripts %}
+    {% endblock %}
   </body>
 </html>
