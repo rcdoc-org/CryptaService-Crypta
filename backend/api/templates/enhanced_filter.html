@@ -69,7 +69,13 @@
       <aside class="col-md-2">
         <h5 class="actions">Actions<h5>
         <div class="d-grid gap-2">
-          <button type="button" class="btn btn-outline-primary btn-sm">Send Email</button>
+          <button 
+            type="button" 
+            class="btn btn-outline-primary btn-sm"
+            data-bs-toggle="modal"
+            data-bs-target='#emailModal'
+            id="emailtogglebtn"
+          >Send Email</button>
           <button type="button" class="btn btn-outline-primary btn-sm">Export to Excel</button>
           <button type="button" class="btn btn-outline-primary btn-sm">Export to CSV</button>
           <button type="button" class="btn btn-outline-primary btn-sm">Print Mailing Labels</button>
@@ -94,6 +100,60 @@
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
           <button type="button" class="btn btn-primary" id="applyColumnsBtn">Apply</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Email printing options modal -->
+  <div class="modal fade" id="emailModal" tabindex="-1" aria-labelledby="emailmodallabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="emailmodallabel">Sending Email</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="close"></button>
+        </div>
+        <div class="modal-body">
+          <form id="emailForm" class="row g-3">
+            <!-- all checkboxes in one row -->
+            <div class="col-12">
+              <div class="form-check form-check-inline">
+                <input class="form-check-input" type="checkbox" id="personalEmail" name="personalEmail">
+                <label class="form-check-label" for="personalEmail">Include Personal Emails?</label>
+              </div>
+              <div class="form-check form-check-inline">
+                <input class="form-check-input" type="checkbox" id="parishEmail" name="parishEmail">
+                <label class="form-check-label" for="parishEmail">Include Parish Emails?</label>
+              </div>
+              <div class="form-check form-check-inline">
+                <input class="form-check-input" type="checkbox" id="diocesanEmail" name="diocesanEmail">
+                <label class="form-check-label" for="diocesanEmail">Include Diocesan Emails?</label>
+              </div>
+            </div>
+          
+            <!-- subject field -->
+            <div class="col-12">
+              <label for="subject" class="form-label">Subject:</label>
+              <input type="text" class="form-control" id="subject" name="subject">
+            </div>
+          
+            <!-- dynamic, auto-growing body textarea -->
+            <div class="col-12">
+              <label for="body" class="form-label">Body:</label>
+              <textarea
+                class="form-control"
+                id="body"
+                name="body"
+                rows="3"
+                style="overflow:hidden; resize:none;"
+                oninput="auto_grow(this)"
+              ></textarea>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="button" class="btn btn-primary" id="sendEmailBtn">Send Email</button>
         </div>
       </div>
     </div>
