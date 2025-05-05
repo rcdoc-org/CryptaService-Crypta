@@ -9,6 +9,12 @@
   Enhanced Filtering & Sorting Demo
 {% endblock %}
 
+{% block style %}
+.actions {
+  text-align: center;
+}
+{% endblock %}
+
 {% block headScripts %}
   <link 
     href="https://unpkg.com/tabulator-tables@5.5.0/dist/css/tabulator.min.css" 
@@ -43,7 +49,7 @@
 
     <div class="row">
       <!-- sidebar: recursive filters -->
-      <aside class="col-md-4">
+      <aside class="col-md-2">
         <h5>Filters</h5>
           <div id="activeFilters" class="mb-3"></div>
           <div id="filterSidebar">
@@ -59,6 +65,16 @@
           <div id="data-grid"></div> 
         </div>
       </section>
+
+      <aside class="col-md-2">
+        <h5 class="actions">Actions<h5>
+        <div class="d-grid gap-2">
+          <button type="button" class="btn btn-outline-primary btn-sm">Send Email</button>
+          <button type="button" class="btn btn-outline-primary btn-sm">Export to Excel</button>
+          <button type="button" class="btn btn-outline-primary btn-sm">Export to CSV</button>
+          <button type="button" class="btn btn-outline-primary btn-sm">Print Mailing Labels</button>
+        </div>
+      </aside>
     </div>
   </div>
 
