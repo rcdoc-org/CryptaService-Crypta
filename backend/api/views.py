@@ -4,6 +4,7 @@ from django.http import JsonResponse
 from django.shortcuts import render
 from django.template.loader import render_to_string
 from django.db.models import Count
+from django.views.decorators.csrf import csrf_exempt
 
 from .models import Person, Location
 from .constants import DYNAMIC_FILTER_FIELDS, FIELD_LABLES
@@ -77,6 +78,7 @@ def enhanced_filter_view(request):
         },
     })
     
+@csrf_exempt
 def filter_results(request):
     """AJAX: receive { base, filters } → JSON { filters_html, grid }."""
     try:
