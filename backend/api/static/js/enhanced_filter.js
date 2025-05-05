@@ -133,10 +133,60 @@
             return cookieValue;
         }
         
+
+
+        // Email Checker and confirmation system
+        // Ensures no missing mandatory items and gives user confirmation box before sending
+        const form = document.getElementById('emailForm');
+        const sendBtn = document.getElementById('sendEmailBtn');
+        const subjectEl = document.getElementById('subject');
+        const bodyEl = document.getElementById('body');
+        const cbs =  [
+            {el: document.getElementById('personalEmail'), label: 'Personal Emails'},
+            {el: document.getElementById('parishEmail'), label: 'Parish Emails'},
+            {el: document.getElementById('diocesanEmail'), label: 'Diocesan Emails'},
+        ];
+
+        sendBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+
+            // trim and test mandatory items
+            const subj = subjectEl.value.trim();
+            const bdy = bodyEl.value.trim();
+            const checked = cbs
+                .filter(cb => cb.el.checked)
+                .map(cb => cb.label);
+
+            // gather missing
+            const missing = [];
+            if(!subj)   missing.push('Subject');
+            if(!bdy)    missing.push('Body');
+            if(!checked.length) missing.push('At least one recipient type');
+
+            if (missing.length) {
+                alert('Please provide: ' + missing.join(', '));
+                return;
+            }
+
+            const summary =
+            ` Please confirm before sending:\n\n` +
+            `Subject: ${subj}\n` +
+            `Recipients: ${checked.join(', ')}\n\n` +
+            `Body:\n${bdy}`;
+
+            if(!confirm(summary)) {
+                // user cancelled
+                return;
+            }
+
+            // all good actually submit
+            form.submit();
+
+        });
+
         // Used for auto growing the input box for email body.
-        const bodyElement = document.getElementById('body');
-        auto_grow(bodyElement)
-        bodyElement.addEventListener('input', () => auto_grow(bodyElement));
+        auto_grow(bodyEl)
+        bodyEl.addEventListener('input', () => auto_grow(bodyEl));
 
         // When "Apply" is clicked, show/hide columns then close modal
         applyBtn.addEventListener('click', () => {
