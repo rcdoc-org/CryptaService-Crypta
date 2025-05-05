@@ -26,39 +26,70 @@
     }
 
     // 3) Render 'active' filter badges at the top, with an X to remove each one.
+    // function renderActiveFilters(data) {
+    //     const container = document.getElementById('activeFilters');
+    //     container.innerHTML = '';
+
+    //     data.filters.forEach(f => {
+    //         const [field, value] = f.split(':', 2);
+    //         // find the checkbox so we can read it's data-display
+    //         // Uses a friendly label
+    //         const cb = filterSidebar.querySelector(`input[value="${field}:${value}"]`);
+    //         const label = cb?.dataset.display ?? field;
+
+    //         const badge = document.createElement('span');
+    //         badge.className = 'badge bg-secondary me-1';
+    //         badge.textContent = `${label}: ${value}`;
+
+    //         const x = document.createElement('i');
+    //         x.className = 'fas fa-times ms-1';
+    //         x.style.cursor = 'pointer';
+    //         x.addEventListener('click', () => {
+    //             cb.checked = false;         // uncheck it
+    //             updateView();               // and re-fetch/update everything
+    //         });
+
+    //         badge.appendChild(x);
+    //         container.appendChild(badge);
+    //     });
+    // }
     function renderActiveFilters(data) {
         const container = document.getElementById('activeFilters');
         container.innerHTML = '';
-
+      
         data.filters.forEach(f => {
-            const [field, value] = f.split(':', 2);
-            // find the checkbox so we can read it's data-display
-            // Uses a friendly label
-            const cb = filterSidebar.querySelector(`input[value="${field}:${value}"]`);
-            const label = cb?.dataset.display ?? field;
-
-            const badge = document.createElement('span');
-            badge.className = 'badge bg-secondary me-1';
-            badge.textContent = `${label}: ${value}`;
-
-            const x = document.createElement('i');
-            x.className = 'fas fa-times ms-1';
-            x.style.cursor = 'pointer';
-            x.addEventListener('click', () => {
-                cb.checked = false;         // uncheck it
-                updateView();               // and re-fetch/update everything
-            });
-
-            badge.appendChild(x);
-            container.appendChild(badge);
+          const [field, value] = f.split(':', 2);
+      
+          // Build the badge
+          const badge = document.createElement('span');
+          badge.className = 'badge bg-secondary me-1';
+          badge.textContent = `${field}: ${value}`;    // or use a nicer label if you read data-display
+      
+          // The “×” icon
+          const x = document.createElement('i');
+          x.className = 'fas fa-times ms-1';
+          x.style.cursor = 'pointer';
+      
+          x.addEventListener('click', () => {
+            // **re-query** the *current* checkbox in the sidebar
+            const selector = `.filter-checkbox[value="${field}:${value}"]`;
+            const cb = document.querySelector(selector);
+            if (cb) {
+              cb.checked = false;
+              updateView();   // now gathers from the live inputs
+            }
+          });
+      
+          badge.appendChild(x);
+          container.appendChild(badge);
         });
-    }
+      }
+      
 
     // 4) Core Function: gather filters, show badges, POST to Django, then update sidebar
     // and table
     function updateView() {
         const data = gatherFilters();
-        renderActiveFilters(data);
 
         fetch(filterURL, {
             method: 'POST',
@@ -73,6 +104,11 @@
             // 1) Update the side bar
             renderFilters(payload.filters_html);
 
+            const freshData = gatherFilters();
+
+            renderActiveFilters(freshData);
+
+            renderActiveFilters(data);
             // 2) Initialize or update Tabulator
             if (!table) {
             table = new Tabulator('#data-grid', {
