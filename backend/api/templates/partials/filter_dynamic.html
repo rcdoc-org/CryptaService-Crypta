@@ -8,13 +8,6 @@
           {% for opt in group.options %}
             <li>
               <div class="form-check">
-                <!-- Commenting out to test a new solution
-                <input class="form-check-input filter-checkbox"
-                       type="checkbox"
-                       id="filter_{{ group.field }}_{{ opt.value }}"
-                       value="{{ group.field }}:{{ opt.value }}"
-                       {% if applied|get_item:group.field == opt.value %}checked{% endif %}>
-                       !-->
                 <input class="form-check-input filter-checkbox"
                   type="checkbox"
                   id="filter_{{ group.field }}_{{ opt.value }}"

@@ -1,3 +1,4 @@
+""" This is used only in the partial html file: filter_dynamic.html"""
 from django import template
 register = template.Library()
 
