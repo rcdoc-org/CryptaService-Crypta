@@ -114,7 +114,13 @@
         });
     }
 
-    // 6) Wire up events and inital load
+    // 6) Auto Grow Elements for large text boxes
+    function auto_grow(el) {
+        el.style.height = 'auto';
+        el.style.height = el.scrollHeight + 'px';
+    }
+
+    // 7) Wire up events and inital load
     function init(){
         function getCookie(name) {
             let cookieValue = null;
@@ -127,6 +133,11 @@
             return cookieValue;
         }
         
+        // Used for auto growing the input box for email body.
+        const bodyElement = document.getElementById('body');
+        auto_grow(bodyElement)
+        bodyElement.addEventListener('input', () => auto_grow(bodyElement));
+
         // When "Apply" is clicked, show/hide columns then close modal
         applyBtn.addEventListener('click', () => {
             const checkFields = Array.from(columnForm.querySelectorAll('input:checked'))
@@ -155,9 +166,9 @@
         updateView();
         }
 
-        // run init() once the DOM is ready
-        if(document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', init);
-        } else {
-            init();
-        }})();
+    // run init() once the DOM is ready
+    if(document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', init);
+    } else {
+        init();
+    }})();
