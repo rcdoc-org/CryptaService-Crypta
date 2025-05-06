@@ -128,7 +128,13 @@
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="close"></button>
         </div>
         <div class="modal-body">
-          <form id="emailForm" class="row g-3">
+          <form id="emailForm" 
+          class="row g-3"
+          action='{% url 'api:send_email' %}'
+          method='POST'
+          enctype='multipart/form-data'
+          >
+            {% csrf_token %}
             <!-- all checkboxes in one row -->
             <div class="col-12">
               <div class="form-check form-check-inline">
