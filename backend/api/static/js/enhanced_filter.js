@@ -140,6 +140,14 @@
         return cookieValue;
     }
 
+    function makeHidden(name, value) {
+        const inp = document.createElement('input')
+        inp.type = 'hidden';
+        inp.name = name;
+        inp.value = value;
+        return inp;
+    }
+
     async function uploadAttachment() {
         const fileInput = document.getElementById('attachment');
         if (!fileInput || fileInput.files.length === 0) {
@@ -228,6 +236,11 @@
                 alert('Failed to upload attachment: ' + err.message);
                 return;
             }
+
+            // Grad and inject current filters
+            const { base, filters } = gatherFilters();
+            form.appendChild(makeHidden('base', base));
+            filters.forEach(f => form.appendChild(makeHidden('filters', f)));
 
             // all good actually submit
             form.submit();
