@@ -127,7 +127,7 @@ def upload_temp(request):
     if request.method == 'POST' and request.FILES.get('attachment'):
         f = request.FILES['attachment']
         ts = datetime.now().strftime('%Y%m%d%H%M%S')
-        filename = f'{ts}_{f.name}'
+        filename = f'{f.name}'
         tmp_dir = os.path.join(settings.MEDIA_ROOT, 'tmp')
         os.makedirs(tmp_dir, exist_ok=True)
 
@@ -148,6 +148,8 @@ def send_email(request):
         personal = get_personal_list(request)
         parish = get_parish_list(request)
         diocesan = get_diocesan_list(request)
+        
+        logger.exception("send_email POST data: %r", dict(request.POST))
         
         # 1. Gather checkboxes
         recipients = []
@@ -205,10 +207,10 @@ def send_email(request):
         except OSError:
             pass
 
-        return redirect('enhanced_filter.html')
+        return redirect('api:enhanced_filter')
 
     # if GET, just render the enhanced filter page
-    return render(request, 'enhanced_filter.html')
+    return render(request, 'api:enhanced_filter')
 
 def get_filtered_items(request):
     """Return a QuerySet of either Person or Location objects based on
