@@ -4,13 +4,14 @@ from datetime import datetime
 import pandas as pd
 from django.http import JsonResponse
 from django.conf import settings
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.template.loader import render_to_string
 from django.db.models import Count
 from django.views.decorators.csrf import csrf_exempt
 
 from .models import Person, Location
 from .constants import DYNAMIC_FILTER_FIELDS, FIELD_LABLES
+from .utilities.emailingSys import message_creator, send_mail
 
 # Create your views here.
 def view_404(request):
@@ -133,3 +134,49 @@ def upload_temp(request):
             'url': settings.MEDIA_URL + f'tmp/{filename}'
         })
     return JsonResponse({'error': 'No file provided.'}, status=400)
+
+def send_email(request):
+    if request.method == 'POST':
+        # 1. Gather checkboxes
+        recipients = []
+        if request.POST.get('personalEmail'): recipients += get_personal_list()
+        if request.POST.get('parishEmail'): recipients += get_parish_list()
+        if request.POST.get('diocesanEmail'): recipients += get_diocesan_list()
+        
+        # 2. Always send to self for testing/demo and embed real recipients into body
+        sender = settings.EMAIL_HOST_USER
+        to_list = [sender]
+        
+        subject = request.POST['subject']
+        body = request.POST['body']
+        # prefix the listed recipients into the email body
+        body = f"Intended Recipients: {', '.join(recipients)}\n\n{body}"
+        
+        # 3. Pull in the previously-saved temp file path
+        attachment_url = request.POST.get('temp_attachment_path') # e.g. "/media/tmp/20250506123000_report.pdf
+        attachment_path = os.path.join(settings.BASE_DIR, attachment_url.lstrip('/'))
+        
+        # 4. Build the emailMessage
+        msg = message_creator(
+            sender=sender,
+            recipients=to_list,
+            subject=subject,
+            body=body,
+            attachment_path=attachment_path
+        )
+        
+        # 5. Send via SMTP
+        send_mail(msg,
+                  smptp_user=settings.EMAIL_HOST_USER,
+                  smtp_pass=settings.EMAIL_HOST_PASSWORD)
+        
+        # 6. Clean up temp file
+        try:
+            os.remove(attachment_path)
+        except OSError:
+            pass
+        
+        return redirect('enhanced_filter.html')
+    
+    # if GET, just render the enhanced filter page
+    return render(request, 'enhanced_filter.html')
