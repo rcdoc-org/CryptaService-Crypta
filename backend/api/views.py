@@ -1,6 +1,7 @@
 import json
 import os
 from datetime import datetime
+import logging
 import pandas as pd
 from django.http import JsonResponse
 from django.conf import settings
@@ -16,6 +17,8 @@ from .models import (
 )
 from .constants import DYNAMIC_FILTER_FIELDS, FIELD_LABLES
 from .utilities.emailingSys import message_creator, send_mail
+
+logger = logging.getLogger(__name__)
 
 # Create your views here.
 def view_404(request):
@@ -172,13 +175,24 @@ def send_email(request):
             attachment_path = None
 
         # 4. Build the emailMessage
-        msg = message_creator(
-            sender=sender,
-            recipients=to_list,
-            subject=subject,
-            body=body,
-            attachment_path=attachment_path
-        )
+        try:
+            msg = message_creator(
+                sender=sender,
+                recipients=to_list,
+                subject=subject,
+                body=body,
+                attachment_path=attachment_path
+            )
+        except Exception as e:
+            logger.exception(
+                "message_creator failed. "
+                "sender=%r recipients=%r subject=%r body=%r attachment_path=%r",
+                sender, to_list, subject, body, attachment_path
+            )
+            return JsonResponse({
+                'error': 'Could not build email message. Check server log for details.'
+            }, status=500)
+            
 
         # 5. Send via SMTP
         send_mail(msg,
