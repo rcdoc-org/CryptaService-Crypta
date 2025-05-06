@@ -26,33 +26,6 @@
     }
 
     // 3) Render 'active' filter badges at the top, with an X to remove each one.
-    // function renderActiveFilters(data) {
-    //     const container = document.getElementById('activeFilters');
-    //     container.innerHTML = '';
-
-    //     data.filters.forEach(f => {
-    //         const [field, value] = f.split(':', 2);
-    //         // find the checkbox so we can read it's data-display
-    //         // Uses a friendly label
-    //         const cb = filterSidebar.querySelector(`input[value="${field}:${value}"]`);
-    //         const label = cb?.dataset.display ?? field;
-
-    //         const badge = document.createElement('span');
-    //         badge.className = 'badge bg-secondary me-1';
-    //         badge.textContent = `${label}: ${value}`;
-
-    //         const x = document.createElement('i');
-    //         x.className = 'fas fa-times ms-1';
-    //         x.style.cursor = 'pointer';
-    //         x.addEventListener('click', () => {
-    //             cb.checked = false;         // uncheck it
-    //             updateView();               // and re-fetch/update everything
-    //         });
-
-    //         badge.appendChild(x);
-    //         container.appendChild(badge);
-    //     });
-    // }
     function renderActiveFilters(data) {
         const container = document.getElementById('activeFilters');
         container.innerHTML = '';
