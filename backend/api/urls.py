@@ -12,5 +12,7 @@ urlpatterns = [
     path('test-404', views.view_404, name='test_404'),
     path('demo/filters/', views.enhanced_filter_view, name='enhanced_filter'),
     path('api/filter_results/', views.filter_results, name='filter_results'),
+    path('api/upload-tmp', views.upload_temp, name='upload_temp'),
+    path('send-email/', views.send_email, name='send_email'),
     
 ]

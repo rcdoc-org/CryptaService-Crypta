@@ -29,36 +29,40 @@
     function renderActiveFilters(data) {
         const container = document.getElementById('activeFilters');
         container.innerHTML = '';
-
+      
         data.filters.forEach(f => {
-            const [field, value] = f.split(':', 2);
-            // find the checkbox so we can read it's data-display
-            // Uses a friendly label
-            const cb = filterSidebar.querySelector(`input[value="${field}:${value}"]`);
-            const label = cb?.dataset.display ?? field;
-
-            const badge = document.createElement('span');
-            badge.className = 'badge bg-secondary me-1';
-            badge.textContent = `${label}: ${value}`;
-
-            const x = document.createElement('i');
-            x.className = 'fas fa-times ms-1';
-            x.style.cursor = 'pointer';
-            x.addEventListener('click', () => {
-                cb.checked = false;         // uncheck it
-                updateView();               // and re-fetch/update everything
-            });
-
-            badge.appendChild(x);
-            container.appendChild(badge);
+          const [field, value] = f.split(':', 2);
+      
+          // Build the badge
+          const badge = document.createElement('span');
+          badge.className = 'badge bg-secondary me-1';
+          badge.textContent = `${field}: ${value}`;    // or use a nicer label if you read data-display
+      
+          // The “×” icon
+          const x = document.createElement('i');
+          x.className = 'fas fa-times ms-1';
+          x.style.cursor = 'pointer';
+      
+          x.addEventListener('click', () => {
+            // **re-query** the *current* checkbox in the sidebar
+            const selector = `.filter-checkbox[value="${field}:${value}"]`;
+            const cb = document.querySelector(selector);
+            if (cb) {
+              cb.checked = false;
+              updateView();   // now gathers from the live inputs
+            }
+          });
+      
+          badge.appendChild(x);
+          container.appendChild(badge);
         });
-    }
+      }
+      
 
     // 4) Core Function: gather filters, show badges, POST to Django, then update sidebar
     // and table
     function updateView() {
         const data = gatherFilters();
-        renderActiveFilters(data);
 
         fetch(filterURL, {
             method: 'POST',
@@ -73,6 +77,11 @@
             // 1) Update the side bar
             renderFilters(payload.filters_html);
 
+            const freshData = gatherFilters();
+
+            renderActiveFilters(freshData);
+
+            renderActiveFilters(data);
             // 2) Initialize or update Tabulator
             if (!table) {
             table = new Tabulator('#data-grid', {
@@ -114,19 +123,134 @@
         });
     }
 
-    // 6) Wire up events and inital load
-    function init(){
-        function getCookie(name) {
-            let cookieValue = null;
-            document.cookie.split(';').forEach(c => {
-                c = c.trim();
-                if (c.startsWith(name + '=')) {
-                cookieValue = decodeURIComponent(c.slice(name.length + 1));
-                }
-            });
-            return cookieValue;
+    // 6) Auto Grow Elements for large text boxes
+    function auto_grow(el) {
+        el.style.height = 'auto';
+        el.style.height = el.scrollHeight + 'px';
+    }
+
+    function getCookie(name) {
+        let cookieValue = null;
+        document.cookie.split(';').forEach(c => {
+            c = c.trim();
+            if (c.startsWith(name + '=')) {
+            cookieValue = decodeURIComponent(c.slice(name.length + 1));
+            }
+        });
+        return cookieValue;
+    }
+
+    function makeHidden(name, value) {
+        const inp = document.createElement('input')
+        inp.type = 'hidden';
+        inp.name = name;
+        inp.value = value;
+        return inp;
+    }
+
+    async function uploadAttachment() {
+        const fileInput = document.getElementById('attachment');
+        if (!fileInput || fileInput.files.length === 0) {
+            return null;
         }
-        
+
+        const file = fileInput.files[0];
+        const fd = new FormData();
+        fd.append('attachment', file);
+
+        const response = await fetch('/api/upload-tmp', {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': getCookie('csrfToken'),
+            },
+            body: fd
+        });
+
+        if(!response.ok) {
+            throw new Error('Upload failed');
+        }
+        return response.json();
+    }
+
+    // 7) Wire up events and inital load
+    function init(){
+
+        // Email Checker and confirmation system
+        // Ensures no missing mandatory items and gives user confirmation box before sending
+        const form = document.getElementById('emailForm');
+        const sendBtn = document.getElementById('sendEmailBtn');
+        const subjectEl = document.getElementById('subject');
+        const bodyEl = document.getElementById('body');
+        const cbs =  [
+            {el: document.getElementById('personalEmail'), label: 'Personal Emails'},
+            {el: document.getElementById('parishEmail'), label: 'Parish Emails'},
+            {el: document.getElementById('diocesanEmail'), label: 'Diocesan Emails'},
+        ];
+
+        sendBtn.addEventListener('click', async (e) => {
+            e.preventDefault();
+
+            // trim and test mandatory items
+            const subj = subjectEl.value.trim();
+            const bdy = bodyEl.value.trim();
+            const checked = cbs
+                .filter(cb => cb.el.checked)
+                .map(cb => cb.label);
+
+            // gather missing
+            const missing = [];
+            if(!subj)   missing.push('Subject');
+            if(!bdy)    missing.push('Body');
+            if(!checked.length) missing.push('At least one recipient type');
+
+            if (missing.length) {
+                alert('Please provide: ' + missing.join(', '));
+                return;
+            }
+
+            const summary =
+            ` Please confirm before sending:\n\n` +
+            `Subject: ${subj}\n` +
+            `Recipients: ${checked.join(', ')}\n\n` +
+            `Body:\n${bdy}`;
+
+            if(!confirm(summary)) {
+                // user cancelled
+                return;
+            }
+
+            try {
+                const uploadResult = await uploadAttachment();
+                if (uploadResult && uploadResult.url) {
+                    // inject hidden field with temp path
+                    let hidden = form.querySelector('input[name="temp_attachment_path"]');
+                    if (!hidden) {
+                        hidden = document.createElement('input');
+                        hidden.type = 'hidden';
+                        hidden.name = 'temp_attachment_path';
+                        form.appendChild(hidden);
+                    }
+                    hidden.value = uploadResult.url;
+                }
+            } catch (err) {
+                alert('Failed to upload attachment: ' + err.message);
+                return;
+            }
+
+            // Grad and inject current filters
+            const { base, filters } = gatherFilters();
+            form.appendChild(makeHidden('base', base));
+            filters.forEach(f => form.appendChild(makeHidden('filters', f)));
+
+            // all good actually submit
+            form.submit();
+
+        });
+
+        // Used for auto growing the input box for email body.
+        auto_grow(bodyEl)
+        bodyEl.addEventListener('input', () => auto_grow(bodyEl));
+
         // When "Apply" is clicked, show/hide columns then close modal
         applyBtn.addEventListener('click', () => {
             const checkFields = Array.from(columnForm.querySelectorAll('input:checked'))
@@ -155,9 +279,9 @@
         updateView();
         }
 
-        // run init() once the DOM is ready
-        if(document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', init);
-        } else {
-            init();
-        }})();
+    // run init() once the DOM is ready
+    if(document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', init);
+    } else {
+        init();
+    }})();

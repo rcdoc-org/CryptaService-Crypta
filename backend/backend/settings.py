@@ -134,6 +134,20 @@ USE_TZ = True
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [BASE_DIR / "api/static"]
 
+# Media files
+
+MEDIA_ROOT = BASE_DIR / 'media'
+MEDIA_URL = '/media/'
+
+# Email settings
+
+EMAIL_HOST = 'smtp.office365.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+
+# User credentials to service account
+EMAIL_HOST_USER = os.getenv('SERVICE_EMAIL_USER')
+EMAIL_HOST_PASSWORD = os.getenv('SERVICE_EMAIL_PASS')
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 

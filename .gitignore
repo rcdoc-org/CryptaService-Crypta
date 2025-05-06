@@ -7,3 +7,4 @@ manifest*/
 *.sql
 dataImport*.py
 *.csv
+tmp

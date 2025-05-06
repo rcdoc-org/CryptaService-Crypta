@@ -9,6 +9,26 @@
   Enhanced Filtering & Sorting Demo
 {% endblock %}
 
+{% block style %}
+.actions {
+  text-align: center;
+}
+
+/* --- make the active-filters row wrap/scroll and stay on top --- */
+#activeFilters {
+  display: flex;
+  flex-wrap: wrap;           /* wrap to new lines instead of spilling out */
+  gap: 0.3rem;               /* spacing between badges */
+  max-height: 5rem;          /* constrain its height */
+  overflow-y: auto;          /* scroll if too tall */
+  padding: 0.5rem;           /* so scrollbars don’t sit on the text */
+  background: white;         /* avoid being hidden by underlying elements */
+  position: sticky;          /* stick to top of its parent <aside> */
+  top: 0;
+  z-index: 10;               /* sit above the results pane */
+}
+{% endblock %}
+
 {% block headScripts %}
   <link 
     href="https://unpkg.com/tabulator-tables@5.5.0/dist/css/tabulator.min.css" 
@@ -43,7 +63,7 @@
 
     <div class="row">
       <!-- sidebar: recursive filters -->
-      <aside class="col-md-4">
+      <aside class="col-md-2">
         <h5>Filters</h5>
           <div id="activeFilters" class="mb-3"></div>
           <div id="filterSidebar">
@@ -59,6 +79,22 @@
           <div id="data-grid"></div> 
         </div>
       </section>
+
+      <aside class="col-md-2">
+        <h5 class="actions">Actions<h5>
+        <div class="d-grid gap-2">
+          <button 
+            type="button" 
+            class="btn btn-outline-primary btn-sm"
+            data-bs-toggle="modal"
+            data-bs-target='#emailModal'
+            id="emailtogglebtn"
+          >Send Email</button>
+          <button type="button" class="btn btn-outline-primary btn-sm">Export to Excel</button>
+          <button type="button" class="btn btn-outline-primary btn-sm">Export to CSV</button>
+          <button type="button" class="btn btn-outline-primary btn-sm">Print Mailing Labels</button>
+        </div>
+      </aside>
     </div>
   </div>
 
@@ -78,6 +114,76 @@
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
           <button type="button" class="btn btn-primary" id="applyColumnsBtn">Apply</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Email printing options modal -->
+  <div class="modal fade" id="emailModal" tabindex="-1" aria-labelledby="emailmodallabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="emailmodallabel">Sending Email</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="close"></button>
+        </div>
+        <div class="modal-body">
+          <form id="emailForm" 
+          class="row g-3"
+          action='{% url 'api:send_email' %}'
+          method='POST'
+          enctype='multipart/form-data'
+          >
+            {% csrf_token %}
+            <!-- all checkboxes in one row -->
+            <div class="col-12">
+              <div class="form-check form-check-inline">
+                <input class="form-check-input" type="checkbox" id="personalEmail" name="personalEmail">
+                <label class="form-check-label" for="personalEmail">Include Personal Emails?</label>
+              </div>
+              <div class="form-check form-check-inline">
+                <input class="form-check-input" type="checkbox" id="parishEmail" name="parishEmail">
+                <label class="form-check-label" for="parishEmail">Include Parish Emails?</label>
+              </div>
+              <div class="form-check form-check-inline">
+                <input class="form-check-input" type="checkbox" id="diocesanEmail" name="diocesanEmail">
+                <label class="form-check-label" for="diocesanEmail">Include Diocesan Emails?</label>
+              </div>
+            </div>
+          
+            <!-- subject field -->
+            <div class="col-12">
+              <label for="subject" class="form-label">Subject:</label>
+              <input type="text" class="form-control" id="subject" name="subject">
+            </div>
+
+            <!-- attachment -->
+             <div class="col-12">
+              <label for="attachment" class="form-label">Attachment:</label>
+              <input
+                type="file"
+                class="form-control"
+                id="attachment"
+                name="attachment"
+              >
+             </div>
+          
+            <!-- dynamic, auto-growing body textarea -->
+            <div class="col-12">
+              <label for="body" class="form-label">Body:</label>
+              <textarea
+                class="form-control"
+                id="body"
+                name="body"
+                rows="3"
+                style="overflow:hidden; resize:none;"
+              ></textarea>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="button" class="btn btn-primary" id="sendEmailBtn">Send Email</button>
         </div>
       </div>
     </div>
