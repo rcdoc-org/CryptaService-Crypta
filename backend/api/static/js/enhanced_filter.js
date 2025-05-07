@@ -121,8 +121,8 @@
 
             // inital-only fields
             const defaults = data.base === "person"
-                ? ["name_first", "name_middle", "name_last", "personType"]
-                : ["name", "type"];
+                ? ["First Name", "Middle Name", "Last Name"]
+                : ["Name", "Type"];
             
             // merge detailCol + dynamicCols, tagging each dynamic col with visible:true/false
             const allCols = [
@@ -175,23 +175,54 @@
     // 5) Build the column-chooser form inside the modal
     function populateColumnForm() {
         columnForm.innerHTML = '';
-        currentColumns.forEach(col => {
-            // Tabulator's isColumnVisible api
-            const isVisible = table?.getColumn(col.field)?.isVisible ?? true;
-            const wrapper = document.createElement('div');
-            wrapper.className = 'col-4 form-check';
-            wrapper.innerHTML = `
-            <input class='form-check-input'
-                type='checkbox'
-                id='col_${col.field}'
-                value='${col.field}'
-                ${isVisible ? 'checked' : ''}>
-            <label class='form-check-label' for='col_${col.field}'>
-                ${col.title}
-            </label>
+        // group by `category`
+        const byCat = currentColumns.reduce((acc, col) => {
+            (acc[col.category] = acc[col.category] || []).push(col);
+            return acc;
+        }, {});
+
+        const accordion = document.createElement("div");
+        accordion.className = "accordion";
+        accordion.id = "columnsAccordion";
+
+        Object.entries(byCat).forEach(([cat, cols], idx) => {
+            const count = cols.length
+            const item = document.createElement("div");
+            item.className = "accordion-item";
+            item.innerHTML = `
+            <h2 class="accordion-header" id="heading${idx}">
+                <button class="accordion-button ${idx>0?"collapsed":""}"
+                        type="button"
+                        data-bs-toggle="collapse"
+                        data-bs-target="#collapse${idx}"
+                        aria-expanded="${idx===0}"
+                        aria-controls="collapse${idx}">
+                ${cat} (${count})
+                </button>
+            </h2>
+            <div id="collapse${idx}"
+                class="accordion-collapse collapse ${idx===0?"show":""}"
+                aria-labelledby="heading${idx}"
+                data-bs-parent="#columnsAccordion">
+                <div class="accordion-body row">
+                ${cols.map(col => `
+                    <div class="col-6 form-check">
+                    <input class="form-check-input" type="checkbox"
+                            id="col_${col.field}"
+                            value="${col.field}"
+                            ${table.getColumn(col.field)?.isVisible() ? "checked" : ""}>
+                    <label class="form-check-label" for="col_${col.field}">
+                        ${col.title}
+                    </label>
+                    </div>
+                `).join("")}
+                </div>
+            </div>
             `;
-            columnForm.appendChild(wrapper); 
+            accordion.appendChild(item);
         });
+
+        columnForm.appendChild(accordion);
     }
 
     // 6) Auto Grow Elements for large text boxes
@@ -346,6 +377,12 @@
         // Whenever a filter checkbox or the base-toggle radio changes, re-fetch
         filterSidebar.addEventListener('change', updateView);
         baseRadios.forEach(r => r.addEventListener('change', toggle));
+
+        // ensure we populate everytime the modal opens
+        const colModalEl = document.getElementById('columnModal');
+        colModalEl.addEventListener('show.bs.modal', () => {
+            populateColumnForm();
+        });
 
         // Delegate toggle and checkbox events
         updateView();

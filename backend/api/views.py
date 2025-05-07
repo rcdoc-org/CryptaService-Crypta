@@ -2,6 +2,7 @@ import json
 import os
 from datetime import datetime
 import logging
+from itertools import groupby
 import pandas as pd
 from django.http import JsonResponse
 from django.conf import settings
@@ -34,6 +35,173 @@ def get_filtered_data(base, raw_filters):
       - applied: dict mapping field → [values]
       - filter_tree: list of { field, display, options }
     """
+    
+    FIELD_CATEGORIES = {
+        # PERSON ONLY
+        # — Basic info —
+        "Full Name":          "Basic",
+        "First Name":         "Basic",
+        "Middle Name":        "Basic",
+        "Last Name":          "Basic",
+        "Person Type":        "Basic",
+        "Prefix":             "Basic",
+        "Suffix":             "Basic",
+
+        # — Dates —
+        "Birth Date":         "Dates",
+        "Baptism Date":       "Dates",
+        "Retirement Date":    "Dates",
+        "Deceased Date":      "Dates",
+
+        # — Flags —
+        "Safe Env Trng":      "Flags",
+        "Paid Employee":      "Flags",
+        "Is Priest?":         "Flags",
+        "Is Deacon?":         "Flags",
+        "Is Lay?":            "Flags",
+
+        # — Addresses —
+        "Residence Addr":     "Residence Info",
+        "Residence City":     "Residence Info",
+        "Residence State":     "Residence Info",
+        "Residence Zip Code":     "Residence Info",
+        "Residence Country":     "Residence Info",
+        "Mailing Addr":       "Mailing Info",
+        "Mailing City":       "Mailing Info",
+        "Mailing State":       "Mailing Info",
+        "Mailing Zip Code":       "Mailing Info",
+        "Mailing Country":       "Mailing Info",
+
+        # — Contact —
+        "Personal Emails":    "Contact",
+        "Parish Emails":      "Contact",
+        "Diocesan Emails":    "Contact",
+        "Cell Phones":        "Contact",
+        "Home Phones":        "Contact",
+
+        # — Skills & Education —
+        "Languages":          "Skills",
+        "Degrees":            "Skills",
+        "Faculties Grants":   "Skills",
+
+        # — History —
+        "Status History":     "History",
+        "Titles":             "History",
+        "Assignments":        "History",
+        "Relationships":      "History",
+
+        # — Priest Details —
+        "Priest Ordination":      "Priest Details",
+        "Diocesan/Religious":      "Priest Details",
+        "Place of Baptism":        "Priest Details",
+        "Birth (City,State)":      "Priest Details",
+        "Priest Notes":            "Priest Details",
+        
+        # LOCATION ONLY
+        # Basic
+        "Name":            "Basic",
+        "Type":            "Basic",
+
+        # Jurisdiction
+        "Vicariate":       "Location Info",
+        "County":          "Location Info",
+
+        # Address
+        "Physical Addr":   "Address",
+
+        # Contact
+        "Website":         "Contact",
+        "Emails":          "Contact",
+        "Phones":          "Contact",
+
+        # Church Details
+        "Parish Name":     "Church Details",
+        "Is Mission":      "Church Details",
+        "Boundary File":   "Church Details",
+        "City Served":     "Church Details",
+        "Date Established":"Church Details",
+        "First Dedication":"Church Details",
+        "Second Dedication":"Church Details",
+        "Church Notes":    "Church Details",
+        
+        # School Details
+        "School Code":          "School Details",
+        "School Type":          "School Details",
+        "Grade Levels":         "School Details",
+        "Affiliated Parish":    "School Details",
+        "MACS School":          "School Details",
+        "Priests Teaching":     "School Details",
+        "Brothers Teaching":    "School Details",
+        "Sisters Teaching":     "School Details",
+        "Lay Staff Teaching":   "School Details",
+        "Canonical Status":     "School Details",
+        "Chapel on Site":       "School Details",
+
+        # Services
+        "Mass Languages":          "Services",
+        "Campus Mass At Parish":   "Services",
+        "Served By":               "Services",
+        "Mass Schedule":           "Services",
+        "Hours":                   "Services",
+        "Facility Type":           "Services",
+        "Diocese":                 "Services",
+        "Parish Boundary":         "Services",
+        "Is Other Entity":         "Services",
+
+        # Relations
+        "Missions":       "Relations",
+        "Parishes":       "Relations",
+
+        #Statistics
+        "% Full-Time Deacons":          "Statistics",
+        "% Full-Time Brothers":         "Statistics",
+        "% Full-Time Sisters":          "Statistics",
+        "% Full-Time Lay":              "Statistics",
+        "% Part-Time Staff":            "Statistics",
+        "% Volunteers":                 "Statistics",
+        "Registered Households":        "Statistics",
+        "Max Mass Size":                "Statistics",
+        "Seating Capacity":             "Statistics",
+        "Baptisms 1-7":                 "Statistics",
+        "Baptisms 8-17":                "Statistics",
+        "Baptisms 18+":                 "Statistics",
+        "Full Communion RCIA":          "Statistics",
+        "First Communion":              "Statistics",
+        "Confirmation":                 "Statistics",
+        "Catholic Marriages":           "Statistics",
+        "Interfaith Marriages":         "Statistics",
+        "Deaths":                       "Statistics",
+        "Children in Faith Formation":  "Statistics",
+        "Kids: PreK - 5":               "Statistics",
+        "Kids: 6-8":                    "Statistics",
+        "Kids: 9-12":                   "Statistics",
+        "Youth Ministy":                "Statistics",
+        "Adult Education":              "Statistics",
+        "Adult Sacrament Prep":         "Statistics",
+        "# Paid Catechists":            "Statistics",
+        "# Volunteer Catechists":       "Statistics",
+        "RCIA/RCIC":                    "Statistics",
+        "# Volunteers Youth":           "Statistics",
+        "% African":                    "Statistics",
+        "% African-American":           "Statistics",
+        "% Asian":                      "Statistics",
+        "% Hispanic":                   "Statistics",
+        "% American-Indian":            "Statistics",
+        "% Other":                      "Statistics",
+        "Estimate Census?":             "Statistics",
+        "# Referrals to Catholic Charities":            "Statistics",
+        "HomeSchool Program?":          "Statistics",
+        "Child Care Day Care?":         "Statistics",
+        "Scouting Program?":            "Statistics",
+        "Chapel on Campus?":            "Statistics",
+        "Adoration Chapel on Campus?":  "Statistics",
+        "Columbarium on Site?":         "Statistics",
+        "Cemetery on Site?":            "Statistics",
+        "School on Site?":              "Statistics",
+        "NonParochial School Using Facilities?":        "Statistics",
+        
+    }
+    
     # 1) Base queryset
     qs = Location.objects.all() if base == "location" else Person.objects.all()
 
@@ -69,16 +237,371 @@ def get_filtered_data(base, raw_filters):
             })
 
     # 5) Records for your grid/DataFrame
-    field_names = [field.name for field in qs.model._meta.fields]
-    records = list(qs.values(*field_names))  # example
-    return records, applied, filter_tree
+    if base == "person":
+        qs = qs.select_related(
+                "lkp_residence_id", "lkp_mailing_id"
+            ).prefetch_related(
+                # built-in reverse FK sets:
+                "person_email_set",
+                "person_phone_set",
+                "person_language_set",
+                "person_facultiesgrant_set",
+                "person_title_set", 
+                "person_status_set",
+                "person_degreecertificate_set",
+                
+                # detail tables:
+                "deacon_detail_set",
+                "lay_detail_set",
+                "priest_detail_set",
+                
+                # assignments & vicariate:
+                "assignment_set",
+                "vicariate_set",
+                
+                # explicit related_names on person_relationship:
+                "first_person",
+                "second_person",
+            )
+    else:
+        qs = qs.select_related(
+                "lkp_physicalAddress_id", "lkp_mailingAddress_id",
+                "lkp_vicariate_id", "lkp_county_id"
+            ).prefetch_related(
+                # built-in reverse FK sets:
+                "location_email_set",
+                "location_phone_set",
+                "location_status_set",
+                "church_language_set",
+
+                # detail tables:
+                "churchDetail_location",
+                "campusMinistry_location",
+                "hospital_location",
+                "otherentity_detail_set",
+                "school_location",
+                
+                # assignments:
+                "assignment_set",
+                
+                # Location Relationships
+                "churchDetail_mission",
+                "campusMinistry_church",
+                "hospital_boundary",
+                "mission",
+                "parish",
+                
+                # baptism place
+                "priest_detail_set",
+                
+                #schools
+                "school_affiliatedParish",
+                "school_parishProperty",
+                
+                # Statistics
+                "enrollment_set",
+                "octoberCount_church",
+                "statusAnimarum_church",
+                
+            )
+
+    records = []
+    for obj in qs:
+        if base == "person":
+            rec = {
+                # core Person fields
+                "Full Name":        obj.name,
+                "First Name":       obj.name_first,
+                "Middle Name":      obj.name_middle,
+                "Last Name":        obj.name_last,
+                "Person Type":      obj.personType,
+                "Prefix":           obj.prefix or "",
+                "Suffix":           obj.suffix or "",
+                "Birth Date":       obj.date_birth and obj.date_birth.isoformat() or "",
+                "Baptism Date":     obj.date_baptism and obj.date_baptism.isoformat() or "",
+                "Retirement Date":  obj.date_retired and obj.date_retired.isoformat() or "",
+                "Deceased Date":    obj.date_deceased and obj.date_deceased.isoformat() or "",
+                "Safe Env Trng":    obj.is_safeEnvironmentTraining,
+                "Paid Employee":    obj.is_paidEmployee,
+
+                # flattened addresses
+                "Residence Addr":   obj.lkp_residence_id and obj.lkp_residence_id.address1 or "",
+                "Residence City":   obj.lkp_residence_id and obj.lkp_residence_id.city or "",
+                "Residence State":  obj.lkp_residence_id and obj.lkp_residence_id.state or "",
+                "Residence Zip Code":   obj.lkp_residence_id and obj.lkp_residence_id.zip_code or "",
+                "Residence Country":    obj.lkp_residence_id and obj.lkp_residence_id.country or "",    
+                "Mailing Addr":     obj.lkp_mailing_id and obj.lkp_mailing_id.address1 or "",
+                "Mailing City":     obj.lkp_mailing_id and obj.lkp_mailing_id.city or "",
+                "Mailing State":    obj.lkp_mailing_id and obj.lkp_mailing_id.state or "",
+                "Mailing Zip Code": obj.lkp_mailing_id and obj.lkp_mailing_id.zip_code or "",
+                "Mailing Country":  obj.lkp_mailing_id and obj.lkp_mailing_id.country or "",
+
+                # emails & phones
+                "Personal Emails":  ", ".join(e.email for e in obj.person_email_set
+                                                .filter(lkp_emailType_id__name__iexact="Personal")),
+                "Parish Emails":    ", ".join(e.email for e in obj.person_email_set
+                                                .filter(lkp_emailType_id__name__iexact="Parish")),
+                "Diocesan Emails":  ", ".join(e.email for e in obj.person_email_set
+                                                .filter(lkp_emailType_id__name__iexact="Diocesan")),
+
+                "Cell Phones":      ", ".join(p.phoneNumber for p in obj.person_phone_set
+                                                .filter(lkp_phoneType_id__name__iexact="Cell")),
+                "Home Phones":      ", ".join(p.phoneNumber for p in obj.person_phone_set
+                                                .filter(lkp_phoneType_id__name__iexact="Home")),
+
+                # languages
+                "Languages":        ", ".join(
+                                    f"{pl.lkp_language_id.name} ({pl.lkp_languageProficiency_id.name})"
+                                    for pl in obj.person_language_set.all()
+                                ),
+
+                # degrees & certificates
+                "Degrees":          "; ".join(
+                                    f"{dc.lkp_degreeCertificate_id.institute}"
+                                    f" (acquired {dc.date_acquired}, expires {dc.date_expiration})"
+                                    for dc in obj.person_degreecertificate_set.all()
+                                ),
+
+                # faculties grants
+                "Faculties Grants": "; ".join(
+                                    f"{fg.lkp_faultiesGrantType_id.name}"
+                                    f" (granted {fg.date_granted})"
+                                    for fg in obj.person_facultiesgrant_set.all()
+                                    ),
+
+                # status history
+                "Status History":   "; ".join(
+                                    f"{st.lkp_status_id.name}"
+                                    f" ({st.date_assigned} → {st.date_released or 'present'})"
+                                    for st in obj.person_status_set.all()
+                                ),
+
+                # titles
+                "Titles":           "; ".join(
+                                    f"{t.lkp_title_id.name}"
+                                    f" ({t.date_assigned} → {t.date_expiration or 'present'})"
+                                    for t in obj.person_title_set.all()
+                                ),
+
+                # assignments
+                "Assignments":      "; ".join(
+                                    f"{a.lkp_assignmentType_id.title}@{a.lkp_location_id.name}"
+                                    f" (term {a.term}, {a.date_assigned}→{a.date_released or 'present'})"
+                                    for a in obj.assignment_set.all()
+                                ),
+
+                # relationships (both directions)
+                "Relationships":    "; ".join(
+                                    f"{rel.lkp_relationshipType_id.name}: "
+                                    f"{(rel.lkp_secondPerson_id if rel in obj.first_person.all() else rel.lkp_firstPerson_id).name}"
+                                    for rel in list(obj.first_person.all()) + list(obj.second_person.all())
+                                ),
+
+                # detail flags
+                "Is Priest?":       obj.priest_detail_set.exists(),
+                "Is Deacon?":       obj.deacon_detail_set.exists(),
+                "Is Lay?":          obj.lay_detail_set.exists(),
+
+                # priest‐specific fields (if any)
+                **(
+                    {
+                        # take the first detail record
+                        "Priest Ordination": 
+                            pr_det.date_priestOrdination.isoformat() 
+                                if pr_det.date_priestOrdination else "",
+                        "Diocesan/Religious": 
+                            pr_det.diocesanReligious or "",
+                        "Place of Baptism":   
+                            pr_det.lkp_placeOfBaptism_id.name 
+                                if pr_det.lkp_placeOfBaptism_id else "",
+                        "Birth (City,State)":  
+                            f"{pr_det.birth_city or ''}, {pr_det.birth_state or ''}",
+                        "Priest Notes":        
+                            pr_det.notes or "",
+                        # …and guard any other fields the same way…
+                    }
+                    if (pr_det := obj.priest_detail_set.first())
+                    else {}
+                    ),
+            }
+        else:
+            rec = {
+                # — Basic info —
+                "Name":             obj.name,
+                "Type":             obj.type,
+
+                # — Location & jurisdiction —
+                "Vicariate":        obj.lkp_vicariate_id.name if obj.lkp_vicariate_id else "",
+                "County":           obj.lkp_county_id.name    if obj.lkp_county_id    else "",
+
+                # — Addresses —
+                "Physical Addr":    f"{obj.lkp_physicalAddress_id.address1}, "
+                                    f"{obj.lkp_physicalAddress_id.city}"
+                                    if obj.lkp_physicalAddress_id else "",
+                "Mailing Addr":     f"{obj.lkp_mailingAddress_id.address1}, "
+                                    f"{obj.lkp_mailingAddress_id.city}"
+                                    if obj.lkp_mailingAddress_id else "",
+
+                # — Contact —
+                "Website":          obj.website or "",
+                "Emails":           ", ".join(e.email for e in obj.location_email_set.all()),
+                "Phones":           ", ".join(p.phoneNumber for p in obj.location_phone_set.all()),
+
+                # — Status history —
+                "Status History":   "; ".join(
+                                        f"{st.lkp_status_id.name}"
+                                        f" ({st.date_assigned}"
+                                        f"→{st.date_released or 'present'})"
+                                        for st in obj.location_status_set.all()
+                                    ),
+                
+                # — “Other Entity” flag —
+                "Is Other Entity": obj.otherentity_detail_set.exists(),
+
+                # — Assignments & relationships —
+                "Assignments":      "; ".join(
+                                        f"{a.lkp_assignmentType_id.title}"
+                                        f"@{a.lkp_person_id.name}"
+                                        f" ({a.date_assigned}"
+                                        f"→{a.date_released or 'present'})"
+                                        for a in obj.assignment_set.all()
+                                    ),
+                "Missions":         ", ".join(m.lkp_parish_id.name
+                                        for m in obj.mission.all()),
+                "Parishes":         ", ".join(p.lkp_mission_id.name
+                                        for p in obj.parish.all()),
+            }
+
+            # — Church‐specific details (if any) —
+            cd = obj.churchDetail_location.first()
+            
+            if cd:
+                rec.update({
+                    "Parish Name":       cd.parishUniqueName,
+                    "Is Mission":        cd.is_mission,
+                    "Boundary File":     cd.boundary.name if cd.boundary else "",
+                    "City Served":       cd.cityServed or "",
+                    "Date Established":  cd.date_established.isoformat() if cd.date_established else "",
+                    "First Dedication":  cd.date_firstDedication.isoformat() if cd.date_firstDedication else "",
+                    "Second Dedication": cd.date_secondDedication.isoformat() if cd.date_secondDedication else "",
+                    "Church Notes":      cd.notes or "",
+                    "Mass Languages":   "; ".join(
+                                    f"{cl.lkp_language_id.name} @ {cl.massTime}"
+                                    for cl in obj.church_language_set.all()
+                                ),
+                }),
+
+            # — Campus ministry details (if any) —
+            cm = obj.campusMinistry_location.first()
+            if cm:
+                rec.update({
+                    "Campus Mass At Parish": cm.is_massAtParish,
+                    "Served By":             cm.universityServed or "",
+                    "Mass Schedule":         cm.sundayMassSchedule or "",
+                    "Hours":                 cm.campusMinistryHours or "",
+                })
+
+            # — Hospital details (if any) —
+            hd = obj.hospital_location.first()
+            if hd:
+                rec.update({
+                    "Facility Type":   hd.facilityType,
+                    "Diocese":         hd.diocese,
+                    "Parish Boundary": hd.lkp_parishBoundary.name if hd.lkp_parishBoundary.name else "",
+                })
+
+            sc = obj.school_location.first()
+            if sc:
+                rec.update({
+                    "School Code":      sc.schoolCode,
+                    "School Type":      sc.schoolType,
+                    "Grade Levels":     sc.gradeLevels,
+                    "MACS School":      sc.is_MACS,
+                    "Priests Teaching": sc.academicPriest,
+                    "Brothers Teaching":    sc.academicBrother,
+                    "Sisters Teaching": sc.academicSister,
+                    "Lay Staff Teaching":   sc.academicLay,
+                    "Canonical Status": sc.canonicalStatus,
+                    "Chapel on Site":   sc.is_schoolChapel,
+                })
+            
+            sa = obj.statusAnimarum_church.first()
+            if sa:
+                rec.update({
+                    "% Full-Time Deacons":  sa.percentFullTime_deacons,
+                    "% Full-Time Brothers":  sa.percentFullTime_brothers,
+                    "% Full-Time Sisters":  sa.percentFullTime_sisters,
+                    "% Full-Time Lay":  sa.percentFullTime_other,
+                    "% Part-Time Staff":  sa.percentPartTime_staff,
+                    "% Volunteers":  sa.percent_volunteers,
+                    "Registered Households":  sa.registeredHouseholds,
+                    "Max Mass Size":  sa.maxMass,
+                    "Seating Capacity":  sa.seatingCapacity,
+                    "Baptisms 1-7":  sa.baptismAge_1_7,
+                    "Baptisms 8-17":  sa.baptismAge_8_17,
+                    "Baptisms 18+":  sa.baptismAge_18,
+                    "Full Communion RCIA":  sa.fullCommunionRCIA,
+                    "First Communion":  sa.firstCommunion,
+                    "Confirmation":  sa.confirmation,
+                    "Catholic Marriages":  sa.marriage_catholic,
+                    "Interfaith Marriages":  sa.marriage_interfaith,
+                    "Deaths":  sa.deaths,
+                    "Children in Faith Formation":  sa.childrenInFaithFormation,
+                    "Kids: PreK - 5":  sa.school_prek_5,
+                    "Kids: 6-8":  sa.school_grade6_8,
+                    "Kids: 9-12":  sa.school_grade9_12,
+                    "Youth Ministy":  sa.youthMinistry,
+                    "Adult Education":  sa.adult_education,
+                    "Adult Sacrament Prep":  sa.adult_sacramentPrep,
+                    "# Paid Catechists":  sa.catechist_paid,
+                    "# Volunteer Catechists":  sa.catechist_vol,
+                    "RCIA/RCIC":  sa.rcia_rcic,
+                    "# Volunteers Youth":  sa.volunteersWorkingYouth,
+                    "% African":  sa.percent_african,
+                    "% African-American":  sa.percent_africanAmerican,
+                    "% Asian":  sa.percent_asian,
+                    "% Hispanic":  sa.percent_hispanic,
+                    "% American-Indian":  sa.percent_americanIndian,
+                    "% Other":  sa.percent_other,
+                    "Estimate Census?":  sa.is_censusEstimate,
+                    "# Referrals to Catholic Charities":  sa.referrals_catholicCharities,
+                    "HomeSchool Program?":  sa.has_homeschoolProgram,
+                    "Child Care Day Care?":  sa.has_chileCareDayCare,
+                    "Scouting Program?":  sa.has_scoutingProgram,
+                    "Chapel on Campus?":  sa.has_chapelOnCampus,
+                    "Adoration Chapel on Campus?":  sa.has_adorationChapelOnCampus,
+                    "Columbarium on Site?":  sa.has_columbarium,
+                    "Cemetery on Site?":  sa.has_cemetary,
+                    "School on Site?":  sa.has_schoolOnSite,
+                    "NonParochial School Using Facilities?":  sa.is_nonParochialSchoolUsingFacilities,
+                })
+
+
+        records.append(rec)
+
+    all_fields = []
+    for r in records:
+        for key in r.keys():
+            if key not in all_fields:
+                all_fields.append(key)
+    
+    columns = [
+        {
+            "title":    key,
+            "field":    key,
+            "category": FIELD_CATEGORIES.get(key, "Other")
+        }
+        for key in all_fields
+    ]
+    # build your filter_tree as before…
+    # return also the `columns` list
+    return records, applied, filter_tree, columns
 
 def enhanced_filter_view(request):
     """Initial page load: no filters yet."""
     # default to person-based
-    records, applied, filter_tree = get_filtered_data(base="person", raw_filters=[])
+    records, applied, filter_tree, columns = get_filtered_data(base="person", raw_filters=[])
     # send initial column list if you wish to prerender the grid
-    columns = [{"title": col, "field": col} for col in (pd.DataFrame(records).columns)]
     return render(request, "enhanced_filter.html", {
         "filter_tree": filter_tree,
         "applied": applied,
@@ -101,7 +624,7 @@ def filter_results(request):
     raw_filters= payload.get("filters", [])
 
     # reuse the exact same logic
-    records, applied, filter_tree = get_filtered_data(base, raw_filters)
+    records, applied, filter_tree, columns = get_filtered_data(base, raw_filters)
 
     # re-render your sidebar
     filters_html = render_to_string(
@@ -112,14 +635,13 @@ def filter_results(request):
 
     # prepare grid payload
     df      = pd.DataFrame(records)
-    grid    = {
-      "data":    records,
-      "columns": [{"title": c, "field": c} for c in df.columns],
-    }
 
     return JsonResponse({
       "filters_html": filters_html,
-      "grid":         grid,
+      "grid": {
+          "data":   records,
+          "columns": columns,
+        },
     })
 
 @csrf_exempt
