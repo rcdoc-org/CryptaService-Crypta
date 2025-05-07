@@ -6,6 +6,8 @@
     const baseRadios        = document.getElementsByName('baseToggle');
     const columnForm        = document.getElementById('columnForm');
     const applyBtn          = document.getElementById('applyColumnsBtn');
+
+    let lastBase = null;
     
     let currentColumns      = [];   // will hold {title, field}[]
 
@@ -18,6 +20,21 @@
             ).map(chk => chk.value);
         const base = Array.from(baseRadios).find(r => r.checked).value;
         return { base, filters: checked };
+    }
+
+    function clearFilters() {
+        filterSidebar
+            .querySelectorAll('input.filter-checkbox:checked')
+            .forEach(cb => cb.checked = false);
+
+        document.getElementById('activeFilters').innerHTML = '';
+
+        lastBase = null;
+    }
+
+    function toggle() {
+        clearFilters();
+        updateView();
     }
 
     // 2) Replace the sidebar HTML wholesale with the server-rendered version
@@ -63,6 +80,8 @@
     // and table
     function updateView() {
         const data = gatherFilters();
+        const baseChanged = data.base !== lastBase;
+        lastBase = data.base;
 
         fetch(filterURL, {
             method: 'POST',
@@ -82,23 +101,69 @@
             renderActiveFilters(freshData);
 
             renderActiveFilters(data);
-            // 2) Initialize or update Tabulator
-            if (!table) {
-            table = new Tabulator('#data-grid', {
-                layout: 'fitColumns',
-                data: payload.grid.data,
-                columns: payload.grid.columns,
-                placeholder: 'No Data Available',
-            });
-            } else {
-            table.setColumns(payload.grid.columns);
-            table.setData(payload.grid.data);
-            }
 
-            // 3) Capture current columns & update modal form
-            currentColumns = payload.grid.columns;
+            // Grab dyanmic columns from server
+            const dynamicCols = payload.grid.columns;
+
+            // define always-visible Details Column
+            const detailCol = {
+                titleFormatter: "html",
+                title: "<i class='fas fa-search'></i>",
+                headerSort: false,
+                hozAlign: "center",
+                width: 40,
+                formatter: cell => "<i class='fas fa-search'></i>",
+                cellClick: (e, cell) => {
+                    const rowData = cell.getRow().getData();
+                    showDetailModal(rowData);
+                },
+            };
+
+            // inital-only fields
+            const defaults = data.base === "person"
+                ? ["name_first", "name_middle", "name_last", "personType"]
+                : ["name", "type"];
+            
+            // merge detailCol + dynamicCols, tagging each dynamic col with visible:true/false
+            const allCols = [
+                detailCol,
+                ...dynamicCols.map(col => ({
+                ...col,
+                visible: defaults.includes(col.field)   // true for default, false otherwise
+                }))
+            ];
+
+            // —— initialize or re-initialize on base change
+            if (!table || baseChanged) {
+                if (!table) {
+                // very first creation
+                table = new Tabulator("#data-grid", {
+                    layout: "fitColumns",
+                    data: payload.grid.data,
+                    columns: allCols,
+                    placeholder: "No Data Available",
+                });
+                } else {
+                // base just flipped
+                table.setColumns(allCols);
+                table.setData(payload.grid.data);
+                }
+            } else {
+                // normal filter refresh
+                table.setColumns(allCols); 
+                table.setData(payload.grid.data);
+                }
+
+            currentColumns = dynamicCols;
             populateColumnForm();
         });
+    }
+
+    function showDetailModal(data) {
+        const body = JSON.stringify(data, null, 2);
+        document.getElementById('detailModalBody').textContent = body;
+        const modal = new bootstrap.Modal(document.getElementById('detailModal'));
+        modal.show();
     }
 
     // 5) Build the column-chooser form inside the modal
@@ -187,6 +252,7 @@
             {el: document.getElementById('diocesanEmail'), label: 'Diocesan Emails'},
         ];
 
+        // Sending email logic And confirmtion boxes.
         sendBtn.addEventListener('click', async (e) => {
             e.preventDefault();
 
@@ -251,7 +317,7 @@
         auto_grow(bodyEl)
         bodyEl.addEventListener('input', () => auto_grow(bodyEl));
 
-        // When "Apply" is clicked, show/hide columns then close modal
+        // When "Apply" is clicked for column display modal, show/hide columns then close modal
         applyBtn.addEventListener('click', () => {
             const checkFields = Array.from(columnForm.querySelectorAll('input:checked'))
                                     .map(i=>i.value);
@@ -273,7 +339,7 @@
 
         // Whenever a filter checkbox or the base-toggle radio changes, re-fetch
         filterSidebar.addEventListener('change', updateView);
-        baseRadios.forEach(r => r.addEventListener('change', updateView));
+        baseRadios.forEach(r => r.addEventListener('change', toggle));
 
         // Delegate toggle and checkbox events
         updateView();
