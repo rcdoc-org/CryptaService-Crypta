@@ -156,6 +156,12 @@
 
             currentColumns = dynamicCols;
             populateColumnForm();
+
+
+            // Result determining and updating of the header for results
+            const rowCount = payload.grid.data.length;
+            const headerEl = document.getElementById('results-header');
+            headerEl.textContent = `Results (${rowCount})`; 
         });
     }
 
