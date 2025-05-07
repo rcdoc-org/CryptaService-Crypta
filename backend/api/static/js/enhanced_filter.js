@@ -377,6 +377,12 @@
         filterSidebar.addEventListener('change', updateView);
         baseRadios.forEach(r => r.addEventListener('change', toggle));
 
+        // ensure we populate everytime the modal opens
+        const colModalEl = document.getElementById('columnModal');
+        colModalEl.addEventListener('show.bs.modal', () => {
+            populateColumnForm();
+        });
+
         // Delegate toggle and checkbox events
         updateView();
         }
