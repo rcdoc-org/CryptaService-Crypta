@@ -35,6 +35,173 @@ def get_filtered_data(base, raw_filters):
       - applied: dict mapping field → [values]
       - filter_tree: list of { field, display, options }
     """
+    
+    FIELD_CATEGORIES = {
+        # PERSON ONLY
+        # — Basic info —
+        "Full Name":          "Basic",
+        "First Name":         "Basic",
+        "Middle Name":        "Basic",
+        "Last Name":          "Basic",
+        "Person Type":        "Basic",
+        "Prefix":             "Basic",
+        "Suffix":             "Basic",
+
+        # — Dates —
+        "Birth Date":         "Dates",
+        "Baptism Date":       "Dates",
+        "Retirement Date":    "Dates",
+        "Deceased Date":      "Dates",
+
+        # — Flags —
+        "Safe Env Trng":      "Flags",
+        "Paid Employee":      "Flags",
+        "Is Priest?":         "Flags",
+        "Is Deacon?":         "Flags",
+        "Is Lay?":            "Flags",
+
+        # — Addresses —
+        "Residence Addr":     "Residence Info",
+        "Residence City":     "Residence Info",
+        "Residence State":     "Residence Info",
+        "Residence Zip Code":     "Residence Info",
+        "Residence Country":     "Residence Info",
+        "Mailing Addr":       "Mailing Info",
+        "Mailing City":       "Mailing Info",
+        "Mailing State":       "Mailing Info",
+        "Mailing Zip Code":       "Mailing Info",
+        "Mailing Country":       "Mailing Info",
+
+        # — Contact —
+        "Personal Emails":    "Contact",
+        "Parish Emails":      "Contact",
+        "Diocesan Emails":    "Contact",
+        "Cell Phones":        "Contact",
+        "Home Phones":        "Contact",
+
+        # — Skills & Education —
+        "Languages":          "Skills",
+        "Degrees":            "Skills",
+        "Faculties Grants":   "Skills",
+
+        # — History —
+        "Status History":     "History",
+        "Titles":             "History",
+        "Assignments":        "History",
+        "Relationships":      "History",
+
+        # — Priest Details —
+        "Priest Ordination":      "Priest Details",
+        "Diocesan/Religious":      "Priest Details",
+        "Place of Baptism":        "Priest Details",
+        "Birth (City,State)":      "Priest Details",
+        "Priest Notes":            "Priest Details",
+        
+        # LOCATION ONLY
+        # Basic
+        "Name":            "Basic",
+        "Type":            "Basic",
+
+        # Jurisdiction
+        "Vicariate":       "Location Info",
+        "County":          "Location Info",
+
+        # Address
+        "Physical Addr":   "Address",
+
+        # Contact
+        "Website":         "Contact",
+        "Emails":          "Contact",
+        "Phones":          "Contact",
+
+        # Church Details
+        "Parish Name":     "Church Details",
+        "Is Mission":      "Church Details",
+        "Boundary File":   "Church Details",
+        "City Served":     "Church Details",
+        "Date Established":"Church Details",
+        "First Dedication":"Church Details",
+        "Second Dedication":"Church Details",
+        "Church Notes":    "Church Details",
+        
+        # School Details
+        "School Code":          "School Details",
+        "School Type":          "School Details",
+        "Grade Levels":         "School Details",
+        "Affiliated Parish":    "School Details",
+        "MACS School":          "School Details",
+        "Priests Teaching":     "School Details",
+        "Brothers Teaching":    "School Details",
+        "Sisters Teaching":     "School Details",
+        "Lay Staff Teaching":   "School Details",
+        "Canonical Status":     "School Details",
+        "Chapel on Site":       "School Details",
+
+        # Services
+        "Mass Languages":          "Services",
+        "Campus Mass At Parish":   "Services",
+        "Served By":               "Services",
+        "Mass Schedule":           "Services",
+        "Hours":                   "Services",
+        "Facility Type":           "Services",
+        "Diocese":                 "Services",
+        "Parish Boundary":         "Services",
+        "Is Other Entity":         "Services",
+
+        # Relations
+        "Missions":       "Relations",
+        "Parishes":       "Relations",
+
+        #Statistics
+        "% Full-Time Deacons":          "Statistics",
+        "% Full-Time Brothers":         "Statistics",
+        "% Full-Time Sisters":          "Statistics",
+        "% Full-Time Lay":              "Statistics",
+        "% Part-Time Staff":            "Statistics",
+        "% Volunteers":                 "Statistics",
+        "Registered Households":        "Statistics",
+        "Max Mass Size":                "Statistics",
+        "Seating Capacity":             "Statistics",
+        "Baptisms 1-7":                 "Statistics",
+        "Baptisms 8-17":                "Statistics",
+        "Baptisms 18+":                 "Statistics",
+        "Full Communion RCIA":          "Statistics",
+        "First Communion":              "Statistics",
+        "Confirmation":                 "Statistics",
+        "Catholic Marriages":           "Statistics",
+        "Interfaith Marriages":         "Statistics",
+        "Deaths":                       "Statistics",
+        "Children in Faith Formation":  "Statistics",
+        "Kids: PreK - 5":               "Statistics",
+        "Kids: 6-8":                    "Statistics",
+        "Kids: 9-12":                   "Statistics",
+        "Youth Ministy":                "Statistics",
+        "Adult Education":              "Statistics",
+        "Adult Sacrament Prep":         "Statistics",
+        "# Paid Catechists":            "Statistics",
+        "# Volunteer Catechists":       "Statistics",
+        "RCIA/RCIC":                    "Statistics",
+        "# Volunteers Youth":           "Statistics",
+        "% African":                    "Statistics",
+        "% African-American":           "Statistics",
+        "% Asian":                      "Statistics",
+        "% Hispanic":                   "Statistics",
+        "% American-Indian":            "Statistics",
+        "% Other":                      "Statistics",
+        "Estimate Census?":             "Statistics",
+        "# Referrals to Catholic Charities":            "Statistics",
+        "HomeSchool Program?":          "Statistics",
+        "Child Care Day Care?":         "Statistics",
+        "Scouting Program?":            "Statistics",
+        "Chapel on Campus?":            "Statistics",
+        "Adoration Chapel on Campus?":  "Statistics",
+        "Columbarium on Site?":         "Statistics",
+        "Cemetery on Site?":            "Statistics",
+        "School on Site?":              "Statistics",
+        "NonParochial School Using Facilities?":        "Statistics",
+        
+    }
+    
     # 1) Base queryset
     qs = Location.objects.all() if base == "location" else Person.objects.all()
 
@@ -112,6 +279,7 @@ def get_filtered_data(base, raw_filters):
                 "campusMinistry_location",
                 "hospital_location",
                 "otherentity_detail_set",
+                "school_location",
                 
                 # assignments:
                 "assignment_set",
@@ -256,67 +424,6 @@ def get_filtered_data(base, raw_filters):
                     else {}
                     ),
             }
-
-            category = {
-                # — Basic info —
-                "Full Name":          "Basic",
-                "First Name":         "Basic",
-                "Middle Name":        "Basic",
-                "Last Name":          "Basic",
-                "Person Type":        "Basic",
-                "Prefix":             "Basic",
-                "Suffix":             "Basic",
-
-                # — Dates —
-                "Birth Date":         "Dates",
-                "Baptism Date":       "Dates",
-                "Retirement Date":    "Dates",
-                "Deceased Date":      "Dates",
-
-                # — Flags —
-                "Safe Env Trng":      "Flags",
-                "Paid Employee":      "Flags",
-                "Is Priest?":         "Flags",
-                "Is Deacon?":         "Flags",
-                "Is Lay?":            "Flags",
-
-                # — Addresses —
-                "Residence Addr":     "Residence Info",
-                "Residence City":     "Residence Info",
-                "Residence State":     "Residence Info",
-                "Residence Zip Code":     "Residence Info",
-                "Residence Country":     "Residence Info",
-                "Mailing Addr":       "Mailing Info",
-                "Mailing City":       "Mailing Info",
-                "Mailing State":       "Mailing Info",
-                "Mailing Zip Code":       "Mailing Info",
-                "Mailing Country":       "Mailing Info",
-
-                # — Contact —
-                "Personal Emails":    "Contact",
-                "Parish Emails":      "Contact",
-                "Diocesan Emails":    "Contact",
-                "Cell Phones":        "Contact",
-                "Home Phones":        "Contact",
-
-                # — Skills & Education —
-                "Languages":          "Skills",
-                "Degrees":            "Skills",
-                "Faculties Grants":   "Skills",
-
-                # — History —
-                "Status History":     "History",
-                "Titles":             "History",
-                "Assignments":        "History",
-                "Relationships":      "History",
-
-                # — Priest Details —
-                "Priest Ordination":      "Priest Details",
-                "Diocesan/Religious":      "Priest Details",
-                "Place of Baptism":        "Priest Details",
-                "Birth (City,State)":      "Priest Details",
-                "Priest Notes":            "Priest Details",
-            }
         else:
             rec = {
                 # — Basic info —
@@ -367,6 +474,7 @@ def get_filtered_data(base, raw_filters):
 
             # — Church‐specific details (if any) —
             cd = obj.churchDetail_location.first()
+            
             if cd:
                 rec.update({
                     "Parish Name":       cd.parishUniqueName,
@@ -399,65 +507,92 @@ def get_filtered_data(base, raw_filters):
                 rec.update({
                     "Facility Type":   hd.facilityType,
                     "Diocese":         hd.diocese,
-                    "Parish Boundary": hd.lkp_parishBoundary_id.name if hd.lkp_parishBoundary_id else "",
+                    "Parish Boundary": hd.lkp_parishBoundary.name if hd.lkp_parishBoundary.name else "",
                 })
-                
-            category = {
-                # Basic
-                "Name":            "Basic",
-                "Type":            "Basic",
 
-                # Jurisdiction
-                "Vicariate":       "Location Info",
-                "County":          "Location Info",
+            sc = obj.school_location.first()
+            if sc:
+                rec.update({
+                    "School Code":      sc.schoolCode,
+                    "School Type":      sc.schoolType,
+                    "Grade Levels":     sc.gradeLevels,
+                    "MACS School":      sc.is_MACS,
+                    "Priests Teaching": sc.academicPriest,
+                    "Brothers Teaching":    sc.academicBrother,
+                    "Sisters Teaching": sc.academicSister,
+                    "Lay Staff Teaching":   sc.academicLay,
+                    "Canonical Status": sc.canonicalStatus,
+                    "Chapel on Site":   sc.is_schoolChapel,
+                })
+            
+            sa = obj.statusAnimarum_church.first()
+            if sa:
+                rec.update({
+                    "% Full-Time Deacons":  sa.percentFullTime_deacons,
+                    "% Full-Time Brothers":  sa.percentFullTime_brothers,
+                    "% Full-Time Sisters":  sa.percentFullTime_sisters,
+                    "% Full-Time Lay":  sa.percentFullTime_other,
+                    "% Part-Time Staff":  sa.percentPartTime_staff,
+                    "% Volunteers":  sa.percent_volunteers,
+                    "Registered Households":  sa.registeredHouseholds,
+                    "Max Mass Size":  sa.maxMass,
+                    "Seating Capacity":  sa.seatingCapacity,
+                    "Baptisms 1-7":  sa.baptismAge_1_7,
+                    "Baptisms 8-17":  sa.baptismAge_8_17,
+                    "Baptisms 18+":  sa.baptismAge_18,
+                    "Full Communion RCIA":  sa.fullCommunionRCIA,
+                    "First Communion":  sa.firstCommunion,
+                    "Confirmation":  sa.confirmation,
+                    "Catholic Marriages":  sa.marriage_catholic,
+                    "Interfaith Marriages":  sa.marriage_interfaith,
+                    "Deaths":  sa.deaths,
+                    "Children in Faith Formation":  sa.childrenInFaithFormation,
+                    "Kids: PreK - 5":  sa.school_prek_5,
+                    "Kids: 6-8":  sa.school_grade6_8,
+                    "Kids: 9-12":  sa.school_grade9_12,
+                    "Youth Ministy":  sa.youthMinistry,
+                    "Adult Education":  sa.adult_education,
+                    "Adult Sacrament Prep":  sa.adult_sacramentPrep,
+                    "# Paid Catechists":  sa.catechist_paid,
+                    "# Volunteer Catechists":  sa.catechist_vol,
+                    "RCIA/RCIC":  sa.rcia_rcic,
+                    "# Volunteers Youth":  sa.volunteersWorkingYouth,
+                    "% African":  sa.percent_african,
+                    "% African-American":  sa.percent_africanAmerican,
+                    "% Asian":  sa.percent_asian,
+                    "% Hispanic":  sa.percent_hispanic,
+                    "% American-Indian":  sa.percent_americanIndian,
+                    "% Other":  sa.percent_other,
+                    "Estimate Census?":  sa.is_censusEstimate,
+                    "# Referrals to Catholic Charities":  sa.referrals_catholicCharities,
+                    "HomeSchool Program?":  sa.has_homeschoolProgram,
+                    "Child Care Day Care?":  sa.has_chileCareDayCare,
+                    "Scouting Program?":  sa.has_scoutingProgram,
+                    "Chapel on Campus?":  sa.has_chapelOnCampus,
+                    "Adoration Chapel on Campus?":  sa.has_adorationChapelOnCampus,
+                    "Columbarium on Site?":  sa.has_columbarium,
+                    "Cemetery on Site?":  sa.has_cemetary,
+                    "School on Site?":  sa.has_schoolOnSite,
+                    "NonParochial School Using Facilities?":  sa.is_nonParochialSchoolUsingFacilities,
+                })
 
-                # Address
-                "Physical Addr":   "Address",
-                "Mailing Addr":    "Address",
 
-                # Contact
-                "Website":         "Contact",
-                "Emails":          "Contact",
-                "Phones":          "Contact",
-
-                # History
-                "Status History":  "History",
-                "Assignments":     "History",
-
-                # Church Details
-                "Parish Name":     "Church Details",
-                "Is Mission":      "Church Details",
-                "Boundary File":   "Church Details",
-                "City Served":     "Church Details",
-                "Date Established":"Church Details",
-                "First Dedication":"Church Details",
-                "Second Dedication":"Church Details",
-                "Church Notes":    "Church Details",
-
-                # Services
-                "Mass Languages":          "Services",
-                "Campus Mass At Parish":   "Services",
-                "Served By":               "Services",
-                "Mass Schedule":           "Services",
-                "Hours":                   "Services",
-                "Facility Type":           "Services",
-                "Diocese":                 "Services",
-                "Parish Boundary":         "Services",
-                "Is Other Entity":         "Services",
-
-                # Relations
-                "Missions":       "Relations",
-                "Parishes":       "Relations",
-            }
-
-        # build the column-metadata once
-        if not records:
-            columns = [
-                {"title": title, "field": title, "category": category[title]}
-                for title in rec.keys()
-            ]
         records.append(rec)
 
+    all_fields = []
+    for r in records:
+        for key in r.keys():
+            if key not in all_fields:
+                all_fields.append(key)
+    
+    columns = [
+        {
+            "title":    key,
+            "field":    key,
+            "category": FIELD_CATEGORIES.get(key, "Other")
+        }
+        for key in all_fields
+    ]
     # build your filter_tree as before…
     # return also the `columns` list
     return records, applied, filter_tree, columns
