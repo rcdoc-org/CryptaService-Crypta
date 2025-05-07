@@ -186,6 +186,7 @@
         accordion.id = "columnsAccordion";
 
         Object.entries(byCat).forEach(([cat, cols], idx) => {
+            const count = cols.length
             const item = document.createElement("div");
             item.className = "accordion-item";
             item.innerHTML = `
@@ -196,7 +197,7 @@
                         data-bs-target="#collapse${idx}"
                         aria-expanded="${idx===0}"
                         aria-controls="collapse${idx}">
-                ${cat}
+                ${cat} (${count})
                 </button>
             </h2>
             <div id="collapse${idx}"
