@@ -2,6 +2,7 @@ import json
 import os
 from datetime import datetime
 import logging
+from itertools import groupby
 import pandas as pd
 from django.http import JsonResponse
 from django.conf import settings
@@ -69,16 +70,97 @@ def get_filtered_data(base, raw_filters):
             })
 
     # 5) Records for your grid/DataFrame
-    field_names = [field.name for field in qs.model._meta.fields]
-    records = list(qs.values(*field_names))  # example
-    return records, applied, filter_tree
+    if base == "person":
+        qs = qs.select_related(
+                "lkp_residence_id", "lkp_mailing_id"
+            ).prefetch_related(
+                "person_email_set", "person_phone_set", "person_language_set"
+            )
+    else:
+        qs = qs.select_related(
+                "lkp_physicalAddress_id", "lkp_mailingAddress_id",
+                "lkp_vicariate_id", "lkp_county_id"
+            ).prefetch_related(
+                "location_email_set", "location_phone_set"
+            )
+
+    records = []
+    for obj in qs:
+        if base == "person":
+            rec = {
+                "First Name":       obj.name_first,
+                "Middle Name":      obj.name_middle or "",
+                "Last Name":        obj.name_last,
+                # flatten addresses
+                "Residence City":   obj.lkp_residence_id.city if obj.lkp_residence_id else "",
+                "Mailing City":     obj.lkp_mailing_id.city if obj.lkp_mailing_id else "",
+                # aggregate emails by type
+                "Personal Emails":  ", ".join(
+                    e.email for e in obj.person_email_set.filter(lkp_emailType_id__name__iexact="Personal")
+                ),
+                "Parish Emails":    ", ".join(
+                    e.email for e in obj.person_email_set.filter(lkp_emailType_id__name__iexact="Parish")
+                ),
+                # phones
+                "Cell Phones":      ", ".join(
+                    p.phoneNumber for p in obj.person_phone_set.filter(lkp_phoneType_id__name__iexact="Cell")
+                ),
+                # languages
+                "Languages":        ", ".join(
+                    f"{pl.lkp_language_id.name} ({pl.lkp_languageProficiency_id.name})"
+                    for pl in obj.person_language_set.all()
+                ),
+                # … any other joins you want …
+            }
+            category = {
+                "First Name": "Basic",
+                "Middle Name":"Basic",
+                "Last Name":   "Basic",
+                "Residence City":"Mailing Info",
+                "Mailing City":"Mailing Info",
+                "Personal Emails":"Contact",
+                "Parish Emails":"Contact",
+                "Cell Phones":"Contact",
+                "Languages":"Skills",
+            }
+        else:
+            rec = {
+                "Name":            obj.name,
+                "Type":            obj.type,
+                "Physical City":   obj.lkp_physicalAddress_id.city if obj.lkp_physicalAddress_id else "",
+                "Mailing City":    obj.lkp_mailingAddress_id.city if obj.lkp_mailingAddress_id else "",
+                "Website":         obj.website or "",
+                "Emails":          ", ".join(e.email for e in obj.location_email_set.all()),
+                "Phones":          ", ".join(p.phoneNumber for p in obj.location_phone_set.all()),
+                # …
+            }
+            category = {
+                "Name":"Basic",
+                "Type":"Basic",
+                "Physical City":"Address",
+                "Mailing City":"Address",
+                "Website":"Contact",
+                "Emails":"Contact",
+                "Phones":"Contact",
+            }
+
+        # build the column-metadata once
+        if not records:
+            columns = [
+                {"title": title, "field": title, "category": category[title]}
+                for title in rec.keys()
+            ]
+        records.append(rec)
+
+    # build your filter_tree as before…
+    # return also the `columns` list
+    return records, applied, filter_tree, columns
 
 def enhanced_filter_view(request):
     """Initial page load: no filters yet."""
     # default to person-based
-    records, applied, filter_tree = get_filtered_data(base="person", raw_filters=[])
+    records, applied, filter_tree, columns = get_filtered_data(base="person", raw_filters=[])
     # send initial column list if you wish to prerender the grid
-    columns = [{"title": col, "field": col} for col in (pd.DataFrame(records).columns)]
     return render(request, "enhanced_filter.html", {
         "filter_tree": filter_tree,
         "applied": applied,
@@ -101,7 +183,7 @@ def filter_results(request):
     raw_filters= payload.get("filters", [])
 
     # reuse the exact same logic
-    records, applied, filter_tree = get_filtered_data(base, raw_filters)
+    records, applied, filter_tree, columns = get_filtered_data(base, raw_filters)
 
     # re-render your sidebar
     filters_html = render_to_string(
