@@ -74,14 +74,67 @@ def get_filtered_data(base, raw_filters):
         qs = qs.select_related(
                 "lkp_residence_id", "lkp_mailing_id"
             ).prefetch_related(
-                "person_email_set", "person_phone_set", "person_language_set"
+                # built-in reverse FK sets:
+                "person_email_set",
+                "person_phone_set",
+                "person_language_set",
+                "person_facultiesgrant_set",
+                "person_title_set", 
+                "person_status_set",
+                "person_degreecertificate_set",
+                
+                # detail tables:
+                "deacon_detail_set",
+                "lay_detail_set",
+                "priest_detail_set",
+                
+                # assignments & vicariate:
+                "assignment_set",
+                "vicariate_set",
+                
+                # explicit related_names on person_relationship:
+                "first_person",
+                "second_person",
             )
     else:
         qs = qs.select_related(
                 "lkp_physicalAddress_id", "lkp_mailingAddress_id",
                 "lkp_vicariate_id", "lkp_county_id"
             ).prefetch_related(
-                "location_email_set", "location_phone_set"
+                # built-in reverse FK sets:
+                "location_email_set",
+                "location_phone_set",
+                "location_status_set",
+                "church_language_set",
+
+                # detail tables:
+                "churchDetail_location",
+                "campusMinistry_location",
+                "hospital_location",
+                "otherentity_detail_set",
+                
+                # assignments:
+                "assignment_set",
+                
+                # Location Relationships
+                "churchDetail_mission",
+                "campusMinistry_church",
+                "hospital_boundary",
+                "mission",
+                "parish",
+                
+                # baptism place
+                "priest_detail_set",
+                
+                #schools
+                "school_affiliatedParish",
+                "school_parishProperty",
+                
+                # Statistics
+                "enrollment_set",
+                "octoberCount_church",
+                "statusAnimarum_church",
+                
             )
 
     records = []
