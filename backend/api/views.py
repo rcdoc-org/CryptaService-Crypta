@@ -141,40 +141,181 @@ def get_filtered_data(base, raw_filters):
     for obj in qs:
         if base == "person":
             rec = {
+                # core Person fields
+                "Full Name":        obj.name,
                 "First Name":       obj.name_first,
-                "Middle Name":      obj.name_middle or "",
+                "Middle Name":      obj.name_middle,
                 "Last Name":        obj.name_last,
-                # flatten addresses
-                "Residence City":   obj.lkp_residence_id.city if obj.lkp_residence_id else "",
-                "Mailing City":     obj.lkp_mailing_id.city if obj.lkp_mailing_id else "",
-                # aggregate emails by type
-                "Personal Emails":  ", ".join(
-                    e.email for e in obj.person_email_set.filter(lkp_emailType_id__name__iexact="Personal")
-                ),
-                "Parish Emails":    ", ".join(
-                    e.email for e in obj.person_email_set.filter(lkp_emailType_id__name__iexact="Parish")
-                ),
-                # phones
-                "Cell Phones":      ", ".join(
-                    p.phoneNumber for p in obj.person_phone_set.filter(lkp_phoneType_id__name__iexact="Cell")
-                ),
+                "Person Type":      obj.personType,
+                "Prefix":           obj.prefix or "",
+                "Suffix":           obj.suffix or "",
+                "Birth Date":       obj.date_birth and obj.date_birth.isoformat() or "",
+                "Baptism Date":     obj.date_baptism and obj.date_baptism.isoformat() or "",
+                "Retirement Date":  obj.date_retired and obj.date_retired.isoformat() or "",
+                "Deceased Date":    obj.date_deceased and obj.date_deceased.isoformat() or "",
+                "Safe Env Trng":    obj.is_safeEnvironmentTraining,
+                "Paid Employee":    obj.is_paidEmployee,
+
+                # flattened addresses
+                "Residence Addr":   obj.lkp_residence_id and obj.lkp_residence_id.address1 or "",
+                "Residence City":   obj.lkp_residence_id and obj.lkp_residence_id.city or "",
+                "Residence State":  obj.lkp_residence_id and obj.lkp_residence_id.state or "",
+                "Residence Zip Code":   obj.lkp_residence_id and obj.lkp_residence_id.zip_code or "",
+                "Residence Country":    obj.lkp_residence_id and obj.lkp_residence_id.country or "",    
+                "Mailing Addr":     obj.lkp_mailing_id and obj.lkp_mailing_id.address1 or "",
+                "Mailing City":     obj.lkp_mailing_id and obj.lkp_mailing_id.city or "",
+                "Mailing State":    obj.lkp_mailing_id and obj.lkp_mailing_id.state or "",
+                "Mailing Zip Code": obj.lkp_mailing_id and obj.lkp_mailing_id.zip_code or "",
+                "Mailing Country":  obj.lkp_mailing_id and obj.lkp_mailing_id.country or "",
+
+                # emails & phones
+                "Personal Emails":  ", ".join(e.email for e in obj.person_email_set
+                                                .filter(lkp_emailType_id__name__iexact="Personal")),
+                "Parish Emails":    ", ".join(e.email for e in obj.person_email_set
+                                                .filter(lkp_emailType_id__name__iexact="Parish")),
+                "Diocesan Emails":  ", ".join(e.email for e in obj.person_email_set
+                                                .filter(lkp_emailType_id__name__iexact="Diocesan")),
+
+                "Cell Phones":      ", ".join(p.phoneNumber for p in obj.person_phone_set
+                                                .filter(lkp_phoneType_id__name__iexact="Cell")),
+                "Home Phones":      ", ".join(p.phoneNumber for p in obj.person_phone_set
+                                                .filter(lkp_phoneType_id__name__iexact="Home")),
+
                 # languages
                 "Languages":        ", ".join(
-                    f"{pl.lkp_language_id.name} ({pl.lkp_languageProficiency_id.name})"
-                    for pl in obj.person_language_set.all()
-                ),
-                # … any other joins you want …
+                                    f"{pl.lkp_language_id.name} ({pl.lkp_languageProficiency_id.name})"
+                                    for pl in obj.person_language_set.all()
+                                ),
+
+                # degrees & certificates
+                "Degrees":          "; ".join(
+                                    f"{dc.lkp_degreeCertificate_id.institute}"
+                                    f" (acquired {dc.date_acquired}, expires {dc.date_expiration})"
+                                    for dc in obj.person_degreecertificate_set.all()
+                                ),
+
+                # faculties grants
+                "Faculties Grants": "; ".join(
+                                    f"{fg.lkp_faultiesGrantType_id.name}"
+                                    f" (granted {fg.date_granted})"
+                                    for fg in obj.person_facultiesgrant_set.all()
+                                    ),
+
+                # status history
+                "Status History":   "; ".join(
+                                    f"{st.lkp_status_id.name}"
+                                    f" ({st.date_assigned} → {st.date_released or 'present'})"
+                                    for st in obj.person_status_set.all()
+                                ),
+
+                # titles
+                "Titles":           "; ".join(
+                                    f"{t.lkp_title_id.name}"
+                                    f" ({t.date_assigned} → {t.date_expiration or 'present'})"
+                                    for t in obj.person_title_set.all()
+                                ),
+
+                # assignments
+                "Assignments":      "; ".join(
+                                    f"{a.lkp_assignmentType_id.title}@{a.lkp_location_id.name}"
+                                    f" (term {a.term}, {a.date_assigned}→{a.date_released or 'present'})"
+                                    for a in obj.assignment_set.all()
+                                ),
+
+                # relationships (both directions)
+                "Relationships":    "; ".join(
+                                    f"{rel.lkp_relationshipType_id.name}: "
+                                    f"{(rel.lkp_secondPerson_id if rel in obj.first_person.all() else rel.lkp_firstPerson_id).name}"
+                                    for rel in list(obj.first_person.all()) + list(obj.second_person.all())
+                                ),
+
+                # detail flags
+                "Is Priest?":       obj.priest_detail_set.exists(),
+                "Is Deacon?":       obj.deacon_detail_set.exists(),
+                "Is Lay?":          obj.lay_detail_set.exists(),
+
+                # priest‐specific fields (if any)
+                **(
+                    {
+                        # take the first detail record
+                        "Priest Ordination": 
+                            pd.date_priestOrdination.isoformat() 
+                                if pd.date_priestOrdination else "",
+                        "Diocesan/Religious": 
+                            pd.diocesanReligious or "",
+                        "Place of Baptism":   
+                            pd.lkp_placeOfBaptism_id.name 
+                                if pd.lkp_placeOfBaptism_id else "",
+                        "Birth (City,State)":  
+                            f"{pd.birth_city or ''}, {pd.birth_state or ''}",
+                        "Priest Notes":        
+                            pd.notes or "",
+                        # …and guard any other fields the same way…
+                    }
+                    if (pd := obj.priest_detail_set.first())
+                    else {}
+                    ),
             }
+
             category = {
-                "First Name": "Basic",
-                "Middle Name":"Basic",
-                "Last Name":   "Basic",
-                "Residence City":"Mailing Info",
-                "Mailing City":"Mailing Info",
-                "Personal Emails":"Contact",
-                "Parish Emails":"Contact",
-                "Cell Phones":"Contact",
-                "Languages":"Skills",
+                # — Basic info —
+                "Full Name":          "Basic",
+                "First Name":         "Basic",
+                "Middle Name":        "Basic",
+                "Last Name":          "Basic",
+                "Person Type":        "Basic",
+                "Prefix":             "Basic",
+                "Suffix":             "Basic",
+
+                # — Dates —
+                "Birth Date":         "Dates",
+                "Baptism Date":       "Dates",
+                "Retirement Date":    "Dates",
+                "Deceased Date":      "Dates",
+
+                # — Flags —
+                "Safe Env Trng":      "Flags",
+                "Paid Employee":      "Flags",
+                "Is Priest?":         "Flags",
+                "Is Deacon?":         "Flags",
+                "Is Lay?":            "Flags",
+
+                # — Addresses —
+                "Residence Addr":     "Residence Info",
+                "Residence City":     "Residence Info",
+                "Residence State":     "Residence Info",
+                "Residence Zip Code":     "Residence Info",
+                "Residence Country":     "Residence Info",
+                "Mailing Addr":       "Mailing Info",
+                "Mailing City":       "Mailing Info",
+                "Mailing State":       "Mailing Info",
+                "Mailing Zip Code":       "Mailing Info",
+                "Mailing Country":       "Mailing Info",
+
+                # — Contact —
+                "Personal Emails":    "Contact",
+                "Parish Emails":      "Contact",
+                "Diocesan Emails":    "Contact",
+                "Cell Phones":        "Contact",
+                "Home Phones":        "Contact",
+
+                # — Skills & Education —
+                "Languages":          "Skills",
+                "Degrees":            "Skills",
+                "Faculties Grants":   "Skills",
+
+                # — History —
+                "Status History":     "History",
+                "Titles":             "History",
+                "Assignments":        "History",
+                "Relationships":      "History",
+
+                # — Priest Details —
+                "Priest Ordination":      "Priest Details",
+                "Diocesan/Religious":      "Priest Details",
+                "Place of Baptism":        "Priest Details",
+                "Birth (City,State)":      "Priest Details",
+                "Priest Notes":            "Priest Details",
             }
         else:
             rec = {
