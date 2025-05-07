@@ -239,20 +239,20 @@ def get_filtered_data(base, raw_filters):
                     {
                         # take the first detail record
                         "Priest Ordination": 
-                            pd.date_priestOrdination.isoformat() 
-                                if pd.date_priestOrdination else "",
+                            pr_det.date_priestOrdination.isoformat() 
+                                if pr_det.date_priestOrdination else "",
                         "Diocesan/Religious": 
-                            pd.diocesanReligious or "",
+                            pr_det.diocesanReligious or "",
                         "Place of Baptism":   
-                            pd.lkp_placeOfBaptism_id.name 
-                                if pd.lkp_placeOfBaptism_id else "",
+                            pr_det.lkp_placeOfBaptism_id.name 
+                                if pr_det.lkp_placeOfBaptism_id else "",
                         "Birth (City,State)":  
-                            f"{pd.birth_city or ''}, {pd.birth_state or ''}",
+                            f"{pr_det.birth_city or ''}, {pr_det.birth_state or ''}",
                         "Priest Notes":        
-                            pd.notes or "",
+                            pr_det.notes or "",
                         # …and guard any other fields the same way…
                     }
-                    if (pd := obj.priest_detail_set.first())
+                    if (pr_det := obj.priest_detail_set.first())
                     else {}
                     ),
             }
@@ -319,23 +319,135 @@ def get_filtered_data(base, raw_filters):
             }
         else:
             rec = {
-                "Name":            obj.name,
-                "Type":            obj.type,
-                "Physical City":   obj.lkp_physicalAddress_id.city if obj.lkp_physicalAddress_id else "",
-                "Mailing City":    obj.lkp_mailingAddress_id.city if obj.lkp_mailingAddress_id else "",
-                "Website":         obj.website or "",
-                "Emails":          ", ".join(e.email for e in obj.location_email_set.all()),
-                "Phones":          ", ".join(p.phoneNumber for p in obj.location_phone_set.all()),
-                # …
+                # — Basic info —
+                "Name":             obj.name,
+                "Type":             obj.type,
+
+                # — Location & jurisdiction —
+                "Vicariate":        obj.lkp_vicariate_id.name if obj.lkp_vicariate_id else "",
+                "County":           obj.lkp_county_id.name    if obj.lkp_county_id    else "",
+
+                # — Addresses —
+                "Physical Addr":    f"{obj.lkp_physicalAddress_id.address1}, "
+                                    f"{obj.lkp_physicalAddress_id.city}"
+                                    if obj.lkp_physicalAddress_id else "",
+                "Mailing Addr":     f"{obj.lkp_mailingAddress_id.address1}, "
+                                    f"{obj.lkp_mailingAddress_id.city}"
+                                    if obj.lkp_mailingAddress_id else "",
+
+                # — Contact —
+                "Website":          obj.website or "",
+                "Emails":           ", ".join(e.email for e in obj.location_email_set.all()),
+                "Phones":           ", ".join(p.phoneNumber for p in obj.location_phone_set.all()),
+
+                # — Status history —
+                "Status History":   "; ".join(
+                                        f"{st.lkp_status_id.name}"
+                                        f" ({st.date_assigned}"
+                                        f"→{st.date_released or 'present'})"
+                                        for st in obj.location_status_set.all()
+                                    ),
+                
+                # — “Other Entity” flag —
+                "Is Other Entity": obj.otherentity_detail_set.exists(),
+
+                # — Assignments & relationships —
+                "Assignments":      "; ".join(
+                                        f"{a.lkp_assignmentType_id.title}"
+                                        f"@{a.lkp_person_id.name}"
+                                        f" ({a.date_assigned}"
+                                        f"→{a.date_released or 'present'})"
+                                        for a in obj.assignment_set.all()
+                                    ),
+                "Missions":         ", ".join(m.lkp_parish_id.name
+                                        for m in obj.mission.all()),
+                "Parishes":         ", ".join(p.lkp_mission_id.name
+                                        for p in obj.parish.all()),
             }
+
+            # — Church‐specific details (if any) —
+            cd = obj.churchDetail_location.first()
+            if cd:
+                rec.update({
+                    "Parish Name":       cd.parishUniqueName,
+                    "Is Mission":        cd.is_mission,
+                    "Boundary File":     cd.boundary.name if cd.boundary else "",
+                    "City Served":       cd.cityServed or "",
+                    "Date Established":  cd.date_established.isoformat() if cd.date_established else "",
+                    "First Dedication":  cd.date_firstDedication.isoformat() if cd.date_firstDedication else "",
+                    "Second Dedication": cd.date_secondDedication.isoformat() if cd.date_secondDedication else "",
+                    "Church Notes":      cd.notes or "",
+                    "Mass Languages":   "; ".join(
+                                    f"{cl.lkp_language_id.name} @ {cl.massTime}"
+                                    for cl in obj.church_language_set.all()
+                                ),
+                }),
+
+            # — Campus ministry details (if any) —
+            cm = obj.campusMinistry_location.first()
+            if cm:
+                rec.update({
+                    "Campus Mass At Parish": cm.is_massAtParish,
+                    "Served By":             cm.universityServed or "",
+                    "Mass Schedule":         cm.sundayMassSchedule or "",
+                    "Hours":                 cm.campusMinistryHours or "",
+                })
+
+            # — Hospital details (if any) —
+            hd = obj.hospital_location.first()
+            if hd:
+                rec.update({
+                    "Facility Type":   hd.facilityType,
+                    "Diocese":         hd.diocese,
+                    "Parish Boundary": hd.lkp_parishBoundary_id.name if hd.lkp_parishBoundary_id else "",
+                })
+                
             category = {
-                "Name":"Basic",
-                "Type":"Basic",
-                "Physical City":"Address",
-                "Mailing City":"Address",
-                "Website":"Contact",
-                "Emails":"Contact",
-                "Phones":"Contact",
+                # Basic
+                "Name":            "Basic",
+                "Type":            "Basic",
+
+                # Jurisdiction
+                "Vicariate":       "Location Info",
+                "County":          "Location Info",
+
+                # Address
+                "Physical Addr":   "Address",
+                "Mailing Addr":    "Address",
+
+                # Contact
+                "Website":         "Contact",
+                "Emails":          "Contact",
+                "Phones":          "Contact",
+
+                # History
+                "Status History":  "History",
+                "Assignments":     "History",
+
+                # Church Details
+                "Parish Name":     "Church Details",
+                "Is Mission":      "Church Details",
+                "Boundary File":   "Church Details",
+                "City Served":     "Church Details",
+                "Date Established":"Church Details",
+                "First Dedication":"Church Details",
+                "Second Dedication":"Church Details",
+                "Church Notes":    "Church Details",
+
+                # Services
+                "Mass Languages":          "Services",
+                "Campus Mass At Parish":   "Services",
+                "Served By":               "Services",
+                "Mass Schedule":           "Services",
+                "Hours":                   "Services",
+                "Facility Type":           "Services",
+                "Diocese":                 "Services",
+                "Parish Boundary":         "Services",
+                "Is Other Entity":         "Services",
+
+                # Relations
+                "Missions":       "Relations",
+                "Parishes":       "Relations",
             }
 
         # build the column-metadata once
