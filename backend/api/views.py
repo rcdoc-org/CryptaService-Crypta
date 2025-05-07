@@ -388,14 +388,13 @@ def filter_results(request):
 
     # prepare grid payload
     df      = pd.DataFrame(records)
-    grid    = {
-      "data":    records,
-      "columns": [{"title": c, "field": c} for c in df.columns],
-    }
 
     return JsonResponse({
       "filters_html": filters_html,
-      "grid":         grid,
+      "grid": {
+          "data":   records,
+          "columns": columns,
+        },
     })
 
 @csrf_exempt
