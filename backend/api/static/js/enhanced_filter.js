@@ -3,7 +3,7 @@
     const csrfToken         = document.querySelector('meta[name="csrf-token"]').content;
     const filterURL         = document.querySelector('meta[name="filter-url"]').content;
     const filterSidebar     = document.getElementById('filterSidebar');
-    const baseRadios        = document.getElementsByName('baseToggle');
+    const baseSelect        = document.getElementById('baseSelect');
     const columnForm        = document.getElementById('columnForm');
     const applyBtn          = document.getElementById('applyColumnsBtn');
 
@@ -18,7 +18,7 @@
         const checked = Array.from(
             filterSidebar.querySelectorAll('input.filter-checkbox:checked')
             ).map(chk => chk.value);
-        const base = Array.from(baseRadios).find(r => r.checked).value;
+        const base = baseSelect.value;
         return { base, filters: checked };
     }
 
@@ -376,7 +376,7 @@
 
         // Whenever a filter checkbox or the base-toggle radio changes, re-fetch
         filterSidebar.addEventListener('change', updateView);
-        baseRadios.forEach(r => r.addEventListener('change', toggle));
+        baseSelect.addEventListener('change', toggle);
 
         // ensure we populate everytime the modal opens
         const colModalEl = document.getElementById('columnModal');
