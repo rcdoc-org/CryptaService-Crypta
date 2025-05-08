@@ -1,0 +1,182 @@
+{% extends "base.html" %} 
+<!-- Enter Any Style sheet imports here -->
+{% block stylesheets %}
+{% load static %}
+    <link rel="stylesheet" 
+    href="{% static 'css/details_page.css' %}" />
+{% endblock %}
+
+<!-- Change the Title here -->
+{% block title %} 
+    Details Page
+{% endblock %}
+
+<!-- Any unique styles not on the Stylesheets goes here -->
+{% block style %}
+
+{% endblock %}
+
+<!-- Any body content goes here-->
+{% block content %}
+{% load static %}
+<div class="container-fluid">
+    <div class="row">
+      <!-- LEFT PANEL -->
+      <aside class="col-md-4 p-0 aside-panel">
+        <div class="text-center p-4">
+          <img src="{% static 'images/profile.jpg' %}"
+               alt="Profile Photo"
+               class="rounded-circle mb-3"
+               width="120" height="120">
+          <h4>{{ person.name }}</h4>
+          <p class="mb-3">{{ person.job_title }}</p>
+          <button class="btn actions-btn mb-3">Actions</button>
+          <div class="d-flex justify-content-center mb-3">
+            <a href="tel:{{ person.phone }}" class="me-4">
+              <i class="fas fa-phone fa-lg"></i>
+            </a>
+            <a href="mailto:{{ person.email }}" class="me-4">
+              <i class="fas fa-envelope fa-lg"></i>
+            </a>
+            <a href="#">
+              <i class="fas fa-users fa-lg"></i>
+            </a>
+          </div>
+        </div>
+  
+        <nav class="nav flex-column px-3 mb-auto">
+          <a class="nav-link active" href="#">Summary</a>
+          <a class="nav-link" href="#">Job</a>
+          <a class="nav-link" href="#">Contact</a>
+          <a class="nav-link" href="#">Personal</a>
+          <a class="nav-link" href="#">More (9)</a>
+        </nav>
+  
+        <div class="d-flex justify-content-center py-4">
+          <a href="#" class="mx-2"><i class="fab fa-facebook fa-2x"></i></a>
+          <a href="#" class="mx-2"><i class="fab fa-linkedin fa-2x"></i></a>
+          <a href="#" class="mx-2"><i class="fab fa-twitter fa-2x"></i></a>
+        </div>
+      </aside>
+  
+      <!-- RIGHT PANEL -->
+      <main class="col-md-8 p-4">
+        <!-- top cards -->
+        <div class="row mb-4">
+          <div class="col">
+            <div class="card">
+              <div class="card-body d-flex align-items-center">
+                <i class="fas fa-map-marker-alt me-2"></i>
+                <div>
+                  <small class="text-muted">Location</small><br>
+                  <strong>{{ person.location }}</strong>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col">
+            <div class="card">
+              <div class="card-body d-flex align-items-center">
+                <i class="fas fa-user me-2"></i>
+                <div>
+                  <small class="text-muted">Manager</small><br>
+                  <strong>{{ person.manager }}</strong>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+  
+        <!-- job details -->
+        <div class="card mb-4">
+          <div class="card-body">
+            <h5 class="card-title">Job Details</h5>
+            <dl class="row">
+              <dt class="col-sm-4">Employee ID</dt>
+              <dd class="col-sm-8">{{ person.employee_id }}</dd>
+  
+              <dt class="col-sm-4">Supervisory Org.</dt>
+              <dd class="col-sm-8">{{ person.supervisory_org }}</dd>
+  
+              <dt class="col-sm-4">Position</dt>
+              <dd class="col-sm-8">{{ person.position }}</dd>
+  
+              <dt class="col-sm-4">Business Title</dt>
+              <dd class="col-sm-8">{{ person.business_title }}</dd>
+  
+              <dt class="col-sm-4">Job Profile</dt>
+              <dd class="col-sm-8">{{ person.job_profile }}</dd>
+  
+              <dt class="col-sm-4">Employee Type</dt>
+              <dd class="col-sm-8">{{ person.employee_type }}</dd>
+  
+              <dt class="col-sm-4">Management Level</dt>
+              <dd class="col-sm-8">{{ person.management_level }}</dd>
+              {# add more fields as needed #}
+            </dl>
+          </div>
+        </div>
+  
+        <!-- lower two-column cards -->
+        <div class="row">
+          <!-- LEFT half -->
+          <div class="col-md-6">
+            <div class="card mb-4">
+              <div class="card-header d-flex justify-content-between align-items-center">
+                <span>Statements</span>
+                <a href="#">Add</a>
+              </div>
+              <div class="card-body">
+                {# statements content #}
+              </div>
+            </div>
+            <div class="card">
+              <div class="card-header">Feedback</div>
+              <div class="card-body">
+                <div class="d-flex mb-3">
+                  <img src="{% static 'images/feedback-user.jpg' %}"
+                       class="rounded-circle me-3"
+                       width="40" height="40"
+                       alt="Feedback User">
+                  <div>
+                    <strong>Susan Steinberg</strong><br>
+                    <small class="text-muted">11/16/2016</small>
+                    <p class="mt-2 mb-0">
+                      Brian – you have been such a big contributor to our support organization…
+                    </p>
+                  </div>
+                </div>
+                <a href="#">View More</a>
+              </div>
+            </div>
+          </div>
+  
+          <!-- RIGHT half -->
+          <div class="col-md-6">
+            <div class="card mb-4">
+              <div class="card-header">Job History</div>
+              <div class="card-body">
+                <p class="mb-1"><a href="#">Financial Analyst</a></p>
+                <small class="text-muted">
+                  State Street Bank and Trust | Nov 2003 – Nov 2009 | 6 years | Boston
+                </small>
+                <a href="#" class="d-block mt-2">Edit</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+{% endblock %}
+
+
+<!-- Any footer changes goes here -->
+ {% block footer %}
+
+ {% endblock %}
+
+ <!-- Any body scripts goes here -->
+ {% block bodyScripts %}
+ 
+ {% endblock %}
