@@ -1,6 +1,6 @@
 /* Footer background & text */
 .custom-footer {
-  background: linear-gradient(90deg, rgb(223, 241, 255) 0%, #0a315d 100%);
+  background: linear-gradient(90deg, rgb(142, 181, 210) 0%, #0a315d 100%);
   padding: 0.5rem 0;
 }
 
@@ -12,7 +12,7 @@
 }
 
 .custom-footer .navbar {
-  background: linear-gradient(90deg, rgb(223, 241, 255) 0%, #54616f 100%);
+  background: linear-gradient(90deg, rgb(142, 181, 210) 0%, #0a315d 100%);
 }
 
 /* Footer nav links */

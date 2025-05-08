@@ -53,52 +53,60 @@
   <body>
     {% load static %}
     <header class="custom-header">
-      <!--Top Bar-->
-      <div class="container">
-        <div class="row align-items-center">
-          <!-- Logo -->
-          <div class="col-6 col-md-6">
-            <a href="{% url 'api:home' %}">
+      <div class="container-fluid">
+        <div class="d-flex justify-content-between position-relative">
+    
+          <!-- LEFT SIDE: burger + MENU + Logo -->
+          <div class="menu-box-wrapper d-flex align-items-center">
+            <button class="navbar-toggler" 
+                    type="button"
+                    data-bs-toggle="collapse" 
+                    data-bs-target="#mainNav"
+                    aria-controls="mainNav" 
+                    aria-expanded="false"
+                    aria-label="Toggle navigation">
+              <span class="navbar-toggler-icon"></span>
+            </button>
+            <span class="toggler-label ms-2">MENU</span>
+    
+            <a class="navbar-brand d-flex align-items-center ms-4"
+               href="{% url 'api:home' %}">
               <img src="{% static 'images/logo.png' %}"
                    alt="Diocese of Charlotte"
-                   loading="lazy"
-                   class="header-logo">
-              <span class="org-title" >Diocese of Charlotte</span>
+                   class="header-logo me-2">
             </a>
-          </div>
-        </div>
     
-        <!-- Search Bar and Social Media Icons -->
+            <!-- dropdown links -->
+            <nav class="collapse" id="mainNav">
+              <ul class="nav flex-column">
+                <li class="nav-item"><a class="nav-link" href="https://nimbus.rcdoc.org/" target="_blank">Nimbus</a></li>
+                <li class="nav-item"><a class="nav-link" href="{% url 'api:enhanced_filter' %}">Database</a></li>
+              </ul>
+            </nav>
+          </div>
+    
+          <!-- CENTER: search -->
+          <form class="search-form d-flex align-items-center mx-auto" …>
+            <i class="fas fa-search search-icon"></i>
+            <input class="form-control" …
+                   placeholder="For demo purposes only…" …>
+          </form>
+          
+    
+          <!-- RIGHT SIDE: action icons -->
+          <div class="header-icons d-flex align-items-center">
+            <a href="#" class="header-icon me-3"><i class="far fa-comment"></i></a>
+            <a href="#" class="header-icon me-3"><i class="fas fa-bell"></i></a>
+            <a href="#" class="header-icon me-3"><i class="fas fa-inbox"></i></a>
+            <a href="#" class="header-icon">
+              <!--<i class="fas fa-user-circle"></i></a>-->
+              <img src="{% static 'images/profilePic.jpg' %}"
+                    alt="Profile"
+                    class="profile-pic rounded-circle">
+          </div>
+        </div> 
       </div>
     </header>
-    <nav class="navbar navbar-expand-md navbar-light bg-light py-2">
-      <!-- fluid so it spans edge-to-edge -->
-      <div class="container-fluid px-0">
-    
-        <!-- Left-aligned burger on mobile -->
-        <button
-          class="navbar-toggler ms-2"
-          type="button"
-          data-bs-toggle="collapse"
-          data-bs-target="#mainNav"
-          aria-controls="mainNav"
-          aria-expanded="false"
-          aria-label="Toggle navigation"
-        >
-          <span class="navbar-toggler-icon"></span>
-        </button>
-    
-        <!-- This collapse is *inside* the nav -->
-        <div class="collapse navbar-collapse" id="mainNav">
-          <!-- On mobile this becomes a vertical list, on md+ horizontal -->
-          <ul class="navbar-nav w-100 justify-content-around">
-            <li class="nav-item"><a class="nav-link" href="{% url 'api:enhanced_filter' %}">Database</a></li>
-            <li class="nav-item"><a class="nav-link px-3" href="https://nimbus.rcdoc.org/" target="_blank">Nimbus</a></li>
-          </ul>
-        </div>
-    
-      </div>
-    </nav>
     
     
     
