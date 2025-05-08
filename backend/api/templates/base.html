@@ -54,42 +54,49 @@
     {% load static %}
     <header class="custom-header">
       <div class="container-fluid">
-        <div class="d-flex justify-content-between position-relative">
+        <div class="d-flex align-items-center justify-content-between position-relative">
     
           <!-- LEFT SIDE: burger + MENU + Logo -->
-          <div class="menu-box-wrapper d-flex align-items-center">
-            <button class="navbar-toggler" 
-                    type="button"
-                    data-bs-toggle="collapse" 
-                    data-bs-target="#mainNav"
-                    aria-controls="mainNav" 
-                    aria-expanded="false"
-                    aria-label="Toggle navigation">
-              <span class="navbar-toggler-icon"></span>
-            </button>
-            <span class="toggler-label ms-2">MENU</span>
+          <!-- DO NOT USE BOOTSTRAP HERE! -->
+          <div class="menu-box-wrapper">
+            <!-- custom trigger -->
+            <div id="menuTrigger" class="menu-trigger">
+              <!-- three-bar hamburger -->
+               <div class="hamburger">
+                <span></span>
+                <span></span>
+                <span></span>
+               </div>
+              <span class="toggler-label ms-2">MENU</span>
+            </div>
+
     
-            <a class="navbar-brand d-flex align-items-center ms-4"
-               href="{% url 'api:home' %}">
-              <img src="{% static 'images/logo.png' %}"
-                   alt="Diocese of Charlotte"
-                   class="header-logo me-2">
-            </a>
-    
-            <!-- dropdown links -->
-            <nav class="collapse" id="mainNav">
+            <!-- custom dropdown -->
+            <nav id="menuNav" class="menu-nav">
               <ul class="nav flex-column">
-                <li class="nav-item"><a class="nav-link" href="https://nimbus.rcdoc.org/" target="_blank">Nimbus</a></li>
-                <li class="nav-item"><a class="nav-link" href="{% url 'api:enhanced_filter' %}">Database</a></li>
+                <li class="nav-item">
+                  <a class="nav-link" href="https://nimbus.rcdoc.org/" target="_blank">Nimbus</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="{% url 'api:enhanced_filter' %}">Database</a>
+                </li>
               </ul>
             </nav>
+            
           </div>
+          <div class="app-logo ms-3">
+            <img src="{% static 'images/logo.png' %}"
+                  alt="App Logo"
+                  class="app-logo-img">
+          </div>
+
     
           <!-- CENTER: search -->
-          <form class="search-form d-flex align-items-center mx-auto" …>
+          <form class="search-form d-flex align-items-center mx-auto"
+                action="#" method="get" role="search">
             <i class="fas fa-search search-icon"></i>
-            <input class="form-control" …
-                   placeholder="For demo purposes only…" …>
+            <input class="form-control" type="search" name="q"
+                   placeholder="For demo purposes only…" aria-label="Search">
           </form>
           
     
@@ -170,3 +177,21 @@
     {% endblock %}
   </body>
 </html>
+
+<!-- JS to toggle our custom menu -->
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    const trigger = document.getElementById("menuTrigger");
+    const menu    = document.getElementById("menuNav");
+
+    trigger.addEventListener("click", () => {
+      menu.classList.toggle("active");
+    });
+
+    document.addEventListener("click", e => {
+      if (!trigger.contains(e.target) && !menu.contains(e.target)) {
+        menu.classList.remove("active");
+      }
+    });
+  });
+</script>
