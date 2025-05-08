@@ -14,5 +14,6 @@ urlpatterns = [
     path('api/filter_results/', views.filter_results, name='filter_results'),
     path('api/upload-tmp', views.upload_temp, name='upload_temp'),
     path('send-email/', views.send_email, name='send_email'),
+    path('demo/details-page/', views.details_page, name='details_page'),
     
 ]

@@ -28,6 +28,9 @@ def view_404(request):
 def home(request):
     return render(request, 'home.html')
 
+def details_page(request):
+    return render(request, 'details_page.html')
+
 def get_filtered_data(base, raw_filters):
     """
     Returns:
