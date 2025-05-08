@@ -24,21 +24,21 @@
       <!-- LEFT PANEL -->
       <aside class="col-md-4 p-0 aside-panel">
         <div class="text-center p-4">
-          <img src="{% static 'images/profile.jpg' %}"
+          <img src="{% static 'images/profilePic.jpg' %}"
                alt="Profile Photo"
                class="rounded-circle mb-3"
                width="120" height="120">
-          <h4>{{ person.name }}</h4>
-          <p class="mb-3">{{ person.job_title }}</p>
+          <h4>Kyle Greenberg</h4>
+          <p class="mb-3">Technology Manager</p>
           <button class="btn actions-btn mb-3">Actions</button>
           <div class="d-flex justify-content-center mb-3">
-            <a href="tel:{{ person.phone }}" class="me-4">
+            <a href="tel:{{ person.phone }}" class="action-icons me-4">
               <i class="fas fa-phone fa-lg"></i>
             </a>
-            <a href="mailto:{{ person.email }}" class="me-4">
+            <a href="mailto:{{ person.email }}" class="action-icons me-4">
               <i class="fas fa-envelope fa-lg"></i>
             </a>
-            <a href="#">
+            <a href="#" class="action-icons">
               <i class="fas fa-users fa-lg"></i>
             </a>
           </div>
@@ -52,15 +52,10 @@
           <a class="nav-link" href="#">More (9)</a>
         </nav>
   
-        <div class="d-flex justify-content-center py-4">
-          <a href="#" class="mx-2"><i class="fab fa-facebook fa-2x"></i></a>
-          <a href="#" class="mx-2"><i class="fab fa-linkedin fa-2x"></i></a>
-          <a href="#" class="mx-2"><i class="fab fa-twitter fa-2x"></i></a>
-        </div>
       </aside>
   
       <!-- RIGHT PANEL -->
-      <main class="col-md-8 p-4">
+      <main class="col-md-8 p-4 bg-light">
         <!-- top cards -->
         <div class="row mb-4">
           <div class="col">
@@ -69,7 +64,7 @@
                 <i class="fas fa-map-marker-alt me-2"></i>
                 <div>
                   <small class="text-muted">Location</small><br>
-                  <strong>{{ person.location }}</strong>
+                  <strong>Pastoral Center</strong>
                 </div>
               </div>
             </div>
@@ -80,7 +75,7 @@
                 <i class="fas fa-user me-2"></i>
                 <div>
                   <small class="text-muted">Manager</small><br>
-                  <strong>{{ person.manager }}</strong>
+                  <strong>Scott Long</strong>
                 </div>
               </div>
             </div>
@@ -93,25 +88,22 @@
             <h5 class="card-title">Job Details</h5>
             <dl class="row">
               <dt class="col-sm-4">Employee ID</dt>
-              <dd class="col-sm-8">{{ person.employee_id }}</dd>
-  
-              <dt class="col-sm-4">Supervisory Org.</dt>
-              <dd class="col-sm-8">{{ person.supervisory_org }}</dd>
+              <dd class="col-sm-8">Unknown</dd>
   
               <dt class="col-sm-4">Position</dt>
-              <dd class="col-sm-8">{{ person.position }}</dd>
+              <dd class="col-sm-8">Technology Manager</dd>
   
               <dt class="col-sm-4">Business Title</dt>
-              <dd class="col-sm-8">{{ person.business_title }}</dd>
+              <dd class="col-sm-8">Miracle Worker</dd>
   
               <dt class="col-sm-4">Job Profile</dt>
-              <dd class="col-sm-8">{{ person.job_profile }}</dd>
+              <dd class="col-sm-8">Unknown</dd>
   
               <dt class="col-sm-4">Employee Type</dt>
-              <dd class="col-sm-8">{{ person.employee_type }}</dd>
+              <dd class="col-sm-8">Excempt</dd>
   
               <dt class="col-sm-4">Management Level</dt>
-              <dd class="col-sm-8">{{ person.management_level }}</dd>
+              <dd class="col-sm-8">Tier 2 Manager</dd>
               {# add more fields as needed #}
             </dl>
           </div>
@@ -134,15 +126,15 @@
               <div class="card-header">Feedback</div>
               <div class="card-body">
                 <div class="d-flex mb-3">
-                  <img src="{% static 'images/feedback-user.jpg' %}"
+                  <img src="{% static 'images/profilePic.jpg' %}"
                        class="rounded-circle me-3"
                        width="40" height="40"
                        alt="Feedback User">
                   <div>
-                    <strong>Susan Steinberg</strong><br>
-                    <small class="text-muted">11/16/2016</small>
+                    <strong>Kyle Greenberg</strong><br>
+                    <small class="text-muted">05/08/2025</small>
                     <p class="mt-2 mb-0">
-                      Brian – you have been such a big contributor to our support organization…
+                      This project is enjoyable to build but challenging at times.
                     </p>
                   </div>
                 </div>
@@ -156,9 +148,10 @@
             <div class="card mb-4">
               <div class="card-header">Job History</div>
               <div class="card-body">
-                <p class="mb-1"><a href="#">Financial Analyst</a></p>
+                <p class="mb-1"><a href="#">Technology Manager</a></p>
                 <small class="text-muted">
-                  State Street Bank and Trust | Nov 2003 – Nov 2009 | 6 years | Boston
+                  Maintain and developt the technology use for the Diocese of Charlotte. 
+                  Both from the technical perspective and the via management of the level 3 staff members.
                 </small>
                 <a href="#" class="d-block mt-2">Edit</a>
               </div>

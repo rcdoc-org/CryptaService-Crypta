@@ -18,3 +18,12 @@
     color: #fff;
     background: transparent;
   }
+
+  .action-icons {
+    color: white;
+  }
+
+  .actions-btn :hover{
+    background-color: #fff;
+    color: #2272C5;
+  }
