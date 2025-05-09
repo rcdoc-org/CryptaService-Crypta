@@ -13,6 +13,11 @@
 
     let table;                      // Tabulator Instance
 
+    // keep most recent stats_info from the server
+    let lastStatsInfo = [];
+    // keep the user's last slider/radio settings
+    let currentStats = {};
+
     // 1) Gather which filters are check + which base (person/location) is selected.
     function gatherFilters() {
         const checked = Array.from(
@@ -46,7 +51,14 @@
         const ctr = document.getElementById('statsFilters');
         ctr.innerHTML = '';
 
-        if (!info || !info.length) return;
+        // build list of fields that are BOTH in the "Statistics" category AND currently visible:
+        const visibleStats = currentColumns
+        .filter(col => col.category === 'Statistics' && table.getColumn(col.field)?.isVisible())
+        .map(col => col.field);
+
+          // only keep the stats_info entries for those fields
+        info = info.filter(s => visibleStats.includes(s.field));
+        if (!info.length) return;
 
         const heading = document.createElement('h6');
         heading.textContent = 'Statistics';
@@ -182,7 +194,6 @@
       }
       
 
-    let currentStats = {};
     // 4) Core Function: gather filters, show badges, POST to Django, then update sidebar
     // and table
     function updateView() {
@@ -204,13 +215,10 @@
             // 1) Update the side bar
             renderFilters(payload.filters_html);
 
-            renderStatsFilters(payload.stats_info, currentStats);
-
+            // savethe returned stats_info to be reused
+            lastStatsInfo = payload.stats_info;
             const freshData = gatherFilters();
-
             renderActiveFilters(freshData);
-
-            
             renderActiveFilters(data);
 
             // Grab dyanmic columns from server
@@ -267,6 +275,9 @@
 
             currentColumns = dynamicCols;
             populateColumnForm();
+
+            // render stats for any visible
+            renderStatsFilters(lastStatsInfo, currentStats);
 
 
             // Result determining and updating of the header for results
@@ -480,7 +491,9 @@
 
             table.redraw(true);
 
-            //bootstrap modal hide 
+            // after showing/hiding columns, re-render stats for newly-visible ones
+            renderStatsFilters(lastStatsInfo, currentStats);
+            // bootstrap modal hide
             const modalEl = document.getElementById('columnModal');
             bootstrap.Modal.getInstance(modalEl).hide();
         })
