@@ -370,7 +370,7 @@ def get_filtered_data(base, raw_filters, raw_stats=None):
                 if not real_path:
                     continue # no mapping then skip
                 
-                lookup = 'gte' if key.endswith('__min') else 'lte'
+                lookup = 'gte' if key.endswith('_min') else 'lte'
                 qs = qs.filter(**{f"{real_path}__{lookup}": val})
             
             else:
