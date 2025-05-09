@@ -13,13 +13,131 @@
 
     let table;                      // Tabulator Instance
 
+    // keep most recent stats_info from the server
+    let lastStatsInfo = [];
+    // keep the user's last slider/radio settings
+    let currentStats = {};
+
     // 1) Gather which filters are check + which base (person/location) is selected.
     function gatherFilters() {
         const checked = Array.from(
             filterSidebar.querySelectorAll('input.filter-checkbox:checked')
             ).map(chk => chk.value);
         const base = baseSelect.value;
-        return { base, filters: checked };
+
+        // collect stats
+        const stats = {};
+        // number ranges
+        document.querySelectorAll('.stats-range').forEach(r => {
+            const f = r.dataset.field;
+            const minIn = document.getElementById(`stat_min_${f}`);
+            const maxIn = document.getElementById(`stat_max_${f}`);
+
+            // Only send if the user has changed value
+            if (+minIn.value > +r.min || +maxIn.value < +r.max) {
+                stats[`${f}_min`] = minIn.value;
+                stats[`${f}_max`] = maxIn.value;
+            }
+        });
+        // boolean
+        document.querySelectorAll('.stats-boolean:checked').forEach( r => {
+            stats[r.dataset.field] = r.value; // "true", "false", "all"
+        });
+
+        return { base, filters: checked, stats };
+    }
+
+    function renderStatsFilters(info, savedStats) {
+        const ctr = document.getElementById('statsFilters');
+        ctr.innerHTML = '';
+
+        // build list of fields that are BOTH in the "Statistics" category AND currently visible:
+        const visibleStats = currentColumns
+        .filter(col => col.category === 'Statistics' && table.getColumn(col.field)?.isVisible())
+        .map(col => col.field);
+
+          // only keep the stats_info entries for those fields
+        info = info.filter(s => visibleStats.includes(s.field));
+        if (!info.length) return;
+
+        const heading = document.createElement('h6');
+        heading.textContent = 'Statistics';
+        ctr.appendChild(heading);
+
+        info.forEach(({ field, display, type, min, max }) => {
+            const div = document.createElement('div');
+            div.className = 'mb-3';
+
+            if (type === 'boolean') {
+                const title_lbl = document.createElement('label');
+                title_lbl.textContent = `${display}:`;
+                const breakline = document.createElement('br');
+                div.appendChild(title_lbl);
+                div.appendChild(breakline);
+                ['true', 'false', 'all'].forEach(val => {
+                    const rd = document.createElement('div');
+                    rd.className = 'form-check form-check-inline';
+                    const inp = document.createElement('input');
+                    inp.className = 'form-check-input stats-boolean';
+                    inp.type = 'radio';
+                    inp.name = `stat_${field}`;
+                    inp.dataset.field = field;
+                    inp.value = val;
+                    
+                    if (val === 'all') inp.checked = true;
+                    const lbl = document.createElement('label');
+                    lbl.className = 'form-check-label';
+                    lbl.textContent = val.charAt(0).toUpperCase() + val.slice(1);
+                    rd.append(inp, lbl);
+                    div.appendChild(rd);
+                    inp.checked = (savedStats[field] || 'all') === val
+                });
+            } else { // number 
+                const currentMin = savedStats[`${field}_min`] != null
+                         ? savedStats[`${field}_min`] 
+                         : min;
+                const currentMax = savedStats[`${field}_max`] != null
+                         ? savedStats[`${field}_max`]
+                         : max;
+
+                const lbl = document.createElement('label');
+                lbl.textContent = `${display}:`;
+
+                const minIn = document.createElement('input');
+                minIn.type = 'number';
+                minIn.id = `stat_min_${field}`;
+                minIn.value = currentMin;
+                minIn.className = 'form-control form-control-sm d-inline-block w-auto me-2 stats-min';
+
+                const maxIn = document.createElement('input');
+                maxIn.type = 'number';
+                maxIn.id = `stat_max_${field}`;
+                maxIn.value = currentMax;
+                maxIn.className = 'form-control form-control-sm d-inline-block w-auto stats-max';
+
+                const range = document.createElement('input');
+                range.type = 'range';
+                range.className = 'form-range stats-range';
+                range.dataset.field = field;
+                range.min = min; 
+                range.max = max; 
+                range.value = currentMin;
+                range.step = (max - min) / 100 || 1;
+
+                // sync them together
+                range.addEventListener('input', () => {
+                    minIn.value = range.value;
+                });
+                minIn.addEventListener('change', () => {
+                    range.value = minIn.value;
+                });
+
+                div.append(lbl, minIn, maxIn, range);
+            }
+
+            div.querySelectorAll('input').forEach( i => i.addEventListener('change', updateView));
+            ctr.appendChild(div);
+        });
     }
 
     function clearFilters() {
@@ -80,6 +198,7 @@
     // and table
     function updateView() {
         const data = gatherFilters();
+        currentStats = data.stats;
         const baseChanged = data.base !== lastBase;
         lastBase = data.base;
 
@@ -96,10 +215,10 @@
             // 1) Update the side bar
             renderFilters(payload.filters_html);
 
+            // savethe returned stats_info to be reused
+            lastStatsInfo = payload.stats_info;
             const freshData = gatherFilters();
-
             renderActiveFilters(freshData);
-
             renderActiveFilters(data);
 
             // Grab dyanmic columns from server
@@ -127,10 +246,17 @@
             // merge detailCol + dynamicCols, tagging each dynamic col with visible:true/false
             const allCols = [
                 detailCol,
-                ...dynamicCols.map(col => ({
-                ...col,
-                visible: defaults.includes(col.field)   // true for default, false otherwise
-                }))
+                ...dynamicCols.map(col => {
+                    // if the table already hasthis column, keep its visibility
+                    // otherwise default to your initial set
+                    const existing = table?.getColumn(col.field);
+                    return {
+                        ...col,
+                        visible: existing
+                            ? existing.isVisible()
+                            : defaults.includes(col.field)
+                    };
+                }),
             ];
 
             // —— initialize or re-initialize on base change
@@ -156,6 +282,9 @@
 
             currentColumns = dynamicCols;
             populateColumnForm();
+
+            // render stats for any visible
+            renderStatsFilters(lastStatsInfo, currentStats);
 
 
             // Result determining and updating of the header for results
@@ -369,7 +498,9 @@
 
             table.redraw(true);
 
-            //bootstrap modal hide 
+            // after showing/hiding columns, re-render stats for newly-visible ones
+            renderStatsFilters(lastStatsInfo, currentStats);
+            // bootstrap modal hide
             const modalEl = document.getElementById('columnModal');
             bootstrap.Modal.getInstance(modalEl).hide();
         })
