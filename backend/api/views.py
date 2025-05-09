@@ -359,27 +359,44 @@ def get_filtered_data(base, raw_filters, raw_stats=None):
 
     # Apply raw_stats filters
     if raw_stats:
+        # collect all numeric bounds by field
+        ranges = {}
         for key, val in raw_stats.items():
-            if not val:
+            if key.endswith("_min"):
+                fld = key[:-4]
+                ranges.setdefault(fld, {})['min'] = val
+            elif key.endswith('_max'):
+                fld = key[:-4]
+                ranges.setdefault(fld, {})['max'] = val
+        
+        # apply numeric filters
+        for fld, b in ranges.items():
+            real = DISPLAY_TO_PATH.get(fld)
+            
+            if not real:
                 continue
             
-            # split off the suffix
-            if key.endswith('_min') or key.endswith('_max'):
-                field = key.rsplit('_', 1)[0]
-                real_path = DISPLAY_TO_PATH.get(field)
-                if not real_path:
-                    continue # no mapping then skip
-                
-                lookup = 'gte' if key.endswith('_min') else 'lte'
-                qs = qs.filter(**{f"{real_path}__{lookup}": val})
+            lo = b.get('min')
+            hi = b.get('max')
             
-            else:
-                # boolean stats
-                real_path = DISPLAY_TO_PATH.get(key)
-                if not real_path or val.lower() == 'all':
-                    continue
-                boolean_val = val.lower() == 'true'
-                qs = qs.filter(**{real_path: boolean_val})
+            if lo is not None and hi is not None:
+                qs = qs.filter(**{f"{real}__range": (lo, hi)})
+            elif lo is not None:
+                qs = qs.filter(**{f"{real}__gte": lo})
+            elif hi is not None:
+                qs = qs.filter(**{f"{real}__lte": hi})
+                
+        # Boolean stats
+        for key, val in raw_stats.items():
+            if key.endswith('_min') or key.endswith('_max'):
+                continue
+            
+            real = DISPLAY_TO_PATH.get(key)
+            if not real:
+                continue
+            
+            qs = qs.filter(**{real: val.lower() == 'true'})
+
     qs = qs.distinct()
 
     records = []
