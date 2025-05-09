@@ -28,8 +28,25 @@ def view_404(request):
 def home(request):
     return render(request, 'home.html')
 
-def details_page(request):
-    return render(request, 'details_page.html')
+def details_page(request, base='Person', pk=None):
+    # base will be the string 'persons' or 'locations'
+    if base == 'person':
+        obj = get_object_or_404(Person, pk=pk)
+        ctx_base = 'person'
+    elif base == 'location':
+        obj = get_object_or_404(Location, pk=pk)
+        ctx_base = 'location'
+    else:
+        base == 'test'
+        obj = None
+        ctx_base = 'test'
+    # else:
+    #     raise Http404("Detail type not found")
+    
+    return render(request, 'details_page.html', {
+        'base': ctx_base,
+        'object': obj,
+    })
 
 def get_filtered_data(base, raw_filters, raw_stats=None):
     """
