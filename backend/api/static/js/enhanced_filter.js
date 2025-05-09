@@ -246,10 +246,17 @@
             // merge detailCol + dynamicCols, tagging each dynamic col with visible:true/false
             const allCols = [
                 detailCol,
-                ...dynamicCols.map(col => ({
-                ...col,
-                visible: defaults.includes(col.field)   // true for default, false otherwise
-                }))
+                ...dynamicCols.map(col => {
+                    // if the table already hasthis column, keep its visibility
+                    // otherwise default to your initial set
+                    const existing = table?.getColumn(col.field);
+                    return {
+                        ...col,
+                        visible: existing
+                            ? existing.isVisible()
+                            : defaults.includes(col.field)
+                    };
+                }),
             ];
 
             // —— initialize or re-initialize on base change
