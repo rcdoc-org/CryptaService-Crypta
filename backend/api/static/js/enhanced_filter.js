@@ -42,7 +42,7 @@
         return { base, filters: checked, stats };
     }
 
-    function renderStatsFilters(info) {
+    function renderStatsFilters(info, savedStats) {
         const ctr = document.getElementById('statsFilters');
         ctr.innerHTML = '';
 
@@ -78,25 +78,38 @@
                     lbl.textContent = val.charAt(0).toUpperCase() + val.slice(1);
                     rd.append(inp, lbl);
                     div.appendChild(rd);
+                    inp.checked = (savedStats[field] || 'all') === val
                 });
             } else { // number 
+                const currentMin = savedStats[`${field}_min`] != null
+                         ? savedStats[`${field}_min`] 
+                         : min;
+                const currentMax = savedStats[`${field}_max`] != null
+                         ? savedStats[`${field}_max`]
+                         : max;
+
                 const lbl = document.createElement('label');
                 lbl.textContent = `${display}:`;
+
                 const minIn = document.createElement('input');
                 minIn.type = 'number';
                 minIn.id = `stat_min_${field}`;
-                minIn.value = min;
+                minIn.value = currentMin;
                 minIn.className = 'form-control form-control-sm d-inline-block w-auto me-2 stats-min';
+
                 const maxIn = document.createElement('input');
                 maxIn.type = 'number';
                 maxIn.id = `stat_max_${field}`;
-                maxIn.value = max;
+                maxIn.value = currentMax;
                 maxIn.className = 'form-control form-control-sm d-inline-block w-auto stats-max';
+
                 const range = document.createElement('input');
                 range.type = 'range';
                 range.className = 'form-range stats-range';
                 range.dataset.field = field;
-                range.min = min; range.max = max; range.value = min;
+                range.min = min; 
+                range.max = max; 
+                range.value = currentMin;
                 range.step = (max - min) / 100 || 1;
 
                 // sync them together
@@ -169,10 +182,12 @@
       }
       
 
+    let currentStats = {};
     // 4) Core Function: gather filters, show badges, POST to Django, then update sidebar
     // and table
     function updateView() {
         const data = gatherFilters();
+        currentStats = data.stats;
         const baseChanged = data.base !== lastBase;
         lastBase = data.base;
 
@@ -189,11 +204,12 @@
             // 1) Update the side bar
             renderFilters(payload.filters_html);
 
+            renderStatsFilters(payload.stats_info, currentStats);
+
             const freshData = gatherFilters();
 
             renderActiveFilters(freshData);
 
-            renderStatsFilters(payload.stats_info);
             
             renderActiveFilters(data);
 
