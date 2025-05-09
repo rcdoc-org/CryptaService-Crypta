@@ -31,13 +31,62 @@ def home(request):
 def details_page(request):
     return render(request, 'details_page.html')
 
-def get_filtered_data(base, raw_filters):
+def get_filtered_data(base, raw_filters, raw_stats=None):
     """
     Returns:
       - records: list of dicts (one per object) for DataFrame/grid
       - applied: dict mapping field → [values]
       - filter_tree: list of { field, display, options }
     """
+
+    DISPLAY_TO_PATH = {
+        "% Full-Time Deacons":  'statusAnimarum_church__percentFullTime_deacons',
+        "% Full-Time Brothers":  'statusAnimarum_church__percentFullTime_brothers',
+        "% Full-Time Sisters":  'statusAnimarum_church__percentFullTime_sisters',
+        "% Full-Time Lay":  'statusAnimarum_church__percentFullTime_other',
+        "% Part-Time Staff":  'statusAnimarum_church__percentPartTime_staff',
+        "% Volunteers":  'statusAnimarum_church__percent_volunteers',
+        "Registered Households":  'statusAnimarum_church__registeredHouseholds',
+        "Max Mass Size":  'statusAnimarum_church__maxMass',
+        "Seating Capacity":  'statusAnimarum_church__seatingCapacity',
+        "Baptisms 1-7":  'statusAnimarum_church__baptismAge_1_7',
+        "Baptisms 8-17":  'statusAnimarum_church__baptismAge_8_17',
+        "Baptisms 18+":  'statusAnimarum_church__baptismAge_18',
+        "Full Communion RCIA":  'statusAnimarum_church__fullCommunionRCIA',
+        "First Communion":  'statusAnimarum_church__firstCommunion',
+        "Confirmation":  'statusAnimarum_church__confirmation',
+        "Catholic Marriages":  'statusAnimarum_church__marriage_catholic',
+        "Interfaith Marriages":  'statusAnimarum_church__marriage_interfaith',
+        "Deaths":  'statusAnimarum_church__deaths',
+        "Children in Faith Formation":  'statusAnimarum_church__childrenInFaithFormation',
+        "Kids: PreK - 5":  'statusAnimarum_church__school_prek_5',
+        "Kids: 6-8":  'statusAnimarum_church__school_grade6_8',
+        "Kids: 9-12":  'statusAnimarum_church__school_grade9_12',
+        "Youth Ministy":  'statusAnimarum_church__youthMinistry',
+        "Adult Education":  'statusAnimarum_church__adult_education',
+        "Adult Sacrament Prep":  'statusAnimarum_church__adult_sacramentPrep',
+        "# Paid Catechists":  'statusAnimarum_church__catechist_paid',
+        "# Volunteer Catechists":  'statusAnimarum_church__catechist_vol',
+        "RCIA/RCIC":  'statusAnimarum_church__rcia_rcic',
+        "# Volunteers Youth":  'statusAnimarum_church__volunteersWorkingYouth',
+        "% African":  'statusAnimarum_church__percent_african',
+        "% African-American":  'statusAnimarum_church__percent_africanAmerican',
+        "% Asian":  'statusAnimarum_church__percent_asian',
+        "% Hispanic":  'statusAnimarum_church__percent_hispanic',
+        "% American-Indian":  'statusAnimarum_church__percent_americanIndian',
+        "% Other":  'statusAnimarum_church__percent_other',
+        "Estimate Census?":  'statusAnimarum_church__is_censusEstimate',
+        "# Referrals to Catholic Charities":  'statusAnimarum_church__referrals_catholicCharities',
+        "HomeSchool Program?":  'statusAnimarum_church__has_homeschoolProgram',
+        "Child Care Day Care?":  'statusAnimarum_church__has_chileCareDayCare',
+        "Scouting Program?":  'statusAnimarum_church__has_scoutingProgram',
+        "Chapel on Campus?":  'statusAnimarum_church__has_chapelOnCampus',
+        "Adoration Chapel on Campus?":  'statusAnimarum_church__has_adorationChapelOnCampus',
+        "Columbarium on Site?":  'statusAnimarum_church__has_columbarium',
+        "Cemetery on Site?":  'statusAnimarum_church__has_cemetary',
+        "School on Site?":  'statusAnimarum_church__has_schoolOnSite',
+        "NonParochial School Using Facilities?":  'statusAnimarum_church__is_nonParochialSchoolUsingFacilities',
+    }
     
     FIELD_CATEGORIES = {
         # PERSON ONLY
@@ -307,6 +356,31 @@ def get_filtered_data(base, raw_filters):
                 "statusAnimarum_church",
                 
             )
+
+    # Apply raw_stats filters
+    if raw_stats:
+        for key, val in raw_stats.items():
+            if not val:
+                continue
+            
+            # split off the suffix
+            if key.endswith('_min') or key.endswith('_max'):
+                field = key.rsplit('_', 1)[0]
+                real_path = DISPLAY_TO_PATH.get(field)
+                if not real_path:
+                    continue # no mapping then skip
+                
+                lookup = 'gte' if key.endswith('__min') else 'lte'
+                qs = qs.filter(**{f"{real_path}__{lookup}": val})
+            
+            else:
+                # boolean stats
+                real_path = DISPLAY_TO_PATH.get(key)
+                if not real_path or val.lower() == 'all':
+                    continue
+                boolean_val = val.lower() == 'true'
+                qs = qs.filter(**{real_path: boolean_val})
+    qs = qs.distinct()
 
     records = []
     for obj in qs:
@@ -596,18 +670,50 @@ def get_filtered_data(base, raw_filters):
         }
         for key in all_fields
     ]
+    
+        # Compute stats_info on the pre-filtered qs
+    stats_info = []
+    for col in columns:
+        if col["category"] != 'Statistics':
+            continue
+        
+        field = col["field"]
+        # Pull all the non-None values out of the records
+        vals = [ rec[field] for rec in records if rec.get(field) is not None]
+        
+        if not vals:
+            continue
+        
+        # Boolean Check
+        if all(isinstance(v, bool) for v in vals):
+            stats_info.append({
+                'field': field,
+                'display': col['title'],
+                'type': 'boolean',
+                })
+        else:
+            nums = [float(v) for v in vals]
+            stats_info.append({
+                'field': field,
+                'display': col['title'],
+                'type': 'number',
+                'min': min(nums),
+                'max': max(nums),
+            })
+            
     # build your filter_tree as before…
     # return also the `columns` list
-    return records, applied, filter_tree, columns
+    return records, applied, filter_tree, columns, stats_info
 
 def enhanced_filter_view(request):
     """Initial page load: no filters yet."""
     # default to person-based
-    records, applied, filter_tree, columns = get_filtered_data(base="person", raw_filters=[])
+    records, applied, filter_tree, columns, stats_info = get_filtered_data(base="person", raw_filters=[], raw_stats=None)
     # send initial column list if you wish to prerender the grid
     return render(request, "enhanced_filter.html", {
         "filter_tree": filter_tree,
         "applied": applied,
+        'stats_info': stats_info,
         # optionally pass these so you can do `var initialGrid = {{ grid|safe }}`
         "initial_grid": {
           "data":    records,
@@ -625,9 +731,10 @@ def filter_results(request):
 
     base       = payload.get("base", "person")
     raw_filters= payload.get("filters", [])
+    stats_info = payload.get('stats', {})
 
     # reuse the exact same logic
-    records, applied, filter_tree, columns = get_filtered_data(base, raw_filters)
+    records, applied, filter_tree, columns, stats_info = get_filtered_data(base, raw_filters, stats_info)
 
     # re-render your sidebar
     filters_html = render_to_string(
@@ -641,6 +748,7 @@ def filter_results(request):
 
     return JsonResponse({
       "filters_html": filters_html,
+      'stats_info': stats_info,
       "grid": {
           "data":   records,
           "columns": columns,

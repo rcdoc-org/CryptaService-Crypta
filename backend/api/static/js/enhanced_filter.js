@@ -19,7 +19,100 @@
             filterSidebar.querySelectorAll('input.filter-checkbox:checked')
             ).map(chk => chk.value);
         const base = baseSelect.value;
-        return { base, filters: checked };
+
+        // collect stats
+        const stats = {};
+        // number ranges
+        document.querySelectorAll('.stats-range').forEach(r => {
+            const f = r.dataset.field;
+            const minIn = document.getElementById(`stat_min_${f}`);
+            const maxIn = document.getElementById(`stat_max_${f}`);
+
+            // Only send if the user has changed value
+            if (+minIn.value > +r.min || +maxIn.value < +r.max) {
+                stats[`${f}_min`] = minIn.value;
+                stats[`${f}_max`] = maxIn.value;
+            }
+        });
+        // boolean
+        document.querySelectorAll('.stats-boolean:checked').forEach( r => {
+            stats[r.dataset.field] = r.value; // "true", "false", "all"
+        });
+
+        return { base, filters: checked, stats };
+    }
+
+    function renderStatsFilters(info) {
+        const ctr = document.getElementById('statsFilters');
+        ctr.innerHTML = '';
+
+        if (!info || !info.length) return;
+
+        const heading = document.createElement('h6');
+        heading.textContent = 'Statistics';
+        ctr.appendChild(heading);
+
+        info.forEach(({ field, display, type, min, max }) => {
+            const div = document.createElement('div');
+            div.className = 'mb-3';
+
+            if (type === 'boolean') {
+                const title_lbl = document.createElement('label');
+                title_lbl.textContent = `${display}:`;
+                const breakline = document.createElement('br');
+                div.appendChild(title_lbl);
+                div.appendChild(breakline);
+                ['true', 'false', 'all'].forEach(val => {
+                    const rd = document.createElement('div');
+                    rd.className = 'form-check form-check-inline';
+                    const inp = document.createElement('input');
+                    inp.className = 'form-check-input stats-boolean';
+                    inp.type = 'radio';
+                    inp.name = `stat_${field}`;
+                    inp.dataset.field = field;
+                    inp.value = val;
+                    
+                    if (val === 'all') inp.checked = true;
+                    const lbl = document.createElement('label');
+                    lbl.className = 'form-check-label';
+                    lbl.textContent = val.charAt(0).toUpperCase() + val.slice(1);
+                    rd.append(inp, lbl);
+                    div.appendChild(rd);
+                });
+            } else { // number 
+                const lbl = document.createElement('label');
+                lbl.textContent = `${display}:`;
+                const minIn = document.createElement('input');
+                minIn.type = 'number';
+                minIn.id = `stat_min_${field}`;
+                minIn.value = min;
+                minIn.className = 'form-control form-control-sm d-inline-block w-auto me-2 stats-min';
+                const maxIn = document.createElement('input');
+                maxIn.type = 'number';
+                maxIn.id = `stat_max_${field}`;
+                maxIn.value = max;
+                maxIn.className = 'form-control form-control-sm d-inline-block w-auto stats-max';
+                const range = document.createElement('input');
+                range.type = 'range';
+                range.className = 'form-range stats-range';
+                range.dataset.field = field;
+                range.min = min; range.max = max; range.value = min;
+                range.step = (max - min) / 100 || 1;
+
+                // sync them together
+                range.addEventListener('input', () => {
+                    minIn.value = range.value;
+                });
+                minIn.addEventListener('change', () => {
+                    range.value = minIn.value;
+                });
+
+                div.append(lbl, minIn, maxIn, range);
+            }
+
+            div.querySelectorAll('input').forEach( i => i.addEventListener('change', updateView));
+            ctr.appendChild(div);
+        });
     }
 
     function clearFilters() {
@@ -100,6 +193,8 @@
 
             renderActiveFilters(freshData);
 
+            renderStatsFilters(payload.stats_info);
+            
             renderActiveFilters(data);
 
             // Grab dyanmic columns from server
