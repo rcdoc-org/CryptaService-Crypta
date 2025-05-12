@@ -17,7 +17,7 @@
                 link.classList.add('active');
 
                 // show corresponding panel
-                const target = link.CDATA_SECTION_NODE.target;
+                const target = link.dataset.target;
                 showPanel(target);
             });
         });
