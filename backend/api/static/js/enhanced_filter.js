@@ -8,6 +8,8 @@
     const columnForm        = document.getElementById('columnForm');
     const applyBtn          = document.getElementById('applyColumnsBtn');
     const filterSearch      = document.getElementById('filterSearch');
+    const exportExcelBtn    = document.getElementById('exportExcelBtn');
+    const exportCsvBtn      = document.getElementById('exportCsvBtn');
 
     let lastBase = null;
     
@@ -267,6 +269,7 @@
                     // Navigate to detail-page URL:
                     window.location.href = `/demo/details-page/${base}/${rowData.id}`;
                 },
+                download: false,
             };
 
             // inital-only fields
@@ -567,6 +570,12 @@
         filterSidebar.addEventListener('change', updateView);
         baseSelect.addEventListener('change', toggle);
         filterSearch.addEventListener('input', filterOptions);
+        exportCsvBtn.addEventListener('click', () => {
+            table.download("csv", "results.csv");  // grabs only the currently visible & filtered rows/columns
+        });
+        exportExcelBtn.addEventListener('click', () => {
+            table.download("xlsx", "results.xlsx", { sheetName: "Results" });
+        });
 
         // ensure we populate everytime the modal opens
         const colModalEl = document.getElementById('columnModal');

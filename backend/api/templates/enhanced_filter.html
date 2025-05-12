@@ -37,6 +37,10 @@
   <script 
     src="https://unpkg.com/tabulator-tables@5.5.0/dist/js/tabulator.min.js">
   </script>
+
+  <!-- Used for allowing excel export -->
+  <script src="https://oss.sheetjs.com/sheetjs/xlsx.full.min.js"></script>
+
 {% endblock %}
 
 {% block content %}
@@ -106,8 +110,18 @@
               data-bs-target='#emailModal'
               id="emailtogglebtn"
             >Send Email</button>
-            <button type="button" class="btn btn-outline-primary btn-sm">Export to Excel</button>
-            <button type="button" class="btn btn-outline-primary btn-sm">Export to CSV</button>
+            <button 
+              type="button" 
+              id="exportExcelBtn"
+              class="btn btn-outline-primary btn-sm">
+              Export to Excel
+            </button>
+            <button 
+              type="button" 
+              id="exportCsvBtn"
+              class="btn btn-outline-primary btn-sm">
+              Export to CSV
+            </button>
             <button type="button" class="btn btn-outline-primary btn-sm">Print Mailing Labels</button>
           </div>
         </aside>
