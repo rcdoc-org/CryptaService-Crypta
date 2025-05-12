@@ -33,10 +33,30 @@
         </button>
       </div>
         <div class="text-center p-4">
-          <img src="{% static 'images/profilePic.jpg' %}"
-               alt="Profile Photo"
-               class="rounded-circle mb-3"
-               width="120" height="120">
+          <div class="text-center p-4 photo-upload">
+            <form method="POST" enctype="multipart/form-data">
+              {% csrf_token %}
+              {% if object.photo %}
+                <img src="{{ object.photo.url }}"
+                    alt="Profile Photo"
+                    class="rounded-circle mb-3"
+                    width="120" height="120">
+              {% else %}
+                <img src="{% static 'images/profilePic.jpg' %}"
+                  alt="Profile Photo"
+                  class="rounded-circle mb-3"
+                  width="120" height="120">
+              {% endif %}
+
+              <!-- invisible file-input sits atop the image -->
+              <input 
+                type="file" 
+                name="photo" 
+                accept="image/*"
+                onchange="this.form.submit()">
+            </form>
+          </div>
+
           <h4>
             {% if base == 'person' %}
               {{ object.name }}
