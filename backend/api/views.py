@@ -29,6 +29,23 @@ def home(request):
     return render(request, 'home.html')
 
 def details_page(request, base, pk):
+    if request.method == 'POST' and request.FILES.get('photo'):
+        # handle file upload
+        slug = base.lower()
+        if slug in ('person', 'persons'):
+            Model = Person
+            ctx_base = 'person'
+        elif slug in ('location', 'locations'):
+            Model = Location
+            ctx_base = 'location'
+        else:
+            raise Http404(f"Unknown detail type: {base}")
+        
+        obj = get_object_or_404(Model, pk=pk)
+        obj.photo = request.FILES['photo']
+        obj.save()
+        return redirect(request.path) # reload GET so you don’t repost on refresh
+    
     slug = base.lower()
     if slug in ('person', 'persons'):
         Model = Person
