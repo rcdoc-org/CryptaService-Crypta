@@ -8,7 +8,7 @@
 
 <!-- Change the Title here -->
 {% block title %} 
-    Details Page
+    {% if base == 'person' %}Person Details{% else %}Location Details{% endif %}
 {% endblock %}
 
 <!-- Any unique styles not on the Stylesheets goes here -->
@@ -28,16 +28,52 @@
                alt="Profile Photo"
                class="rounded-circle mb-3"
                width="120" height="120">
-          <h4>Kyle Greenberg</h4>
-          <p class="mb-3">Technology Manager</p>
+          <h4>
+            {% if base == 'person' %}
+              {{ object.name }}
+            {% elif base == 'location' %}
+              {{ object.name}}
+            {% else %}
+              Kyle Greenberg
+            {% endif %}
+          </h4>
+          <p class="mb-3">
+            {% if base == 'person' %}
+              {{ object.personType }}
+            {% elif base == 'location' %}
+              {{ object.type}}
+            {% else %}
+              Technology Manager
+            {% endif %}
+          </p>
           <button class="btn actions-btn mb-3">Actions</button>
           <div class="d-flex justify-content-center mb-3">
-            <a href="tel:{{ person.phone }}" class="action-icons me-4">
+            <!-- Used for primary phone -->
+            <a 
+            href="tel:
+            {% if base == 'person' %}
+              {{ object.phone }}
+            {% elif base == 'location' %}
+              {{ object.phone}}
+            {% else %}
+              Technology Manager
+            {% endif %}" class="action-icons me-4">
               <i class="fas fa-phone fa-lg"></i>
             </a>
-            <a href="mailto:{{ person.email }}" class="action-icons me-4">
+
+            <!-- Used for primary Email -->
+            <a href="mailto:
+            {% if base == 'person' %}
+              {{ object.email }}
+            {% elif base == 'location' %}
+              {{ object.email}}
+            {% else %}
+              kbgreenberg@rcdoc.org
+            {% endif %}" class="action-icons me-4">
               <i class="fas fa-envelope fa-lg"></i>
             </a>
+            
+            <!-- Modal for Relationships -->
             <a href="#" class="action-icons">
               <i class="fas fa-users fa-lg"></i>
             </a>
@@ -45,26 +81,32 @@
         </div>
   
         <nav class="nav flex-column px-3 mb-auto">
-          <a class="nav-link active" href="#">Summary</a>
-          <a class="nav-link" href="#">Job</a>
-          <a class="nav-link" href="#">Contact</a>
-          <a class="nav-link" href="#">Personal</a>
-          <a class="nav-link" href="#">More (9)</a>
+          <a class="nav-link active" href="#">Primary Info</a>
+          <a class="nav-link" href="#">Contact Info</a>
+          <a class="nav-link" href="#">Birth</a>
+          <a class="nav-link" href="#">Baptism</a>
+          <a class="nav-link" href="#">Ordination/Languages</a>
+          <a class="nav-link" href="#">Standing In Diocese</a>
+          <a class="nav-link" href="#">Emergency Contacts</a>
         </nav>
   
       </aside>
   
       <!-- RIGHT PANEL -->
+      {% if base == 'person' %}
       <main class="col-md-8 p-4 bg-light">
         <!-- top cards -->
+
         <div class="row mb-4">
           <div class="col">
             <div class="card">
               <div class="card-body d-flex align-items-center">
                 <i class="fas fa-map-marker-alt me-2"></i>
                 <div>
-                  <small class="text-muted">Location</small><br>
-                  <strong>Pastoral Center</strong>
+                  <small class="text-muted">Assignments</small><br>
+                  {% for assignment in object.assignments %}
+                    <strong>{{ assignment.lkp_location_id__name }}</strong><br>
+                  {% endfor %}
                 </div>
               </div>
             </div>
@@ -74,8 +116,18 @@
               <div class="card-body d-flex align-items-center">
                 <i class="fas fa-user me-2"></i>
                 <div>
-                  <small class="text-muted">Manager</small><br>
-                  <strong>Scott Long</strong>
+                  <small class="text-muted">Name Details</small><br>
+                  {% if object.prefix != 'nan' %}
+                    <strong>Prefix: {{ object.prefix }}</strong><br>
+                  {% endif %}
+                  <strong>First Name: {{ object.name_first }}</strong><br>
+                  {% if object.name_middle != 'nan' %}
+                    <strong>Middle Name: {{ object.name_middle }}</strong><br>
+                  {% endif %}
+                  <strong>Last Name: {{ object.name_last }}</strong><br>
+                  {% if object.suffix != 'nan' %}
+                    <strong>Suffix: {{ object.suffix }}</strong><br>
+                  {% endif %}
                 </div>
               </div>
             </div>
@@ -159,6 +211,114 @@
           </div>
         </div>
       </main>
+      {% elif base == 'location' %}
+
+      {% else %}
+        <main class="col-md-8 p-4 bg-light">
+          <!-- top cards -->
+          <div class="row mb-4">
+            <div class="col">
+              <div class="card">
+                <div class="card-body d-flex align-items-center">
+                  <i class="fas fa-map-marker-alt me-2"></i>
+                  <div>
+                    <small class="text-muted">Location</small><br>
+                    <strong>Pastoral Center</strong>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="col">
+              <div class="card">
+                <div class="card-body d-flex align-items-center">
+                  <i class="fas fa-user me-2"></i>
+                  <div>
+                    <small class="text-muted">Manager</small><br>
+                    <strong>Scott Long</strong>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+    
+          <!-- job details -->
+          <div class="card mb-4">
+            <div class="card-body">
+              <h5 class="card-title">Job Details</h5>
+              <dl class="row">
+                <dt class="col-sm-4">Employee ID</dt>
+                <dd class="col-sm-8">Unknown</dd>
+    
+                <dt class="col-sm-4">Position</dt>
+                <dd class="col-sm-8">Technology Manager</dd>
+    
+                <dt class="col-sm-4">Business Title</dt>
+                <dd class="col-sm-8">Miracle Worker</dd>
+    
+                <dt class="col-sm-4">Job Profile</dt>
+                <dd class="col-sm-8">Unknown</dd>
+    
+                <dt class="col-sm-4">Employee Type</dt>
+                <dd class="col-sm-8">Excempt</dd>
+    
+                <dt class="col-sm-4">Management Level</dt>
+                <dd class="col-sm-8">Tier 2 Manager</dd>
+                {# add more fields as needed #}
+              </dl>
+            </div>
+          </div>
+    
+          <!-- lower two-column cards -->
+          <div class="row">
+            <!-- LEFT half -->
+            <div class="col-md-6">
+              <div class="card mb-4">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                  <span>Statements</span>
+                  <a href="#">Add</a>
+                </div>
+                <div class="card-body">
+                  {# statements content #}
+                </div>
+              </div>
+              <div class="card">
+                <div class="card-header">Feedback</div>
+                <div class="card-body">
+                  <div class="d-flex mb-3">
+                    <img src="{% static 'images/profilePic.jpg' %}"
+                        class="rounded-circle me-3"
+                        width="40" height="40"
+                        alt="Feedback User">
+                    <div>
+                      <strong>Kyle Greenberg</strong><br>
+                      <small class="text-muted">05/08/2025</small>
+                      <p class="mt-2 mb-0">
+                        This project is enjoyable to build but challenging at times.
+                      </p>
+                    </div>
+                  </div>
+                  <a href="#">View More</a>
+                </div>
+              </div>
+            </div>
+    
+            <!-- RIGHT half -->
+            <div class="col-md-6">
+              <div class="card mb-4">
+                <div class="card-header">Job History</div>
+                <div class="card-body">
+                  <p class="mb-1"><a href="#">Technology Manager</a></p>
+                  <small class="text-muted">
+                    Maintain and developt the technology use for the Diocese of Charlotte. 
+                    Both from the technical perspective and the via management of the level 3 staff members.
+                  </small>
+                  <a href="#" class="d-block mt-2">Edit</a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </main>
+      {% endif %}
     </div>
   </div>
 {% endblock %}
