@@ -29,19 +29,6 @@ def home(request):
     return render(request, 'home.html')
 
 def details_page(request, base, pk):
-    # base will be the string 'persons' or 'locations'
-    # if base == 'person':
-    #     obj = get_object_or_404(Person, pk=pk)
-    #     ctx_base = 'person'
-    # elif base == 'location':
-    #     obj = get_object_or_404(Location, pk=pk)
-    #     ctx_base = 'location'
-    # else:
-    #     base == 'test'
-    #     obj = None
-    #     ctx_base = 'test'
-    # # else:
-    # #     raise Http404("Detail type not found")
     slug = base.lower()
     if slug in ('person', 'persons'):
         Model = Person
@@ -54,31 +41,31 @@ def details_page(request, base, pk):
     
     obj = get_object_or_404(Model, pk=pk)
     
-    # Get the object details
-    if ctx_base == 'person':
-        # all assignments
-        assignments = obj.assignment_set.select_related('lkp_location_id').all()
-        # primary phone/email (adjust your filter to whatever “primary” type you use)
-        phone_qs = obj.person_phone_set.filter(is_primary=True)
-        email_qs = obj.person_email_set.filter(is_primary=True)
-    else:
-        assignments = obj.assignment_set.select_related('lkp_person_id').all()
-        phone_qs = obj.location_phone_set.filter(is_primary=True)
-        email_qs = obj.location_email_set.filter(is_primary=True)
-        
-    # 4) pick the first or empty string
-    primary_phone = phone_qs.first().phoneNumber if phone_qs.exists() else ''
-    primary_email = email_qs.first().email       if email_qs.exists() else ''
+    # all assignments
+    assignments = obj.assignment_set.select_related(
+        'lkp_location_id',
+        'lkp_assignmentType_id'
+    ).all()
     
-    # 5) attach them so your template’s existing {{ object.* }} works
     obj.assignments = assignments
-    obj.phone       = primary_phone
-    obj.email       = primary_email
     
+    # Get the object details
+    records, applied, filter_tree, columns, stats_info = get_filtered_data(
+        base=ctx_base,
+        raw_filters=[f"id:{pk}"],
+        raw_stats=None
+    )
+    
+    detail_data = records[0] if records else {}
     # render
     return render(request, 'details_page.html', {
-        'base': ctx_base,
-        'object': obj,
+        'base':         ctx_base,      # 'person' or 'location'
+        'object':       obj,           # your ORM object, for any custom template logic
+        'detail_data':  detail_data,   # the flattened dict: detail_data["First Name"], etc
+        'filter_tree':  filter_tree,   # if you ever want to rebuild the sidebar
+        'applied':      applied,
+        'columns':      columns,       # column metadata (title, field, category)
+        'stats_info':   stats_info,    # stats_info for any numeric/boolean fields
     })
 
 def get_filtered_data(base, raw_filters, raw_stats=None):
