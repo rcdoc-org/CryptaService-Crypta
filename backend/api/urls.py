@@ -19,6 +19,7 @@ urlpatterns = [
         'demo/details-page/<str:base>/<int:pk>/',
         views.details_page,
         name='details_page'
-    )
+    ),
+    path('api/email-count/preview/', views.email_count_preview, name='email_count_preview'),
     
 ]

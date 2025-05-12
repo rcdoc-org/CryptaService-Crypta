@@ -10,6 +10,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.template.loader import render_to_string
 from django.db.models import Count
 from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_POST
 
 from .models import (
     Person, Location,
@@ -1009,3 +1010,69 @@ def get_diocesan_list(request):
         _type_: _description_
     """
     return _get_email_list(request, 'Diocesan')
+
+@require_POST
+@csrf_exempt
+def email_count_preview(request):
+    
+    try:
+        data = json.loads(request.body)
+    except ValueError:
+        return JsonResponse({'error': 'Invalid JSON'}, status=400)
+
+    # 1. Build the same base-QS you use in get_filtered_data()
+    base    = data.get('base', 'person')
+    raw_f   = data.get('filters', [])
+    qs      = Location.objects.all() if base == 'location' else Person.objects.all()
+
+    # 2. Apply each filter “field:value” as an __in
+    applied = {}
+    for rf in raw_f:
+        if ':' not in rf:
+            continue
+        fld, val = rf.split(':', 1)
+        applied.setdefault(fld, []).append(val)
+
+    for fld, vals in applied.items():
+        qs = qs.filter(**{f"{fld}__in": vals})
+    qs = qs.distinct()
+
+    # 3. Collect emails exactly like your get_*_list helpers do
+    recipients = []
+    if data.get('personalEmail'):
+        if base == 'location':
+            recipients += list(Location_Email.objects
+                                .filter(lkp_location_id__in=qs,
+                                        lkp_emailType_id__name__iexact='Personal')
+                                .values_list('email', flat=True))
+        else:
+            recipients += list(Person_Email.objects
+                                .filter(lkp_person_id__in=qs,
+                                        lkp_emailType_id__name__iexact='Personal')
+                                .values_list('email', flat=True))
+    if data.get('parishEmail'):
+        # same pattern...
+        if base == 'location':
+            recipients += list(Location_Email.objects
+                                .filter(lkp_location_id__in=qs,
+                                        lkp_emailType_id__name__iexact='Parish')
+                                .values_list('email', flat=True))
+        else:
+            recipients += list(Person_Email.objects
+                                .filter(lkp_person_id__in=qs,
+                                        lkp_emailType_id__name__iexact='Parish')
+                                .values_list('email', flat=True))
+    if data.get('diocesanEmail'):
+        if base == 'location':
+            recipients += list(Location_Email.objects
+                                .filter(lkp_location_id__in=qs,
+                                        lkp_emailType_id__name__iexact='Diocesan')
+                                .values_list('email', flat=True))
+        else:
+            recipients += list(Person_Email.objects
+                                .filter(lkp_person_id__in=qs,
+                                        lkp_emailType_id__name__iexact='Diocesan')
+                                .values_list('email', flat=True))
+
+    unique_count = len(set(recipients))
+    return JsonResponse({'count': unique_count})

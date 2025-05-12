@@ -2,6 +2,7 @@
     // read config values injected into the page
     const csrfToken         = document.querySelector('meta[name="csrf-token"]').content;
     const filterURL         = document.querySelector('meta[name="filter-url"]').content;
+    const countURL          = document.querySelector('meta[name="email-count-url"]').content;
     const filterSidebar     = document.getElementById('filterSidebar');
     const baseSelect        = document.getElementById('baseSelect');
     const columnForm        = document.getElementById('columnForm');
@@ -445,10 +446,35 @@
                 return;
             }
 
+            const payload = {
+                base: baseSelect.value,
+                filters: gatherFilters().filters,
+                personEmail: cbs[0].el.checked,
+                parishEmail: cbs[1].el.checked,
+                diocesanEmail: cbs[2].el.checked,
+            };
+
+            let count = 0;
+            try {
+                const resp = await fetch(countURL, {
+                    method: 'POST',
+                    headers: {
+                      'Content-Type': 'application/json',
+                      'X-CSRFToken':  getCookie('csrfToken'),
+                    },
+                    body: JSON.stringify(payload),
+                  });
+                  const json = await resp.json();
+                  count = json.count;
+                } catch (err) {
+                  return alert('Could not retrieve recipient count: ' + err.message);
+            }
+
             const summary =
             ` Please confirm before sending:\n\n` +
             `Subject: ${subj}\n` +
             `Recipients: ${checked.join(', ')}\n\n` +
+            `Total recipients: ${count}\n\n` +
             `Body:\n${bdy}`;
 
             if(!confirm(summary)) {

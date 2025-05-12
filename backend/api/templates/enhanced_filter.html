@@ -3,6 +3,7 @@
 {% block extra_meta %}
   <meta name="csrf-token" content="{{ csrf_token }}">
   <meta name="filter-url" content="{% url 'api:filter_results' %}">
+  <meta name="email-count-url" content="{% url 'api:email_count_preview' %}">
 {% endblock %}
 
 {% block title %}
