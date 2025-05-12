@@ -46,6 +46,14 @@ def details_page(request, base, pk):
         'lkp_location_id',
         'lkp_assignmentType_id'
     ).all()
+
+    if ctx_base == 'person':
+        # get the person details
+        person_details = obj.priest_detail_set.first() or obj.deacon_detail_set.first() or obj.lay_detail_set.first()
+        if person_details:
+            obj.person_details = person_details
+        else:
+            obj.person_details = None
     
     obj.assignments = assignments
     
