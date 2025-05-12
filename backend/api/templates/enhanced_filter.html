@@ -67,6 +67,17 @@
         <!-- sidebar: recursive filters -->
         <aside class="col-md-2">
           <h5>Filters</h5>
+
+          <!-- Search box for filter options -->
+          <div class="mb-2">
+            <input
+              type="text"
+              id="filterSearch"
+              class="form-control form-control-sm"
+              placeholder="Search filters..."
+            />
+          </div>
+
             <div id="activeFilters" class="mb-3 bg-light"></div>
             <div id="filterSidebar">
               {% include "partials/filter_dynamic.html" with filter_tree=filter_tree applied=applied %}
