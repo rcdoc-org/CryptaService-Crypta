@@ -21,5 +21,6 @@ urlpatterns = [
         name='details_page'
     ),
     path('api/email-count/preview/', views.email_count_preview, name='email_count_preview'),
+    path('search/', views.search, name='search'),
     
 ]

@@ -8,7 +8,7 @@ from django.http import JsonResponse, Http404
 from django.conf import settings
 from django.shortcuts import render, redirect, get_object_or_404
 from django.template.loader import render_to_string
-from django.db.models import Count
+from django.db.models import Count, Q
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
 
@@ -1077,3 +1077,24 @@ def email_count_preview(request):
 
     unique_count = len(set(recipients))
     return JsonResponse({'count': unique_count})
+
+def search(request):
+    q = request.GET.get('q', '').strip()
+    persons     = Person.objects.filter(
+        Q(name_first__icontains=q) |
+        Q(name_last__icontains=q) |
+        Q(name_middle__icontains=q)
+    )
+    locations   = Location.objects.filter(name__icontains=q)
+    results     = list(persons) + list(locations)
+    
+    if len(results) == 1:
+        obj = results[0]
+        base = 'person' if isinstance(obj, Person) else 'location'
+        return redirect('api:details_page', base=base, pk=obj.pk)
+    
+    return render(request, 'search_results.html', {
+        'query': q,
+        'persons': persons,
+        'locations': locations,
+    })

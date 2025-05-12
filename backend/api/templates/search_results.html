@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+
+{% block title %}Search Results for “{{ query }}”{% endblock %}
+
+{% block content %}
+  <div class="container my-5">
+    <h4>Results for “{{ query }}”</h4>
+
+    {% if persons %}
+      <h5 class="mt-4">People</h5>
+      <ul class="list-group mb-3">
+        {% for p in persons %}
+          <li class="list-group-item">
+            <a href="{% url 'api:details_page' base='person' pk=p.pk %}">
+              {{ p }}  {# adjust to your __str__ or fields #}
+            </a>
+          </li>
+        {% endfor %}
+      </ul>
+    {% endif %}
+
+    {% if locations %}
+      <h5 class="mt-4">Locations</h5>
+      <ul class="list-group">
+        {% for loc in locations %}
+          <li class="list-group-item">
+            <a href="{% url 'api:details_page' base='location' pk=loc.pk %}">
+              {{ loc }} 
+            </a>
+          </li>
+        {% endfor %}
+      </ul>
+    {% endif %}
+
+    {% if not persons and not locations %}
+      <p>No results found.</p>
+    {% endif %}
+  </div>
+{% endblock %}
