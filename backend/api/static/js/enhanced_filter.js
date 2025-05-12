@@ -234,7 +234,10 @@
                 formatter: cell => "<i class='fas fa-search'></i>",
                 cellClick: (e, cell) => {
                     const rowData = cell.getRow().getData();
-                    showDetailModal(rowData);
+                    const base = baseSelect.value;
+                    // showDetailModal(rowData);
+                    // Navigate to detail-page URL:
+                    window.location.href = `/demo/details-page/${base}/${rowData.id}`;
                 },
             };
 
@@ -304,8 +307,10 @@
     // 5) Build the column-chooser form inside the modal
     function populateColumnForm() {
         columnForm.innerHTML = '';
+        // hide internal id field from column chooser
+        const chooserColumns = currentColumns.filter(col => col.field !== 'id');
         // group by `category`
-        const byCat = currentColumns.reduce((acc, col) => {
+        const byCat = chooserColumns.reduce((acc, col) => {
             (acc[col.category] = acc[col.category] || []).push(col);
             return acc;
         }, {});

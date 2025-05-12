@@ -458,6 +458,7 @@ def get_filtered_data(base, raw_filters, raw_stats=None):
     for obj in qs:
         if base == "person":
             rec = {
+                "id":               obj.pk,   # for the DataFrame/grid
                 # core Person fields
                 "Full Name":        obj.name,
                 "First Name":       obj.name_first,
