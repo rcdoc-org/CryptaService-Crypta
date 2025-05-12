@@ -4,9 +4,9 @@ from datetime import datetime
 import logging
 from itertools import groupby
 import pandas as pd
-from django.http import JsonResponse
+from django.http import JsonResponse, Http404
 from django.conf import settings
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.template.loader import render_to_string
 from django.db.models import Count
 from django.views.decorators.csrf import csrf_exempt
@@ -28,21 +28,54 @@ def view_404(request):
 def home(request):
     return render(request, 'home.html')
 
-def details_page(request, base='Person', pk=None):
+def details_page(request, base, pk):
     # base will be the string 'persons' or 'locations'
-    if base == 'person':
-        obj = get_object_or_404(Person, pk=pk)
+    # if base == 'person':
+    #     obj = get_object_or_404(Person, pk=pk)
+    #     ctx_base = 'person'
+    # elif base == 'location':
+    #     obj = get_object_or_404(Location, pk=pk)
+    #     ctx_base = 'location'
+    # else:
+    #     base == 'test'
+    #     obj = None
+    #     ctx_base = 'test'
+    # # else:
+    # #     raise Http404("Detail type not found")
+    slug = base.lower()
+    if slug in ('person', 'persons'):
+        Model = Person
         ctx_base = 'person'
-    elif base == 'location':
-        obj = get_object_or_404(Location, pk=pk)
+    elif slug in ('location', 'locations'):
+        Model = Location
         ctx_base = 'location'
     else:
-        base == 'test'
-        obj = None
-        ctx_base = 'test'
-    # else:
-    #     raise Http404("Detail type not found")
+        raise Http404(f"Unknown detail type: {base}")
     
+    obj = get_object_or_404(Model, pk=pk)
+    
+    # Get the object details
+    if ctx_base == 'person':
+        # all assignments
+        assignments = obj.assignment_set.select_related('lkp_location_id').all()
+        # primary phone/email (adjust your filter to whatever “primary” type you use)
+        phone_qs = obj.person_phone_set.filter(is_primary=True)
+        email_qs = obj.person_email_set.filter(is_primary=True)
+    else:
+        assignments = obj.assignment_set.select_related('lkp_person_id').all()
+        phone_qs = obj.location_phone_set.filter(is_primary=True)
+        email_qs = obj.location_email_set.filter(is_primary=True)
+        
+    # 4) pick the first or empty string
+    primary_phone = phone_qs.first().phoneNumber if phone_qs.exists() else ''
+    primary_email = email_qs.first().email       if email_qs.exists() else ''
+    
+    # 5) attach them so your template’s existing {{ object.* }} works
+    obj.assignments = assignments
+    obj.phone       = primary_phone
+    obj.email       = primary_email
+    
+    # render
     return render(request, 'details_page.html', {
         'base': ctx_base,
         'object': obj,
