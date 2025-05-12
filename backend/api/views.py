@@ -47,6 +47,16 @@ def details_page(request, base, pk):
         'lkp_assignmentType_id'
     ).all()
 
+    # primary phone
+    phones = obj.person_phone_set.all()
+    primary_phone = phones.first().phoneNumber if phones.exists() and phones.first().is_primary else phones.first().phoneNumber if phones.exists() else None
+    obj.primary_phone = primary_phone
+    
+    # primary email
+    emails = obj.person_email_set.all()
+    primary_email = emails.first().email if emails.exists() and emails.first().is_primary else None
+    obj.primary_email = primary_email
+    
     if ctx_base == 'person':
         # get the person details
         person_details = obj.priest_detail_set.first() or obj.deacon_detail_set.first() or obj.lay_detail_set.first()

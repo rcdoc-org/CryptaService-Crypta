@@ -50,26 +50,12 @@
           <div class="d-flex justify-content-center mb-3">
             <!-- Used for primary phone -->
             <a 
-            href="tel:
-            {% if base == 'person' %}
-              {{ object.phone }}
-            {% elif base == 'location' %}
-              {{ object.phone}}
-            {% else %}
-              Technology Manager
-            {% endif %}" class="action-icons me-4">
+            href="tel:{{ object.primary_phone }}" class="action-icons me-4">
               <i class="fas fa-phone fa-lg"></i>
             </a>
 
             <!-- Used for primary Email -->
-            <a href="mailto:
-            {% if base == 'person' %}
-              {{ object.email }}
-            {% elif base == 'location' %}
-              {{ object.email}}
-            {% else %}
-              kbgreenberg@rcdoc.org
-            {% endif %}" class="action-icons me-4">
+            <a href="mailto:{{ object.primary_email }}" class="action-icons me-4">
               <i class="fas fa-envelope fa-lg"></i>
             </a>
             
@@ -145,7 +131,7 @@
           </div>
         </div>
   
-        <!-- job details -->
+        <!-- status details -->
         <div class="card mb-4">
           <div class="card-body">
             <h5 class="card-title">Status Details</h5>
@@ -317,6 +303,9 @@
                   <small class="text-muted">
                     {{ assignment.lkp_location_id.name }}<br>
                     As of: {{ assignment.date_assigned }}
+                    {% if assignment.date_released %}
+                      <br>Released On: {{ assignment.date_released }}
+                    {% endif %}
                   </small><br><br>
                 {% endfor %}
               </div>
