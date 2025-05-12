@@ -3,6 +3,7 @@
 {% block extra_meta %}
   <meta name="csrf-token" content="{{ csrf_token }}">
   <meta name="filter-url" content="{% url 'api:filter_results' %}">
+  <meta name="email-count-url" content="{% url 'api:email_count_preview' %}">
 {% endblock %}
 
 {% block title %}
@@ -36,6 +37,10 @@
   <script 
     src="https://unpkg.com/tabulator-tables@5.5.0/dist/js/tabulator.min.js">
   </script>
+
+  <!-- Used for allowing excel export -->
+  <script src="https://oss.sheetjs.com/sheetjs/xlsx.full.min.js"></script>
+
 {% endblock %}
 
 {% block content %}
@@ -66,6 +71,17 @@
         <!-- sidebar: recursive filters -->
         <aside class="col-md-2">
           <h5>Filters</h5>
+
+          <!-- Search box for filter options -->
+          <div class="mb-2">
+            <input
+              type="text"
+              id="filterSearch"
+              class="form-control form-control-sm"
+              placeholder="Search filters..."
+            />
+          </div>
+
             <div id="activeFilters" class="mb-3 bg-light"></div>
             <div id="filterSidebar">
               {% include "partials/filter_dynamic.html" with filter_tree=filter_tree applied=applied %}
@@ -94,8 +110,18 @@
               data-bs-target='#emailModal'
               id="emailtogglebtn"
             >Send Email</button>
-            <button type="button" class="btn btn-outline-primary btn-sm">Export to Excel</button>
-            <button type="button" class="btn btn-outline-primary btn-sm">Export to CSV</button>
+            <button 
+              type="button" 
+              id="exportExcelBtn"
+              class="btn btn-outline-primary btn-sm">
+              Export to Excel
+            </button>
+            <button 
+              type="button" 
+              id="exportCsvBtn"
+              class="btn btn-outline-primary btn-sm">
+              Export to CSV
+            </button>
             <button type="button" class="btn btn-outline-primary btn-sm">Print Mailing Labels</button>
           </div>
         </aside>

@@ -266,7 +266,7 @@ class Person(models.Model):
     name_middle = models.CharField(max_length=255, null=True)
     name_last = models.CharField(max_length=255, null=False)
     suffix = models.CharField(max_length=255, null=True)
-    photo = models.ImageField(upload_to='../media/photos/', null=True)
+    photo = models.ImageField(upload_to='photos/', blank=True, null=True)
     date_birth = models.DateField(null=True)
     date_retired = models.DateField(null=True)
     date_deceased = models.DateField(null=True)

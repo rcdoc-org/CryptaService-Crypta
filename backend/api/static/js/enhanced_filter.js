@@ -2,10 +2,14 @@
     // read config values injected into the page
     const csrfToken         = document.querySelector('meta[name="csrf-token"]').content;
     const filterURL         = document.querySelector('meta[name="filter-url"]').content;
+    const countURL          = document.querySelector('meta[name="email-count-url"]').content;
     const filterSidebar     = document.getElementById('filterSidebar');
     const baseSelect        = document.getElementById('baseSelect');
     const columnForm        = document.getElementById('columnForm');
     const applyBtn          = document.getElementById('applyColumnsBtn');
+    const filterSearch      = document.getElementById('filterSearch');
+    const exportExcelBtn    = document.getElementById('exportExcelBtn');
+    const exportCsvBtn      = document.getElementById('exportCsvBtn');
 
     let lastBase = null;
     
@@ -192,6 +196,32 @@
           container.appendChild(badge);
         });
       }
+
+    function filterOptions() {
+        const term = filterSearch.value.trim().toLowerCase();
+
+        // each top-level group <li> has class 'mb-3'
+        const groups = filterSidebar.querySelectorAll('ul.list-unstyled > li.mb-3');
+
+        groups.forEach(group => {
+            // all options <li> under this group
+            const opts = group.querySelectorAll('ul.ps-3 li');
+
+            let anyVisible = false;
+            opts.forEach(li => {
+                const lbl = li.querySelector('label').textContent.toLowerCase();
+
+                if(!term || lbl.includes(term)) {
+                    li.style.display = ''; //show match
+                    anyVisible = true;
+                } else {
+                    li.style.display = 'none'; //hide non-match
+                }
+            });
+
+            group.style.display = anyVisible ? '' : 'none'; // show/hide group
+        });
+    }
       
 
     // 4) Core Function: gather filters, show badges, POST to Django, then update sidebar
@@ -234,8 +264,12 @@
                 formatter: cell => "<i class='fas fa-search'></i>",
                 cellClick: (e, cell) => {
                     const rowData = cell.getRow().getData();
-                    showDetailModal(rowData);
+                    const base = baseSelect.value;
+                    // showDetailModal(rowData);
+                    // Navigate to detail-page URL:
+                    window.location.href = `/demo/details-page/${base}/${rowData.id}`;
                 },
+                download: false,
             };
 
             // inital-only fields
@@ -304,8 +338,10 @@
     // 5) Build the column-chooser form inside the modal
     function populateColumnForm() {
         columnForm.innerHTML = '';
+        // hide internal id field from column chooser
+        const chooserColumns = currentColumns.filter(col => col.field !== 'id');
         // group by `category`
-        const byCat = currentColumns.reduce((acc, col) => {
+        const byCat = chooserColumns.reduce((acc, col) => {
             (acc[col.category] = acc[col.category] || []).push(col);
             return acc;
         }, {});
@@ -440,10 +476,35 @@
                 return;
             }
 
+            const payload = {
+                base: baseSelect.value,
+                filters: gatherFilters().filters,
+                personEmail: cbs[0].el.checked,
+                parishEmail: cbs[1].el.checked,
+                diocesanEmail: cbs[2].el.checked,
+            };
+
+            let count = 0;
+            try {
+                const resp = await fetch(countURL, {
+                    method: 'POST',
+                    headers: {
+                      'Content-Type': 'application/json',
+                      'X-CSRFToken':  getCookie('csrfToken'),
+                    },
+                    body: JSON.stringify(payload),
+                  });
+                  const json = await resp.json();
+                  count = json.count;
+                } catch (err) {
+                  return alert('Could not retrieve recipient count: ' + err.message);
+            }
+
             const summary =
             ` Please confirm before sending:\n\n` +
             `Subject: ${subj}\n` +
             `Recipients: ${checked.join(', ')}\n\n` +
+            `Total recipients: ${count}\n\n` +
             `Body:\n${bdy}`;
 
             if(!confirm(summary)) {
@@ -508,6 +569,13 @@
         // Whenever a filter checkbox or the base-toggle radio changes, re-fetch
         filterSidebar.addEventListener('change', updateView);
         baseSelect.addEventListener('change', toggle);
+        filterSearch.addEventListener('input', filterOptions);
+        exportCsvBtn.addEventListener('click', () => {
+            table.download("csv", "results.csv");  // grabs only the currently visible & filtered rows/columns
+        });
+        exportExcelBtn.addEventListener('click', () => {
+            table.download("xlsx", "results.xlsx", { sheetName: "Results" });
+        });
 
         // ensure we populate everytime the modal opens
         const colModalEl = document.getElementById('columnModal');

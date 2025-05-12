@@ -4,12 +4,13 @@ from datetime import datetime
 import logging
 from itertools import groupby
 import pandas as pd
-from django.http import JsonResponse
+from django.http import JsonResponse, Http404
 from django.conf import settings
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.template.loader import render_to_string
-from django.db.models import Count
+from django.db.models import Count, Q
 from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_POST
 
 from .models import (
     Person, Location,
@@ -28,8 +29,80 @@ def view_404(request):
 def home(request):
     return render(request, 'home.html')
 
-def details_page(request):
-    return render(request, 'details_page.html')
+def details_page(request, base, pk):
+    if request.method == 'POST' and request.FILES.get('photo'):
+        # handle file upload
+        slug = base.lower()
+        if slug in ('person', 'persons'):
+            Model = Person
+            ctx_base = 'person'
+        elif slug in ('location', 'locations'):
+            Model = Location
+            ctx_base = 'location'
+        else:
+            raise Http404(f"Unknown detail type: {base}")
+        
+        obj = get_object_or_404(Model, pk=pk)
+        obj.photo = request.FILES['photo']
+        obj.save()
+        return redirect(request.path) # reload GET so you don’t repost on refresh
+    
+    slug = base.lower()
+    if slug in ('person', 'persons'):
+        Model = Person
+        ctx_base = 'person'
+    elif slug in ('location', 'locations'):
+        Model = Location
+        ctx_base = 'location'
+    else:
+        raise Http404(f"Unknown detail type: {base}")
+    
+    obj = get_object_or_404(Model, pk=pk)
+    
+    # all assignments
+    assignments = obj.assignment_set.select_related(
+        'lkp_location_id',
+        'lkp_assignmentType_id'
+    ).all()
+    
+    if ctx_base == 'person':
+        # get the person details
+        person_details = obj.priest_detail_set.first() or obj.deacon_detail_set.first() or obj.lay_detail_set.first()
+        if person_details:
+            obj.person_details = person_details
+        else:
+            obj.person_details = None
+        
+        # primary phone
+        phones = obj.person_phone_set.all()
+        primary_phone = phones.first().phoneNumber if phones.exists() and phones.first().is_primary else phones.first().phoneNumber if phones.exists() else None
+        obj.primary_phone = primary_phone
+        
+        # primary email
+        emails = obj.person_email_set.all()
+        primary_email = emails.first().email if emails.exists() and emails.first().is_primary else None
+        obj.primary_email = primary_email
+    
+    obj.assignments = assignments
+    
+    # Get the object details
+    records, applied, filter_tree, columns, stats_info = get_filtered_data(
+        base=ctx_base,
+        raw_filters=[f"id:{pk}"],
+        raw_stats=None
+    )
+    
+    detail_data = records[0] if records else {}
+    # render
+    return render(request, 'details_page.html', {
+        'base':         ctx_base,      # 'person' or 'location'
+        'object':       obj,           # your ORM object, for any custom template logic
+        'detail_data':  detail_data,   # the flattened dict: detail_data["First Name"], etc
+        'filter_tree':  filter_tree,   # if you ever want to rebuild the sidebar
+        'applied':      applied,
+        'columns':      columns,       # column metadata (title, field, category)
+        'stats_info':   stats_info,    # stats_info for any numeric/boolean fields
+    })
 
 def get_filtered_data(base, raw_filters, raw_stats=None):
     """
@@ -403,6 +476,7 @@ def get_filtered_data(base, raw_filters, raw_stats=None):
     for obj in qs:
         if base == "person":
             rec = {
+                "id":               obj.pk,   # for the DataFrame/grid
                 # core Person fields
                 "Full Name":        obj.name,
                 "First Name":       obj.name_first,
@@ -520,6 +594,7 @@ def get_filtered_data(base, raw_filters, raw_stats=None):
             }
         else:
             rec = {
+                "id":               obj.pk,   # for the DataFrame/grid
                 # — Basic info —
                 "Name":             obj.name,
                 "Type":             obj.type,
@@ -936,3 +1011,90 @@ def get_diocesan_list(request):
         _type_: _description_
     """
     return _get_email_list(request, 'Diocesan')
+
+@require_POST
+@csrf_exempt
+def email_count_preview(request):
+    
+    try:
+        data = json.loads(request.body)
+    except ValueError:
+        return JsonResponse({'error': 'Invalid JSON'}, status=400)
+
+    # 1. Build the same base-QS you use in get_filtered_data()
+    base    = data.get('base', 'person')
+    raw_f   = data.get('filters', [])
+    qs      = Location.objects.all() if base == 'location' else Person.objects.all()
+
+    # 2. Apply each filter “field:value” as an __in
+    applied = {}
+    for rf in raw_f:
+        if ':' not in rf:
+            continue
+        fld, val = rf.split(':', 1)
+        applied.setdefault(fld, []).append(val)
+
+    for fld, vals in applied.items():
+        qs = qs.filter(**{f"{fld}__in": vals})
+    qs = qs.distinct()
+
+    # 3. Collect emails exactly like your get_*_list helpers do
+    recipients = []
+    if data.get('personalEmail'):
+        if base == 'location':
+            recipients += list(Location_Email.objects
+                                .filter(lkp_location_id__in=qs,
+                                        lkp_emailType_id__name__iexact='Personal')
+                                .values_list('email', flat=True))
+        else:
+            recipients += list(Person_Email.objects
+                                .filter(lkp_person_id__in=qs,
+                                        lkp_emailType_id__name__iexact='Personal')
+                                .values_list('email', flat=True))
+    if data.get('parishEmail'):
+        # same pattern...
+        if base == 'location':
+            recipients += list(Location_Email.objects
+                                .filter(lkp_location_id__in=qs,
+                                        lkp_emailType_id__name__iexact='Parish')
+                                .values_list('email', flat=True))
+        else:
+            recipients += list(Person_Email.objects
+                                .filter(lkp_person_id__in=qs,
+                                        lkp_emailType_id__name__iexact='Parish')
+                                .values_list('email', flat=True))
+    if data.get('diocesanEmail'):
+        if base == 'location':
+            recipients += list(Location_Email.objects
+                                .filter(lkp_location_id__in=qs,
+                                        lkp_emailType_id__name__iexact='Diocesan')
+                                .values_list('email', flat=True))
+        else:
+            recipients += list(Person_Email.objects
+                                .filter(lkp_person_id__in=qs,
+                                        lkp_emailType_id__name__iexact='Diocesan')
+                                .values_list('email', flat=True))
+
+    unique_count = len(set(recipients))
+    return JsonResponse({'count': unique_count})
+
+def search(request):
+    q = request.GET.get('q', '').strip()
+    persons     = Person.objects.filter(
+        Q(name_first__icontains=q) |
+        Q(name_last__icontains=q) |
+        Q(name_middle__icontains=q)
+    )
+    locations   = Location.objects.filter(name__icontains=q)
+    results     = list(persons) + list(locations)
+    
+    if len(results) == 1:
+        obj = results[0]
+        base = 'person' if isinstance(obj, Person) else 'location'
+        return redirect('api:details_page', base=base, pk=obj.pk)
+    
+    return render(request, 'search_results.html', {
+        'query': q,
+        'persons': persons,
+        'locations': locations,
+    })
