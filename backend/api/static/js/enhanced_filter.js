@@ -7,6 +7,7 @@
     const baseSelect        = document.getElementById('baseSelect');
     const columnForm        = document.getElementById('columnForm');
     const applyBtn          = document.getElementById('applyColumnsBtn');
+    const filterSearch      = document.getElementById('filterSearch');
 
     let lastBase = null;
     
@@ -193,6 +194,32 @@
           container.appendChild(badge);
         });
       }
+
+    function filterOptions() {
+        const term = filterSearch.value.trim().toLowerCase();
+
+        // each top-level group <li> has class 'mb-3'
+        const groups = filterSidebar.querySelectorAll('ul.list-unstyled > li.mb-3');
+
+        groups.forEach(group => {
+            // all options <li> under this group
+            const opts = group.querySelectorAll('ul.ps-3 li');
+
+            let anyVisible = false;
+            opts.forEach(li => {
+                const lbl = li.querySelector('label').textContent.toLowerCase();
+
+                if(!term || lbl.includes(term)) {
+                    li.style.display = ''; //show match
+                    anyVisible = true;
+                } else {
+                    li.style.display = 'none'; //hide non-match
+                }
+            });
+
+            group.style.display = anyVisible ? '' : 'none'; // show/hide group
+        });
+    }
       
 
     // 4) Core Function: gather filters, show badges, POST to Django, then update sidebar
@@ -539,6 +566,7 @@
         // Whenever a filter checkbox or the base-toggle radio changes, re-fetch
         filterSidebar.addEventListener('change', updateView);
         baseSelect.addEventListener('change', toggle);
+        filterSearch.addEventListener('input', filterOptions);
 
         // ensure we populate everytime the modal opens
         const colModalEl = document.getElementById('columnModal');
