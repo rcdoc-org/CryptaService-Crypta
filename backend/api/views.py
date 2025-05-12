@@ -594,6 +594,7 @@ def get_filtered_data(base, raw_filters, raw_stats=None):
             }
         else:
             rec = {
+                "id":               obj.pk,   # for the DataFrame/grid
                 # — Basic info —
                 "Name":             obj.name,
                 "Type":             obj.type,
