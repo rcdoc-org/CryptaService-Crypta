@@ -60,30 +60,30 @@
               </form>
             </div>
         {% else %}
-        <div class="text-center p-4">
-          <div class="text-center p-4 photo-upload">
-            <form method="POST" enctype="multipart/form-data">
-              {% csrf_token %}
-              {% if object.photo %}
-                <img src="{{ object.photo.url }}"
+          <div class="text-center p-4">
+            <div class="text-center p-4 photo-upload">
+              <form method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
+                {% if object.photo %}
+                  <img src="{{ object.photo.url }}"
+                      alt="Profile Photo"
+                      class="rounded-circle mb-3"
+                      width="120" height="120">
+                {% else %}
+                  <img src="{% static 'images/profilePic.jpg' %}"
                     alt="Profile Photo"
                     class="rounded-circle mb-3"
                     width="120" height="120">
-              {% else %}
-                <img src="{% static 'images/profilePic.jpg' %}"
-                  alt="Profile Photo"
-                  class="rounded-circle mb-3"
-                  width="120" height="120">
-              {% endif %}
+                {% endif %}
 
-              <!-- invisible file-input sits atop the image -->
-              <input 
-                type="file" 
-                name="photo" 
-                accept="image/*"
-                onchange="this.form.submit()">
-            </form>
-          </div>
+                <!-- invisible file-input sits atop the image -->
+                <input 
+                  type="file" 
+                  name="photo" 
+                  accept="image/*"
+                  onchange="this.form.submit()">
+              </form>
+            </div>
         {% endif %}
 
 
@@ -396,7 +396,7 @@
         <main class="col-md-8 p-4 bg-light">
           <!--PRIMARY INFO -->
           <div id="primary-info" class="detail-section">
-            <!-- Physical Address Card -->
+            <!-- Address Cards -->
             <div class="row mb-4">
               <div class="col">
                 <div class="card">
@@ -543,6 +543,120 @@
           </div>
           <!-- CONTACT INFO-->
           <div id="contact-info" class="detail-section d-none">
+
+          </div>
+
+          <div id="church-info" class="detail-section d-none">
+            <!--Top Row-->
+            <div class="row mb-4">
+              <div class="col">
+                <div class="card">
+                  <div class="card-body d-flex align-items-center">
+                    <i class="fas fa-map-marker-alt me-2"></i>
+                    <div>
+                      <small class="text-muted">Church/Mission</small><br>
+                      {% if object.location_details.is_mission %}
+                        <strong>Mission</strong>
+                      {% else %}
+                        <strong>Church</strong>
+                      {% endif %}
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="col">
+                <div class="card">
+                  <div class="card-body d-flex align-items-center">
+                    <div>
+                      <small class="text-muted">Parish ID</small><br>
+                      <strong>{{ object.location_details.parish_id }}</strong>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+      
+            <!-- church details -->
+            <div class="card mb-4">
+              <div class="card-body">
+                <h5 class="card-title">Church Details</h5>
+                <dl class="row">
+                  <dt class="col-sm-4">Parish Unique Name</dt>
+                  <dd class="col-sm-8">{{ object.location_details.parishUniqueName }}</dd>
+      
+                  <dt class="col-sm-4">Diocese of Charlotte: Entity</dt>
+                  {% if object.location_details.is_doc %}
+                    <dd class="col-sm-8">Yes</dd>
+                  {% else %}
+                    <dd class="col-sm-8">No</dd>
+                  {% endif %}
+                  <dt class="col-sm-4">Tax ID</dt>
+                  <dd class="col-sm-8">{{ object.location_details.tax_id }}</dd>
+      
+                  <dt class="col-sm-4">Geo ID</dt>
+                  <dd class="col-sm-8">{{ object.location_details.geo_id }}</dd>
+                  
+                  {% if object.location_details.type_id %}
+                    <dt class="col-sm-4">Type ID</dt>
+                    <dd class="col-sm-8">{{ object.location_details.type_id }}</dd>
+                  {% endif %}
+      
+                  <dt class="col-sm-4">Date Established</dt>
+                  {% if object.location_details.date_established %}
+                    <dd class="col-sm-8">{{ object.location_details.date_established|date:"Y-m-d"}}</dd>
+                  {% else %}
+                    <dd class="col-sm-8">Unknown</dd>
+                  {% endif %}
+                    {# add more fields as needed #}
+                </dl>
+              </div>
+            </div>
+      
+            <!-- lower two-column cards -->
+            <div class="row">
+              <!-- LEFT half -->
+              <div class="col-md-6">
+                <div class="card mb-4">
+                  <div class="card-header d-flex justify-content-between align-items-center">
+                    <span>Dedications</span>
+                  </div>
+                  <div class="card-body">
+                    <dt class="col-sm-4">First Dedication</dt>
+                    <dd class="col-sm-8">{{ object.location_details.date_firstDedication|date:"Y-m-d" }}
+                    <dt class="col-sm-4">Second Dedication</dt>
+                    <dd class="col-sm-8">{{ object.location_details.date_secondDedication|date:"Y-m-d" }}
+                  </div>
+                </div>
+                <div class="card">
+                  <div class="card-header">Boundary</div>
+                  <div class="card-body">
+                    <div class="d-flex mb-3">
+                      <img src="{% static 'images/profilePic.jpg' %}"
+                          class="rounded-circle me-3"
+                          width="40" height="40"
+                          alt="Feedback User">
+                    </div>
+                    <a href="#">View More</a>
+                  </div>
+                </div>
+              </div>
+      
+              <!-- RIGHT half -->
+              <div class="col-md-6">
+                <div class="card mb-4">
+                  <div class="card-header">Notes</div>
+                  <div class="card-body">
+                    <small class="text-muted">
+                      {{ object.location_details.notes }}
+                    </small>
+                    <a href="#" class="d-block mt-2">Edit</a>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div id="stat-info" class="detail-section d-none">
 
           </div>
         </main>
