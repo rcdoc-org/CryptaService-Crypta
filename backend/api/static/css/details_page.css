@@ -91,3 +91,9 @@ html, body {
   cursor: default;
   text-decoration: none !important;
 }
+
+.card-header {
+  background-color: rgba(128, 128, 128, 0.329);
+  border-top-left-radius: .8rem !important;
+  border-top-right-radius: .8rem !important;
+}
