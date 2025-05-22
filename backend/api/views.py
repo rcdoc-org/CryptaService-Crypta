@@ -87,7 +87,8 @@ def details_page(request, base, pk):
         diocesan_email = obj.person_email_set.\
             filter(lkp_emailType_id__name='diocesan')\
                 .first()
-        obj.diocesan_email = diocesan_email.email
+        if diocesan_email:
+            obj.diocesan_email = diocesan_email.email
     
     if ctx_base == 'location':
         location_details = obj.churchDetail_location.first() or obj.school_location.first() or obj.otherentity_detail_set.first() or obj.hospital_location.first() or obj.campusMinistry_location.first()
