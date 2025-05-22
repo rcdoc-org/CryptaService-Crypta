@@ -1,6 +1,7 @@
 /* left panel background + text */
 .aside-panel {
-    background-color: #2272C5;
+    /* background-color: #2272C5; */
+    background-image: linear-gradient(rgb(5, 83, 175),rgb(19, 116, 226));
     color: #fff;
     min-height: 100vh;
     display: flex;
