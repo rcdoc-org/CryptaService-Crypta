@@ -97,8 +97,9 @@
 
   /* Organization title */
 .org-title {
-  color: rgb(253, 253, 253);
+  color: rgb(0, 0, 0);
   font-size: 20px;
+  margin-left: 0.5rem;
   }
 
 /* Search input styling */
