@@ -289,11 +289,11 @@
                 {% if object.lkp_mailing_id %}
                   <div class="card mb-4">
                     <div class="card-header d-flex justify-content-between align-items-center">
-                      <span>Mailing Address</span>
+                      <span><strong>Mailing Address</strong></span>
                     </div>
                     <div class="card-body">
                       <div>
-                        <strong>{{ object.lkp_mailing_id.friendlyName }} </strong><br>
+                        {% comment %} <strong>{{ object.lkp_mailing_id.friendlyName }} </strong><br> {% endcomment %}
                         <small class="text-muted">{{ object.lkp_mailing_id.address1 }}</small><br>
                         {% if object.lkp_mailing_id.address2 != 'nan' %}
                           <small class="text-muted">{{ object.lkp_mailing_id.address2 }}</small><br>
@@ -312,7 +312,7 @@
                     <div class="card-header">Residence Address</div>
                     <div class="card-body">
                       <div>
-                        <strong>{{ object.lkp_residence_id.friendlyName }} </strong><br>
+                        {% comment %} <strong>{{ object.lkp_residence_id.friendlyName }} </strong><br> {% endcomment %}
                         <small class="text-muted">{{ object.lkp_residence_id.address1 }}</small><br>
                         {% if object.lkp_residence_id.address2 != 'nan' %}
                           <small class="text-muted">{{ object.lkp_residence_id.address2 }}</small><br>
@@ -468,14 +468,14 @@
     
                 <dt class="col-sm-4">Diocesan/Religious</dt>
                 <dd class="col-sm-8">{{object.person_details.diocesanReligious}}</dd>
-                <dt class="col-sm-8">
+                <dt class="col-sm-4">
                   Is a Member of the Eastern Catholic Church?
                 </dt>
-                <dd class="col-sm-4">
+                <dd class="col-sm-8">
                   {{ object.person_details.is_easternCatholicChurchMember}}
                 </dd>
                 <dt class="col-sm-8">
-                  Is a Approved for Letters of Good Standing?
+                  Is Approved for Letters of Good Standing?
                 </dt>
                 <dd class="col-sm-4">
                   {{ object.person_details.is_approvedLetterOfGoodStanding}}
