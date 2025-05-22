@@ -26,8 +26,8 @@ logger = logging.getLogger(__name__)
 def view_404(request):
     return render(request, '404.html', status=404)
 
-def home(request):
-    return render(request, 'home.html')
+def changeLog(request):
+    return render(request, 'changeLog.html')
 
 def details_page(request, base, pk):
     if request.method == 'POST' and request.FILES.get('photo'):
