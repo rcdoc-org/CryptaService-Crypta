@@ -304,7 +304,8 @@
                     placeholder: "No Data Available",
                     pagination:'local',
                     paginationSize: 20,
-                    paginationCounter:'rows'
+                    paginationCounter:'rows',
+                    movableRows: true,
                 });
                 } else {
                 // base just flipped
