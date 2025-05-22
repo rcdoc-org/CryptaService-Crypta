@@ -83,8 +83,15 @@ def details_page(request, base, pk):
         primary_email = emails.first().email if emails.exists() and emails.first().is_primary else None
         obj.primary_email = primary_email
     
-    obj.assignments = assignments
+    if ctx_base == 'location':
+        location_details = obj.churchDetail_location.first() or obj.school_location.first() or obj.otherentity_detail_set.first() or obj.hospital_location.first() or obj.campusMinistry_location.first()
+        if location_details:
+            obj.location_details = location_details
+        else:
+            obj.location_details = None
     
+    obj.assignments = assignments
+
     # Get the object details
     records, applied, filter_tree, columns, stats_info = get_filtered_data(
         base=ctx_base,

@@ -128,55 +128,7 @@
 
     {% block footer %}
     {% endblock %}
-    <footer class="custom-footer py-5">
-      <div class="container">
-    
-        <!-- contact & logo row -->
-        <div class="row align-items-center my-4">
-          <div class="col-md-6 text-center text-md-start mb-3 mb-md-0">
-            <a href="{% url 'api:home' %}">
-              <img src="{% static 'images/logo.png' %}"
-                   alt="Diocese of Charlotte"
-                   class="img-fluid"
-                   style="max-width: 250px;">
-              <span class='org-title'>Diocese of Charlotte </span>
-            </a>
-          </div>
-          <div class="col-md-6">
-            <ul class="list-unstyled mb-0">
-              <li class="mb-2">
-                <i class="fas fa-envelope me-2"></i>
-                <a href="mailto:helpdesk@rcdoc.org"
-                   class="text-white">
-                   helpdesk@rcdoc.org
-                </a>
-              </li>
-              <li class="mb-2">
-                <i class="fas fa-phone me-2"></i>
-                <a href="tel:+17043703388" class="text-white" target="_blank">
-                  (704) 370-3388
-                </a>
-              </li>
-              <li>
-                <i class="fas fa-map-marker-alt me-2"></i>
-                <a href="https://www.google.com/maps?q=1123+S.+Church+Street,+Charlotte,+NC"
-                   class="text-white" 
-                   target="_blank"> 
-                   1123 South Church Street, Charlotte, NC 28203
-                </a>
-              </li>
-            </ul>
-          </div>
-        </div>
-    
-        <!-- copyright & privacy -->
-        <div class="text-center">
-          <small class="text-muted">
-            &copy; 2025 Diocese of Charlotte
-          </small>
-        </div>
-      </div>
-    </footer>
+
 
     {% block bodyScripts %}
     {% endblock %}
