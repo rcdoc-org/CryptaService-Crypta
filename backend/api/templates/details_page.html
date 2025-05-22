@@ -59,6 +59,7 @@
                   onchange="this.form.submit()">
               </form>
             </div>
+          </div>
         {% else %}
           <div class="text-center p-4">
             <div class="text-center p-4 photo-upload">
@@ -84,44 +85,49 @@
                   onchange="this.form.submit()">
               </form>
             </div>
+          </div>
         {% endif %}
 
+        <div class="text-center">
+          <div>
+            <h4 class="detail-label">
+              {% if base == 'person' %}
+                {{ object.name }}
+              {% elif base == 'location' %}
+                {{ object.name}}
+              {% else %}
+                Kyle Greenberg
+              {% endif %}
+            </h4>
+            <p class="mb-3 detail-label">
+              {% if base == 'person' %}
+                {{ object.personType | title }}
+              {% elif base == 'location' %}
+                {{ object.type| title }}
+              {% else %}
+                Technology Manager
+              {% endif %}
+            </p>
+          </div>
+          <div>
+            <button class="btn actions-btn mb-3">Actions</button>
+            <div class="d-flex justify-content-center mb-3">
+              <!-- Used for primary phone -->
+              <a 
+              href="tel:{{ object.primary_phone }}" class="action-icons me-4">
+                <i class="fas fa-phone fa-lg"></i>
+              </a>
 
-          <h4>
-            {% if base == 'person' %}
-              {{ object.name }}
-            {% elif base == 'location' %}
-              {{ object.name}}
-            {% else %}
-              Kyle Greenberg
-            {% endif %}
-          </h4>
-          <p class="mb-3">
-            {% if base == 'person' %}
-              {{ object.personType | title }}
-            {% elif base == 'location' %}
-              {{ object.type| title }}
-            {% else %}
-              Technology Manager
-            {% endif %}
-          </p>
-          <button class="btn actions-btn mb-3">Actions</button>
-          <div class="d-flex justify-content-center mb-3">
-            <!-- Used for primary phone -->
-            <a 
-            href="tel:{{ object.primary_phone }}" class="action-icons me-4">
-              <i class="fas fa-phone fa-lg"></i>
-            </a>
-
-            <!-- Used for primary Email -->
-            <a href="mailto:{{ object.primary_email }}" class="action-icons me-4">
-              <i class="fas fa-envelope fa-lg"></i>
-            </a>
-            
-            <!-- Modal for Relationships -->
-            <a href="#" class="action-icons">
-              <i class="fas fa-users fa-lg"></i>
-            </a>
+              <!-- Used for primary Email -->
+              <a href="mailto:{{ object.primary_email }}" class="action-icons me-4">
+                <i class="fas fa-envelope fa-lg"></i>
+              </a>
+              
+              <!-- Modal for Relationships -->
+              <a href="#" class="action-icons">
+                <i class="fas fa-users fa-lg"></i>
+              </a>
+            </div>
           </div>
         </div>
         
