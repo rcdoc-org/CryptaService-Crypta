@@ -113,15 +113,25 @@
             // 3) slider wrapper
             const wrapper = document.createElement('div');
             wrapper.className = 'stats-slider-container';
-            const minBox = document.createElement('div');
+
+            const minBox = document.createElement('input');
+            minBox.type = 'number';
             minBox.className = 'stats-val-box';
-            minBox.textContent = currentMin;
+            minBox.value = currentMin;
+            minBox.min = min;
+            minBox.max = max;
+
             const sliderEl = document.createElement('div');
             sliderEl.id = `slider_${field}`;
             sliderEl.className = 'stats-slider';
-            const maxBox = document.createElement('div');
+
+            const maxBox = document.createElement('input');
+            maxBox.type = 'number';
             maxBox.className = 'stats-val-box';
-            maxBox.textContent = currentMax;
+            maxBox.value = currentMax;
+            maxBox.min = min;
+            maxBox.max = max;
+
             wrapper.append(minBox, sliderEl, maxBox);
             div.appendChild(wrapper);
 
@@ -150,17 +160,27 @@
                 });
 
             sliderEl.noUiSlider.on('slide', ([low, high]) => {
-                minBox.textContent = low;
-                maxBox.textContent = high;
+                minBox.value = low;
+                maxBox.value = high;
             });
 
             sliderEl.noUiSlider.on('set', ([low, high]) => {
-                minBox.textContent = low;
-                maxBox.textContent = high;
+                minBox.value = low;
+                maxBox.value = high;
                 minInp.value = low;
                 maxInp.value = high;
                 updateView();
                 });
+
+            minBox.addEventListener('change', () =>{
+                let v = Math.max(min, Math.min(max, +minBox.value));
+                sliderEl.noUiSlider.set([v, null]);
+            });
+
+            maxBox.addEventListener('change', () => {
+                let v = Math.max(min, Math.min(max, +maxBox.value));
+                sliderEl.noUiSlider.set([null, v]);
+            });
             } else {
                 sliderEl.noUiSlider.set([currentMin, currentMax]);
                 }
