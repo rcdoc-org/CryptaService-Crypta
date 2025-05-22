@@ -347,7 +347,7 @@
                     columns: allCols,
                     placeholder: "No Data Available",
                     pagination:'local',
-                    paginationSize: 20,
+                    paginationSize: 25,
                     paginationCounter:'rows',
                     movableRows: true,
                 });
