@@ -6,7 +6,7 @@
 
 <!-- Change the Title here -->
 {% block title %} 
-  Home Page 
+  Change Log
 {% endblock %}
 
 <!-- Any unique styles no on the Stylesheets goes here -->
@@ -58,6 +58,28 @@
           <p>
             Change Log:<br/>
             <br/>
+              <strong>5-22-2025: A long list of GUI changes</strong><br>
+              <ol>
+                <li>Added Crypta 2.0 to Header.</li>
+                <li>Changed home page to database and what was the home page to change log.</li>
+                <li>Updated URL paths.</li>
+                <li>Made the relationship button on details page a teams message link.</li>
+                <li>Update database table with pagination.</li>
+                <li>Update database with row moving capabilities.</li>
+                <li>Rounded table results for future main usage with new database look upcoming.</li>
+                <li>Matched Gradient to Workday for details page.</li>
+                <li>Updated rounding to better match workday.</li>
+                <li>Update primary info with boxes that Bill Weldon prefered.</li>
+                <li>Added Main overflow feature for horizontal and vertical main section of details page.</li>
+                <li>Added sticky feature to header</li>
+                <li>Added sticky feature to left nav of details page.</li>
+                <li>Updated return button to match action button.</li>
+                <li>Fixed aspect ratio on photos.</li>
+                <li>Shrunk left nav using css.</li>
+                <li>Added label for which database you query.</li>
+                <li>Added new and improved stat filtering.</li>
+                <li>Added new icons for default usage on details pages.</li>
+              </ol>        
               <strong>5-12-2025: Created a search feature for the application</strong><br>
               We can now use the search bar to find detail pages from the crypta database and pull specific detail pages up.
               <br><br>
@@ -117,7 +139,7 @@
     <!-- contact & logo row -->
     <div class="row align-items-center my-4">
       <div class="col-md-6 text-center text-md-start mb-3 mb-md-0">
-        <a href="{% url 'api:home' %}">
+        <a href="{% url 'api:changeLog' %}">
           <img src="{% static 'images/logo.png' %}"
                alt="Diocese of Charlotte"
                class="img-fluid"

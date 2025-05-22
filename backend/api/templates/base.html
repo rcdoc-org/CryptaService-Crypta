@@ -47,7 +47,7 @@
   </head>
   <body>
     {% load static %}
-    <header class="custom-header">
+    <header class="custom-header sticky-top">
       <div class="container-fluid">
         <div class="d-flex align-items-center justify-content-between position-relative">
     
@@ -70,22 +70,24 @@
             <nav id="menuNav" class="menu-nav">
               <ul class="nav flex-column">
                 <li class="nav-item">
-                  <a class="nav-link" href="{% url 'api:home' %}">Home</a>
+                  <a class="nav-link" href="{% url 'api:enhanced_filter' %}">Home</a>
+                </li>
+                
+                <li class="nav-item">
+                  <a class="nav-link" href="{% url 'api:changeLog' %}">ChangeLog</a>
                 </li>
                 <li class="nav-item">
                   <a class="nav-link" href="https://nimbus.rcdoc.org/" target="_blank">Nimbus</a>
-                </li>
-                <li class="nav-item">
-                  <a class="nav-link" href="{% url 'api:enhanced_filter' %}">Database</a>
                 </li>
               </ul>
             </nav>
             
           </div>
-          <div class="app-logo ms-3">
+          <div class="app-logo ms-3 d-flex align-items-center">
             <img src="{% static 'images/logo.png' %}"
                   alt="App Logo"
                   class="app-logo-img">
+            <span class="org-title">Crypta 2.0</span>
           </div>
 
     
@@ -115,6 +117,7 @@
               <img src="{% static 'images/profilePic.jpg' %}"
                     alt="Profile"
                     class="profile-pic rounded-circle">
+            </a>
           </div>
         </div> 
       </div>

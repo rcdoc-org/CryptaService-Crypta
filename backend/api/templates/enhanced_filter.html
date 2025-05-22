@@ -6,8 +6,13 @@
   <meta name="email-count-url" content="{% url 'api:email_count_preview' %}">
 {% endblock %}
 
+{% block stylesheets %}
+    <link rel="stylesheet" 
+    href="{% static 'css/enhanced_filter.css' %}" />
+{% endblock %}
+
 {% block title %}
-  Database
+  Home
 {% endblock %}
 
 {% block style %}
@@ -31,6 +36,17 @@
 {% endblock %}
 
 {% block headScripts %}
+<!-- Needed for the nouislider -->
+  <link
+  href="https://cdnjs.cloudflare.com/ajax/libs/noUiSlider/15.7.0/nouislider.min.css"
+  rel="stylesheet"
+  />
+  <script
+  src="https://cdnjs.cloudflare.com/ajax/libs/noUiSlider/15.7.0/nouislider.min.js">
+  </script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/wnumb/1.2.0/wNumb.min.js"></script>
+
+  <!-- Needed for tabulator -->
   <link 
     href="https://unpkg.com/tabulator-tables@5.5.0/dist/css/tabulator.min.css" 
     rel="stylesheet">
@@ -49,6 +65,7 @@
       <!-- Also the column choices system -->
       <div class="d-flex align-items-center mb-4">
         <aside class="col-md-2">
+          <span>Database</span>
           <select class="form-select"
                   id="baseSelect"
                   aria-label="Choose base" 
@@ -92,7 +109,7 @@
         </aside>
 
         <!-- main content: results -->
-        <section class="col-md-8">
+        <section class="col-md-8 card mb-4 border-0 rounded-4 shadow-sm">
           <h5 id="results-header">Results</h5>
           <div id="resultslist">
             <!-- tabulator rendering-->

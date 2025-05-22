@@ -1,6 +1,6 @@
 /* Header gradient & padding */
 .custom-header {
-  position: relative;
+  position: sticky;
   background: #fff;
   padding: 0.5rem 1rem;
   border-bottom: 1px solid #e0e0e0;
@@ -97,8 +97,9 @@
 
   /* Organization title */
 .org-title {
-  color: rgb(253, 253, 253);
+  color: rgb(0, 0, 0);
   font-size: 20px;
+  margin-left: 0.5rem;
   }
 
 /* Search input styling */

@@ -1,8 +1,13 @@
+html, body {
+  height: 100%;
+  margin:0;
+}
+
 /* left panel background + text */
 .aside-panel {
-    background-color: #2272C5;
+    /* background-color: #2272C5; */
+    background-image: linear-gradient(rgb(5, 83, 175),rgb(19, 116, 226));
     color: #fff;
-    min-height: 100vh;
     display: flex;
     flex-direction: column;
   }
@@ -27,13 +32,17 @@
     background-color: #fff;
     color: #2272C5;
   }
-
+  
 .photo-upload {
     position: relative;
     display: inline-block;
 }
 .photo-upload img {
     cursor: pointer; /* show its clickable */
+    width: 120px;
+    height: 120px;
+    object-fit: cover;
+    object-position: center top;
 }
 .photo-upload input[type="file"] {
     position: absolute;
@@ -46,7 +55,7 @@
 }
 
 .details-page {
-  height: calc(100vh - 56px); / leave room for a sticky header */
+  height: calc(100vh - 56px); /* leave room for a sticky header */
   display: flex;
   padding: 0;
   overflow: hidden;
@@ -72,7 +81,19 @@
 .details-page main {
   flex: 1;
   height: 100%;
-  overflow-y: auto;
+  overflow: auto;
   padding: 1rem;
   background: #f8f9fa;
   }
+
+.detail-label {
+  color:white !important;
+  cursor: default;
+  text-decoration: none !important;
+}
+
+.card-header {
+  background-color: rgba(128, 128, 128, 0.329);
+  border-top-left-radius: .8rem !important;
+  border-top-right-radius: .8rem !important;
+}

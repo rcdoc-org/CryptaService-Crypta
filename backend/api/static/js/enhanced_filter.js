@@ -95,52 +95,96 @@
                     rd.append(inp, lbl);
                     div.appendChild(rd);
                     inp.checked = (savedStats[field] || 'all') === val
+                    ctr.appendChild(div)
                 });
-            } else { // number 
-                const currentMin = savedStats[`${field}_min`] != null
-                         ? savedStats[`${field}_min`] 
-                         : min;
-                const currentMax = savedStats[`${field}_max`] != null
-                         ? savedStats[`${field}_max`]
-                         : max;
+            } else { // number
+            const currentMin = savedStats[`${field}_min`] ?? min;
+            const currentMax = savedStats[`${field}_max`] ?? max;
 
-                const lbl = document.createElement('label');
-                lbl.textContent = `${display}:`;
+            // 1) container
+            const div = document.createElement('div');
+            div.className = 'mb-3';
 
-                const minIn = document.createElement('input');
-                minIn.type = 'number';
-                minIn.id = `stat_min_${field}`;
-                minIn.value = currentMin;
-                minIn.className = 'form-control form-control-sm d-inline-block w-auto me-2 stats-min';
+            // 2) label
+            const lbl = document.createElement('label');
+            lbl.textContent = `${display}:`;
+            div.appendChild(lbl);
 
-                const maxIn = document.createElement('input');
-                maxIn.type = 'number';
-                maxIn.id = `stat_max_${field}`;
-                maxIn.value = currentMax;
-                maxIn.className = 'form-control form-control-sm d-inline-block w-auto stats-max';
+            // 3) slider wrapper
+            const wrapper = document.createElement('div');
+            wrapper.className = 'stats-slider-container';
 
-                const range = document.createElement('input');
-                range.type = 'range';
-                range.className = 'form-range stats-range';
-                range.dataset.field = field;
-                range.min = min; 
-                range.max = max; 
-                range.value = currentMin;
-                range.step = (max - min) / 100 || 1;
+            const minBox = document.createElement('input');
+            minBox.type = 'number';
+            minBox.className = 'stats-val-box';
+            minBox.value = currentMin;
+            minBox.min = min;
+            minBox.max = max;
 
-                // sync them together
-                range.addEventListener('input', () => {
-                    minIn.value = range.value;
-                });
-                minIn.addEventListener('change', () => {
-                    range.value = minIn.value;
-                });
+            const sliderEl = document.createElement('div');
+            sliderEl.id = `slider_${field}`;
+            sliderEl.className = 'stats-slider';
 
-                div.append(lbl, minIn, maxIn, range);
-            }
+            const maxBox = document.createElement('input');
+            maxBox.type = 'number';
+            maxBox.className = 'stats-val-box';
+            maxBox.value = currentMax;
+            maxBox.min = min;
+            maxBox.max = max;
 
-            div.querySelectorAll('input').forEach( i => i.addEventListener('change', updateView));
+            wrapper.append(minBox, sliderEl, maxBox);
+            div.appendChild(wrapper);
+
+            // 4) hidden inputs
+            const minInp = document.createElement('input');
+            minInp.type = 'hidden';  minInp.id = `stat_min_${field}`;  minInp.value = currentMin;
+            minInp.classList.add('stats-range');
+            minInp.dataset.field = field;
+            const maxInp = document.createElement('input');
+            maxInp.type = 'hidden';  maxInp.id = `stat_max_${field}`;  maxInp.value = currentMax;
+            maxInp.classList.add('stats-range');
+            maxInp.dataset.field = field;
+            div.append(minInp, maxInp);
+
+            // 5) stick it all in the DOM
             ctr.appendChild(div);
+
+            // 6) init noUiSlider
+            if(!sliderEl.noUiSlider){
+                noUiSlider.create(sliderEl, {
+                start: [currentMin, currentMax],
+                connect: true,
+                range: { min, max },
+                step: (max - min) / 100 || 1,
+                format: wNumb({ decimals: Number.isInteger(min) && Number.isInteger(max) ? 0 : 2 })
+                });
+
+            sliderEl.noUiSlider.on('slide', ([low, high]) => {
+                minBox.value = low;
+                maxBox.value = high;
+            });
+
+            sliderEl.noUiSlider.on('set', ([low, high]) => {
+                minBox.value = low;
+                maxBox.value = high;
+                minInp.value = low;
+                maxInp.value = high;
+                updateView();
+                });
+
+            minBox.addEventListener('change', () =>{
+                let v = Math.max(min, Math.min(max, +minBox.value));
+                sliderEl.noUiSlider.set([v, null]);
+            });
+
+            maxBox.addEventListener('change', () => {
+                let v = Math.max(min, Math.min(max, +maxBox.value));
+                sliderEl.noUiSlider.set([null, v]);
+            });
+            } else {
+                sliderEl.noUiSlider.set([currentMin, currentMax]);
+                }
+            }
         });
     }
 
@@ -302,6 +346,10 @@
                     data: payload.grid.data,
                     columns: allCols,
                     placeholder: "No Data Available",
+                    pagination:'local',
+                    paginationSize: 20,
+                    paginationCounter:'rows',
+                    movableRows: true,
                 });
                 } else {
                 // base just flipped

@@ -26,8 +26,8 @@ logger = logging.getLogger(__name__)
 def view_404(request):
     return render(request, '404.html', status=404)
 
-def home(request):
-    return render(request, 'home.html')
+def changeLog(request):
+    return render(request, 'changeLog.html')
 
 def details_page(request, base, pk):
     if request.method == 'POST' and request.FILES.get('photo'):
@@ -82,6 +82,13 @@ def details_page(request, base, pk):
         emails = obj.person_email_set.all()
         primary_email = emails.first().email if emails.exists() and emails.first().is_primary else None
         obj.primary_email = primary_email
+
+        # diocesan email
+        diocesan_email = obj.person_email_set.\
+            filter(lkp_emailType_id__name='diocesan')\
+                .first()
+        if diocesan_email:
+            obj.diocesan_email = diocesan_email.email
     
     if ctx_base == 'location':
         location_details = obj.churchDetail_location.first() or obj.school_location.first() or obj.otherentity_detail_set.first() or obj.hospital_location.first() or obj.campusMinistry_location.first()
