@@ -149,7 +149,12 @@
                 format: wNumb({ decimals: Number.isInteger(min) && Number.isInteger(max) ? 0 : 2 })
                 });
 
-            sliderEl.noUiSlider.on('change', ([low, high]) => {
+            sliderEl.noUiSlider.on('slide', ([low, high]) => {
+                minBox.textContent = low;
+                maxBox.textContent = high;
+            });
+
+            sliderEl.noUiSlider.on('set', ([low, high]) => {
                 minBox.textContent = low;
                 maxBox.textContent = high;
                 minInp.value = low;
