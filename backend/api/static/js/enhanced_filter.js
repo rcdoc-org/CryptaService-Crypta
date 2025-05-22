@@ -302,6 +302,9 @@
                     data: payload.grid.data,
                     columns: allCols,
                     placeholder: "No Data Available",
+                    pagination:'local',
+                    paginationSize: 20,
+                    paginationCounter:'rows'
                 });
                 } else {
                 // base just flipped
