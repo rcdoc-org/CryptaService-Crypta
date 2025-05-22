@@ -123,10 +123,12 @@
                 <i class="fas fa-envelope fa-lg"></i>
               </a>
               
-              <!-- Modal for Relationships -->
-              <a href="#" class="action-icons">
-                <i class="fas fa-users fa-lg"></i>
-              </a>
+              <!-- Message via Teams -->
+              {% if base == 'person' %}
+                <a href="msteams://teams.microsoft.com/l/chat/0/0?users={{ object.diocesan_email|urlencode }}" class="action-icons">
+                  <i class="fas fa-users fa-lg"></i>
+                </a>
+              {% endif %}
             </div>
           </div>
         </div>
