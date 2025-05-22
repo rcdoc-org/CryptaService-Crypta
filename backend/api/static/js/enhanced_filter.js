@@ -306,6 +306,11 @@
                     paginationSize: 20,
                     paginationCounter:'rows',
                     movableRows: true,
+                    tableBuilt: function(){
+                        this.getElement().classList.add(
+                            "card","mb-4","border-0","rounded-4","shadow-sm"
+                        );
+                    }
                 });
                 } else {
                 // base just flipped
