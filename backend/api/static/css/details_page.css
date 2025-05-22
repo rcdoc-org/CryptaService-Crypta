@@ -39,6 +39,10 @@ html, body {
 }
 .photo-upload img {
     cursor: pointer; /* show its clickable */
+    width: 120px;
+    height: 120px;
+    object-fit: cover;
+    object-position: center top;
 }
 .photo-upload input[type="file"] {
     position: absolute;

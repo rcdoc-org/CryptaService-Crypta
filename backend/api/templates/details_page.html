@@ -43,12 +43,14 @@
                   <img src="{{ object.photo.url }}"
                       alt="Profile Photo"
                       class="rounded-circle mb-3"
-                      width="120" height="120">
+                      width="120"
+                      height="120">
                 {% else %}
                   <img src="{% static 'images/person.png' %}"
                     alt="Profile Photo"
                     class="rounded-circle mb-3"
-                    width="120" height="120">
+                    width="120"
+                    height="120">
                 {% endif %}
 
                 <!-- invisible file-input sits atop the image -->
@@ -99,7 +101,7 @@
                 Kyle Greenberg
               {% endif %}
             </h4>
-            <p class="mb-3 detail-label">
+            <p class="mb-3 detail-label">Type: 
               {% if base == 'person' %}
                 {{ object.personType | title }}
               {% elif base == 'location' %}
