@@ -140,21 +140,25 @@
             ctr.appendChild(div);
 
             // 6) init noUiSlider
-            noUiSlider.create(sliderEl, {
+            if(!sliderEl.noUiSlider){
+                noUiSlider.create(sliderEl, {
                 start: [currentMin, currentMax],
                 connect: true,
                 range: { min, max },
                 step: (max - min) / 100 || 1,
                 format: wNumb({ decimals: Number.isInteger(min) && Number.isInteger(max) ? 0 : 2 })
-            });
+                });
 
-            sliderEl.noUiSlider.on('update', ([low, high]) => {
+            sliderEl.noUiSlider.on('change', ([low, high]) => {
                 minBox.textContent = low;
                 maxBox.textContent = high;
                 minInp.value = low;
                 maxInp.value = high;
                 updateView();
-            });
+                });
+            } else {
+                sliderEl.noUiSlider.set([currentMin, currentMax]);
+                }
             }
         });
     }
