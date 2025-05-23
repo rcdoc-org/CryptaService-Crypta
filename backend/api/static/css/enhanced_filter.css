@@ -65,6 +65,18 @@ html, body {
     font-size: 0.9rem;
     pointer-events: none;
   }
+  .aside-panel #filterSidebar {
+    color: #fff;
+  }
+  .aside-panel #filterSidebar a.text-decoration-none {
+    color: #fff !important;
+  }
+  .aside-panel #filterSidebar .form-check-label {
+    color: #fff !important;
+  }
+  .aside-panel #filterSidebar .text-muted {
+    color: rgba(255,255,255,0.7) !important;
+  }
 
   .action-icons {
     color: white;
