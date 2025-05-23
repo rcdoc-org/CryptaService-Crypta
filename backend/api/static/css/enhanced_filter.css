@@ -60,6 +60,11 @@ html, body {
     color: #fff;
     background: transparent;
   }
+  .aside-panel .search-icon {
+    color: #6c757d;
+    font-size: 0.9rem;
+    pointer-events: none;
+  }
 
   .action-icons {
     color: white;
@@ -130,7 +135,7 @@ html, body {
 }
 
 .card-header {
-  background-color: rgba(128, 128, 128, 0.329);
+  background-color: rgba(128, 128, 128, 0.202);
   border-top-left-radius: .8rem !important;
   border-top-right-radius: .8rem !important;
 }
