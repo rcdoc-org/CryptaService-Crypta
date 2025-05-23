@@ -171,8 +171,6 @@ html, body {
   display: flex;
   flex-wrap: wrap;           /* wrap to new lines instead of spilling out */
   gap: 0.3rem;               /* spacing between badges */
-  max-height: 5rem;          /* constrain its height */
-  overflow-y: auto;          /* scroll if too tall */
   padding: 0.5rem;           /* so scrollbars don’t sit on the text */
   background: transparent;         /* avoid being hidden by underlying elements */
   position: sticky;          /* stick to top of its parent <aside> */

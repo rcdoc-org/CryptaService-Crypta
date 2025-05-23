@@ -228,22 +228,16 @@
           badge.className = 'badge bg-secondary me-1';
           badge.textContent = `${groupName}: ${optionLabel}`;    // or use a nicer label if you read data-display
       
+          badge.addEventListener('click', () =>{
+            cb.checked = false;
+            updateView();
+          });
+
           // The “×” icon
           const x = document.createElement('i');
           x.className = 'fas fa-times ms-1';
-          x.style.cursor = 'pointer';
-      
-          x.addEventListener('click', () => {
-            // **re-query** the *current* checkbox in the sidebar
-            const selector = `.filter-checkbox[value="${field}:${value}"]`;
-            const cb = document.querySelector(selector);
-            if (cb) {
-              cb.checked = false;
-              updateView();   // now gathers from the live inputs
-            }
-          });
-      
           badge.appendChild(x);
+          
           container.appendChild(badge);
         });
       }
