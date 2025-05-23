@@ -216,10 +216,17 @@
         data.filters.forEach(f => {
           const [field, value] = f.split(':', 2);
       
+          const selector = `.filter-checkbox[value="${field}:${value}"]`;
+          const cb = document.querySelector(selector);
+          if (!cb) return;
+
+          const groupName = cb.dataset.display;
+          const optionLabel = cb.dataset.label;
+
           // Build the badge
           const badge = document.createElement('span');
           badge.className = 'badge bg-secondary me-1';
-          badge.textContent = `${field}: ${value}`;    // or use a nicer label if you read data-display
+          badge.textContent = `${groupName}: ${optionLabel}`;    // or use a nicer label if you read data-display
       
           // The “×” icon
           const x = document.createElement('i');

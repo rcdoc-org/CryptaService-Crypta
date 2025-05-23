@@ -16,23 +16,7 @@
 {% endblock %}
 
 {% block style %}
-.actions {
-  text-align: center;
-}
 
-/* --- make the active-filters row wrap/scroll and stay on top --- */
-#activeFilters {
-  display: flex;
-  flex-wrap: wrap;           /* wrap to new lines instead of spilling out */
-  gap: 0.3rem;               /* spacing between badges */
-  max-height: 5rem;          /* constrain its height */
-  overflow-y: auto;          /* scroll if too tall */
-  padding: 0.5rem;           /* so scrollbars don’t sit on the text */
-  background: white;         /* avoid being hidden by underlying elements */
-  position: sticky;          /* stick to top of its parent <aside> */
-  top: 0;
-  z-index: 10;               /* sit above the results pane */
-}
 {% endblock %}
 
 {% block headScripts %}
