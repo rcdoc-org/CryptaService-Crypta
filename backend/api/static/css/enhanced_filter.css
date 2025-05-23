@@ -177,3 +177,14 @@ html, body {
   top: 0;
   z-index: 10;               /* sit above the results pane */
 }
+
+.result-btn {
+ background: linear-gradient(to right, rgb(5, 83, 175),rgb(19, 116, 226));
+ color: white;
+ border: 1px solid #000000;
+}
+.result-btn:hover{
+  background: linear-gradient(to right, grey, black);
+  color: white;
+  border: 1px solid black;
+}
