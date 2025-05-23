@@ -3,7 +3,8 @@
   position: sticky;
   background: #fff;
   padding: 0.5rem 1rem;
-  border-bottom: 1px solid #e0e0e0;
+  /* border-bottom: 1px solid #e0e0e0; */
+  border-bottom: 1px solid white;
   height: 56px;
   }
 .custom-header a {

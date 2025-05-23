@@ -51,6 +51,89 @@
         return { base, filters: checked, stats };
     }
 
+    function controlFromInput(fromSlider, fromInput, toInput, controlSlider) {
+        const [from, to] = getParsed(fromInput, toInput);
+        fillSlider(fromInput, toInput, '#C6C6C6', '#25daa5', controlSlider);
+        if (from > to) {
+            fromSlider.value = to;
+            fromInput.value = to;
+        } else {
+            fromSlider.value = from;
+        }
+    }
+    
+    function controlToInput(toSlider, fromInput, toInput, controlSlider) {
+        const [from, to] = getParsed(fromInput, toInput);
+        fillSlider(fromInput, toInput, '#C6C6C6', '#25daa5', controlSlider);
+        setToggleAccessible(toInput);
+        if (from <= to) {
+            toSlider.value = to;
+            toInput.value = to;
+        } else {
+            toInput.value = from;
+        }
+    }
+
+    function controlFromSlider(fromSlider, toSlider, fromInput) {
+        const [from, to] = getParsed(fromSlider, toSlider);
+        fillSlider(fromSlider, toSlider, '#C6C6C6', '#25daa5', toSlider);
+        if (from > to) {
+            fromSlider.value = to;
+            fromInput.value = to;
+        } else {
+            fromInput.value = from;
+        }
+    }
+
+    function controlToSlider(fromSlider, toSlider, toInput) {
+        const [from, to] = getParsed(fromSlider, toSlider);
+        fillSlider(fromSlider, toSlider, '#C6C6C6', '#25daa5', toSlider);
+        setToggleAccessible(toSlider);
+        if (from <= to) {
+            toSlider.value = to;
+            toInput.value = to;
+        } else {
+            toInput.value = from;
+            toSlider.value = from;
+    }
+    }
+
+    function getParsed(currentFrom, currentTo) {
+        const from = parseInt(currentFrom.value, 10);
+        const to = parseInt(currentTo.value, 10);
+        return [from, to];
+    }
+
+    function fillSlider(fromEl, toEl, sliderColor, rangeColor) {
+        const rangeDistance = toEl.max - toEl.min;
+        const fromPos = fromEl.value - toEl.min;
+        const toPos   = toEl.value   - toEl.min;
+        const lowPct  = (fromPos / rangeDistance) * 100;
+        const highPct = (toPos   / rangeDistance) * 100;
+
+        // color outside the range in sliderColor, inside in rangeColor
+        toEl.style.background = `
+            linear-gradient(
+            to right,
+            ${sliderColor} 0%, 
+            ${sliderColor} ${lowPct}%,
+            ${rangeColor} ${lowPct}%,
+            ${rangeColor} ${highPct}%,
+            ${sliderColor} ${highPct}%,
+            ${sliderColor} 100%
+            )`;
+    }
+
+    function setToggleAccessible(toEl) {
+        // when at absolute minimum, bump its z-index
+        const toSlider = document.querySelector('#toSlider');
+        if (Number(currentTarget.value) <= 0 ) {
+            toSlider.style.zIndex = 2;
+        } else {
+            toSlider.style.zIndex = 0;
+        }
+    }
+
     function renderStatsFilters(info, savedStats) {
         const ctr = document.getElementById('statsFilters');
         ctr.innerHTML = '';
@@ -102,88 +185,75 @@
             const currentMax = savedStats[`${field}_max`] ?? max;
 
             // 1) container
-            const div = document.createElement('div');
+            const statDiv = document.createElement('div');
             div.className = 'mb-3';
 
             // 2) label
             const lbl = document.createElement('label');
             lbl.textContent = `${display}:`;
+            lbl.className = "mb-2"
             div.appendChild(lbl);
 
-            // 3) slider wrapper
-            const wrapper = document.createElement('div');
-            wrapper.className = 'stats-slider-container';
+            const rangeContainer = document.createElement('div');
+            rangeContainer.className = 'range_container';
+
+            const slidersControl = document.createElement('div');
+            slidersControl.className = 'sliders_control mb-1'
+
+            const fromSliderEl = document.createElement('input');
+            fromSliderEl.type = 'range';
+            fromSliderEl.id = `fromSlider_${field}`;
+            fromSliderEl.min = min;
+            fromSliderEl.max = max;
+            fromSliderEl.value = currentMin;
+
+            const toSliderEl = document.createElement('input');
+            toSliderEl.type= 'range'
+            toSliderEl.id = `toSlider_${field}`;
+            toSliderEl.min = min;
+            toSliderEl.max = max;
+            toSliderEl.value = currentMax;
+
+            slidersControl.append(fromSliderEl, toSliderEl);
+            fromSliderEl.classList.add('range-from');
+            toSliderEl.classList.add('range-to');
+
+            const formControl = document.createElement('div');
+            formControl.className = 'form_control';
 
             const minBox = document.createElement('input');
             minBox.type = 'number';
             minBox.className = 'stats-val-box';
+            minBox.id = `fromInput_${field}`;
             minBox.value = currentMin;
             minBox.min = min;
             minBox.max = max;
 
-            const sliderEl = document.createElement('div');
-            sliderEl.id = `slider_${field}`;
-            sliderEl.className = 'stats-slider';
-
             const maxBox = document.createElement('input');
             maxBox.type = 'number';
             maxBox.className = 'stats-val-box';
+            maxBox.id = `toInput_${field}`;
             maxBox.value = currentMax;
             maxBox.min = min;
             maxBox.max = max;
 
-            wrapper.append(minBox, sliderEl, maxBox);
-            div.appendChild(wrapper);
+            formControl.append(minBox, maxBox);
 
-            // 4) hidden inputs
-            const minInp = document.createElement('input');
-            minInp.type = 'hidden';  minInp.id = `stat_min_${field}`;  minInp.value = currentMin;
-            minInp.classList.add('stats-range');
-            minInp.dataset.field = field;
-            const maxInp = document.createElement('input');
-            maxInp.type = 'hidden';  maxInp.id = `stat_max_${field}`;  maxInp.value = currentMax;
-            maxInp.classList.add('stats-range');
-            maxInp.dataset.field = field;
-            div.append(minInp, maxInp);
+            rangeContainer.append(slidersControl, formControl);
+            statDiv.appendChild(lbl);
+            statDiv.appendChild(rangeContainer);
+            ctr.appendChild(statDiv)
 
-            // 5) stick it all in the DOM
-            ctr.appendChild(div);
+            // initial paint + stacking
+            fillSlider(fromSliderEl, toSliderEl, '#C6C6C6', '#4a5568');
+            setToggleAccessible(toSliderEl);
 
-            // 6) init noUiSlider
-            if(!sliderEl.noUiSlider){
-                noUiSlider.create(sliderEl, {
-                start: [currentMin, currentMax],
-                connect: true,
-                range: { min, max },
-                step: (max - min) / 100 || 1,
-                format: wNumb({ decimals: Number.isInteger(min) && Number.isInteger(max) ? 0 : 2 })
-                });
-
-            sliderEl.noUiSlider.on('slide', ([low, high]) => {
-                minBox.value = low;
-                maxBox.value = high;
-            });
-
-            sliderEl.noUiSlider.on('set', ([low, high]) => {
-                minBox.value = low;
-                maxBox.value = high;
-                minInp.value = low;
-                maxInp.value = high;
-                updateView();
-                });
-
-            minBox.addEventListener('change', () =>{
-                let v = Math.max(min, Math.min(max, +minBox.value));
-                sliderEl.noUiSlider.set([v, null]);
-            });
-
-            maxBox.addEventListener('change', () => {
-                let v = Math.max(min, Math.min(max, +maxBox.value));
-                sliderEl.noUiSlider.set([null, v]);
-            });
-            } else {
-                sliderEl.noUiSlider.set([currentMin, currentMax]);
-                }
+            // enforce min ≤ max and sync inputs
+            fromSliderEl.oninput = () => controlFromSlider(fromSliderEl, toSliderEl, minBox);
+            toSliderEl.oninput = () => controlToSlider(fromSliderEl, toSliderEl, maxBox);
+            // mirror changes from number inputs
+            minBox.oninput = () => controlFromInput(fromSliderEl, minBox, maxBox, toSliderEl);
+            maxBox.oninput = () => controlToInput(toSliderEl, minBox, maxBox, toSliderEl);    
             }
         });
     }
@@ -237,7 +307,7 @@
           const x = document.createElement('i');
           x.className = 'fas fa-times ms-1';
           badge.appendChild(x);
-          
+
           container.appendChild(badge);
         });
       }

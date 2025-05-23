@@ -19,6 +19,7 @@ html, body {
     background-color: rgba(255,255,255,0.2);
   }
   .aside-panel .actions-btn {
+    margin-left: 5px;
     border: 1px solid #fff;
     color: #fff;
     background: transparent;
