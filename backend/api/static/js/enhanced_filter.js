@@ -249,13 +249,18 @@
 
         groups.forEach(group => {
             // all options <li> under this group
-            const opts = group.querySelectorAll('ul.ps-3 li');
+            const headingEl = group.querySelector('h6');
+            const groupText = headingEl
+                ? headingEl.textContent.trim().toLowerCase()
+                : '';
 
+            const opts = group.querySelectorAll('ul.ps-3 li');
             let anyVisible = false;
+
             opts.forEach(li => {
                 const lbl = li.querySelector('label').textContent.toLowerCase();
 
-                if(!term || lbl.includes(term)) {
+                if(!term || lbl.includes(term) || groupText.includes(term)) {
                     li.style.display = ''; //show match
                     anyVisible = true;
                 } else {
@@ -350,6 +355,7 @@
                     paginationSize: 25,
                     paginationCounter:'rows',
                     movableRows: true,
+                    selectableRows:true,
                 });
                 } else {
                 // base just flipped
