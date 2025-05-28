@@ -24,21 +24,6 @@ html, body {
   flex: 1;
   height: 0.5rem;
 }
-.noUi-target {
-  border: none;
-  background: transparent;
-}
-.noUi-connect {
-  background: #4a5568;       /* dark grey bar between handles */
-}
-.noUi-handle {
-  border: 1px solid #4a5568;
-  background: #fff;
-  border-radius: 50%;
-  width: 1rem;
-  height: 1rem;
-  top: -0.25rem;
-}
 
 /* left panel background + text */
 .aside-panel {
