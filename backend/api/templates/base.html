@@ -70,9 +70,11 @@
             <nav id="menuNav" class="menu-nav">
               <ul class="nav flex-column">
                 <li class="nav-item">
-                  <a class="nav-link" href="{% url 'api:enhanced_filter' %}">Home</a>
+                  <a class="nav-link" href="{% url 'api:home' %}">Home</a>
                 </li>
-                
+                <li class="nav-item">
+                  <a class="nav-link" href="{% url 'api:enhanced_filter' %}">Database</a>
+                </li>
                 <li class="nav-item">
                   <a class="nav-link" href="{% url 'api:changeLog' %}">ChangeLog</a>
                 </li>

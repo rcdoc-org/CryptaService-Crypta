@@ -1,5 +1,6 @@
 import json
 import os
+import requests
 from datetime import datetime
 import logging
 from itertools import groupby
@@ -48,9 +49,32 @@ def login_view(request):
             demo_user.set_unusable_password()
             demo_user.save()
         login(request, demo_user)
-        return redirect('api:enhanced_filter')
+        return redirect('api:home')
     return render(request, 'login.html')
 
+@login_required
+def home_view(request):
+    weather = {}
+    try:
+        resp = requests.get(
+            "https://api.openweathermap.org/data/2.5/weather",
+            params={
+                "q": "Charlotte,US",
+                "units": "imperial",            # for °F; use "metric" for °C
+                "appid": settings.WEATHER_API_KEY
+            },
+            timeout=2
+        )
+        resp.raise_for_status()
+        data = resp.json()
+        # logger.exception(data)
+        weather["temperature"] = round(data["main"]["temp"])
+        # logger.exception(weather)
+    except Exception:
+        # logger.exception(resp)
+        weather["temperature"] = "N/A"
+    return render(request, 'home.html', { **weather,})
+    
 @login_required
 def changeLog(request):
     return render(request, 'changeLog.html')
