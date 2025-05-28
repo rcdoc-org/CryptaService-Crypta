@@ -428,33 +428,33 @@
             <div class="card-body">
               <small class="text-muted">Job Details</small><br><br>
               <dl class="row">
-                <dt class="col-sm-4">Priest Code</dt>
+                <dd class="col-sm-4">Priest Code</dd>
                 <dd class="col-sm-8">{{object.person_details.priestCode}}</dd>
     
-                <dt class="col-sm-4">Religious Institute Type</dt>
+                <dd class="col-sm-4">Religious Institute Type</dd>
                 <dd class="col-sm-8">{{object.person_details.religiousInstituteType}}</dd>
     
-                <dt class="col-sm-4">Religious Order Province</dt>
+                <dd class="col-sm-4">Religious Order Province</dd>
                 <dd class="col-sm-8">{{object.person_details.religiousOrderProvince}}</dd>
     
-                <dt class="col-sm-4">Religious Suffix</dt>
+                <dd class="col-sm-4">Religious Suffix</dd>
                 <dd class="col-sm-8">{{object.person_details.religiousSuffix}}</dd>
     
-                <dt class="col-sm-4">Diocesan Suffix</dt>
+                <dd class="col-sm-4">Diocesan Suffix</dd>
                 <dd class="col-sm-8">{{object.person_details.diocesanSuffix}}</dd>
     
-                <dt class="col-sm-4">Diocesan/Religious</dt>
+                <dd class="col-sm-4">Diocesan/Religious</dd>
                 <dd class="col-sm-8">{{object.person_details.diocesanReligious}}</dd>
-                <dt class="col-sm-4">
+                <dd class="col-sm-4">
                   Is a Member of the Eastern Catholic Church?
-                </dt>
+                </dd>
                 <dd class="col-sm-8">
                   {{ object.person_details.is_easternCatholicChurchMember}}
                 </dd>
-                <dt class="col-sm-8">
-                  Is Approved for Letters of Good Standing?
-                </dt>
                 <dd class="col-sm-4">
+                  Is Approved for Letters of Good Standing?
+                </dd>
+                <dd class="col-sm-8">
                   {{ object.person_details.is_approvedLetterOfGoodStanding}}
                 </dd>
 
@@ -548,14 +548,14 @@
               <div class="card mb-4 border-0 rounded-4 shadow-sm">
                 <div class="card-body">
                   <small class="text-muted">Language Capabilities</small><br><br>
-                  <small>Can Celebrate Mass in English?</small><br>
-                  <strong>{{object.person_details.is_massEnglish}}</strong><br>
-                  <small>Can Celebrate Mass in Spanish?</small><br>
-                  <strong>{{object.person_details.is_massSpanish}}</strong><br>
-                  <small>Can Celebrate Sacraments in English?</small><br>
-                  <strong>{{object.person_details.is_sacramentsEnglish}}</strong><br>
-                  <small>Can Celebrate Sacraments in Spanish?</small><br>
-                  <strong>{{object.person_details.is_sacramentsSpanish}}</strong><br>
+                  <dd>Can Celebrate Mass in English?</dd>
+                  <dd> &nbsp;&nbsp;&nbsp; {{object.person_details.is_massEnglish}}</dd>
+                  <dd>Can Celebrate Mass in Spanish?</dd>
+                  <dd>&nbsp;&nbsp;&nbsp; {{object.person_details.is_massSpanish}}</dd>
+                  <dd>Can Celebrate Sacraments in English?</dd>
+                  <dd>&nbsp;&nbsp;&nbsp; {{object.person_details.is_sacramentsEnglish}}</dd>
+                  <dd>Can Celebrate Sacraments in Spanish?</dd>
+                  <dd>&nbsp;&nbsp;&nbsp; {{object.person_details.is_sacramentsSpanish}}</dd>
                 </div>
               </div>
             </div>
