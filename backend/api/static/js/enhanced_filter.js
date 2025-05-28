@@ -181,79 +181,78 @@
                     ctr.appendChild(div)
                 });
             } else { // number
-            const currentMin = savedStats[`${field}_min`] ?? min;
-            const currentMax = savedStats[`${field}_max`] ?? max;
+                const currentMin = savedStats[`${field}_min`] ?? min;
+                const currentMax = savedStats[`${field}_max`] ?? max;
 
-            // 1) container
-            const statDiv = document.createElement('div');
-            div.className = 'mb-3';
+                // 1) container
+                const statDiv = document.createElement('div');
+                statDiv.className = 'mb-3';
 
-            // 2) label
-            const lbl = document.createElement('label');
-            lbl.textContent = `${display}:`;
-            lbl.className = "mb-2"
-            div.appendChild(lbl);
+                // 2) label
+                const lbl = document.createElement('label');
+                lbl.textContent = `${display}:`;
+                lbl.className = "mb-2"
+                statDiv.appendChild(lbl);
 
-            const rangeContainer = document.createElement('div');
-            rangeContainer.className = 'range_container';
+                const rangeContainer = document.createElement('div');
+                rangeContainer.className = 'range_container';
 
-            const slidersControl = document.createElement('div');
-            slidersControl.className = 'sliders_control mb-1'
+                const slidersControl = document.createElement('div');
+                slidersControl.className = 'sliders_control mb-1'
 
-            const fromSliderEl = document.createElement('input');
-            fromSliderEl.type = 'range';
-            fromSliderEl.id = `fromSlider_${field}`;
-            fromSliderEl.min = min;
-            fromSliderEl.max = max;
-            fromSliderEl.value = currentMin;
+                const fromSliderEl = document.createElement('input');
+                fromSliderEl.type = 'range';
+                fromSliderEl.id = `fromSlider_${field}`;
+                fromSliderEl.min = min;
+                fromSliderEl.max = max;
+                fromSliderEl.value = currentMin;
 
-            const toSliderEl = document.createElement('input');
-            toSliderEl.type= 'range'
-            toSliderEl.id = `toSlider_${field}`;
-            toSliderEl.min = min;
-            toSliderEl.max = max;
-            toSliderEl.value = currentMax;
+                const toSliderEl = document.createElement('input');
+                toSliderEl.type= 'range'
+                toSliderEl.id = `toSlider_${field}`;
+                toSliderEl.min = min;
+                toSliderEl.max = max;
+                toSliderEl.value = currentMax;
 
-            slidersControl.append(fromSliderEl, toSliderEl);
-            fromSliderEl.classList.add('range-from');
-            toSliderEl.classList.add('range-to');
+                slidersControl.append(fromSliderEl, toSliderEl);
+                fromSliderEl.classList.add('range-from');
+                toSliderEl.classList.add('range-to');
 
-            const formControl = document.createElement('div');
-            formControl.className = 'form_control';
+                const formControl = document.createElement('div');
+                formControl.className = 'form_control';
 
-            const minBox = document.createElement('input');
-            minBox.type = 'number';
-            minBox.className = 'stats-val-box';
-            minBox.id = `fromInput_${field}`;
-            minBox.value = currentMin;
-            minBox.min = min;
-            minBox.max = max;
+                const minBox = document.createElement('input');
+                minBox.type = 'number';
+                minBox.className = 'stats-val-box';
+                minBox.id = `fromInput_${field}`;
+                minBox.value = currentMin;
+                minBox.min = min;
+                minBox.max = max;
 
-            const maxBox = document.createElement('input');
-            maxBox.type = 'number';
-            maxBox.className = 'stats-val-box';
-            maxBox.id = `toInput_${field}`;
-            maxBox.value = currentMax;
-            maxBox.min = min;
-            maxBox.max = max;
+                const maxBox = document.createElement('input');
+                maxBox.type = 'number';
+                maxBox.className = 'stats-val-box';
+                maxBox.id = `toInput_${field}`;
+                maxBox.value = currentMax;
+                maxBox.min = min;
+                maxBox.max = max;
 
-            formControl.append(minBox, maxBox);
+                formControl.append(minBox, maxBox);
 
-            rangeContainer.append(slidersControl, formControl);
-            statDiv.appendChild(lbl);
-            statDiv.appendChild(rangeContainer);
-            ctr.appendChild(statDiv)
+                rangeContainer.append(slidersControl, formControl);
+                statDiv.appendChild(rangeContainer);
+                ctr.appendChild(statDiv)
 
-            // initial paint + stacking
-            fillSlider(fromSliderEl, toSliderEl, '#C6C6C6', '#4a5568');
-            setToggleAccessible(toSliderEl);
+                // initial paint + stacking
+                fillSlider(fromSliderEl, toSliderEl, '#C6C6C6', '#4a5568');
+                setToggleAccessible(toSliderEl);
 
-            // enforce min ≤ max and sync inputs
-            fromSliderEl.oninput = () => controlFromSlider(fromSliderEl, toSliderEl, minBox);
-            toSliderEl.oninput = () => controlToSlider(fromSliderEl, toSliderEl, maxBox);
-            // mirror changes from number inputs
-            minBox.oninput = () => controlFromInput(fromSliderEl, minBox, maxBox, toSliderEl);
-            maxBox.oninput = () => controlToInput(toSliderEl, minBox, maxBox, toSliderEl);    
+                // enforce min ≤ max and sync inputs
+                fromSliderEl.oninput = () => controlFromSlider(fromSliderEl, toSliderEl, minBox);
+                toSliderEl.oninput = () => controlToSlider(fromSliderEl, toSliderEl, maxBox);
+                // mirror changes from number inputs
+                minBox.oninput = () => controlFromInput(fromSliderEl, minBox, maxBox, toSliderEl);
+                maxBox.oninput = () => controlToInput(toSliderEl, minBox, maxBox, toSliderEl);    
             }
         });
     }
