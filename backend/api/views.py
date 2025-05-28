@@ -11,6 +11,8 @@ from django.template.loader import render_to_string
 from django.db.models import Count, Q
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
+from django.contrib.auth import authenticate, login, get_user_model
+from django.contrib.auth.decorators import login_required
 
 from .models import (
     Person, Location,
@@ -26,9 +28,34 @@ logger = logging.getLogger(__name__)
 def view_404(request):
     return render(request, '404.html', status=404)
 
+def login_view(request):
+    # Real Logins
+    # if request.method == 'POST':
+    #     username = request.POST.get('username')
+    #     password = request.POST.get('password')
+    #     user = authenticate(request, username=username, password=password)
+    #     if user is not None:
+    #         login(request, user)
+    #         return redirect('home')
+    #     return render(request, 'login.html', {'error': 'Invalid username or password'})
+    # Demo Logins
+    if request.method == 'POST':
+        User = get_user_model()
+        username = request.POST.get('username')
+        password = request.POST.get('password')
+        demo_user, created = User.objects.get_or_create(username=username)
+        if created:
+            demo_user.set_unusable_password()
+            demo_user.save()
+        login(request, demo_user)
+        return redirect('api:enhanced_filter')
+    return render(request, 'login.html')
+
+@login_required
 def changeLog(request):
     return render(request, 'changeLog.html')
 
+@login_required
 def details_page(request, base, pk):
     if request.method == 'POST' and request.FILES.get('photo'):
         # handle file upload
@@ -811,6 +838,7 @@ def get_filtered_data(base, raw_filters, raw_stats=None):
     # return also the `columns` list
     return records, applied, filter_tree, columns, stats_info
 
+@login_required
 def enhanced_filter_view(request):
     """Initial page load: no filters yet."""
     # default to person-based
@@ -826,7 +854,7 @@ def enhanced_filter_view(request):
           "columns": columns,
         },
     })
-    
+
 @csrf_exempt
 def filter_results(request):
     """AJAX: receive { base, filters } → JSON { filters_html, grid }."""

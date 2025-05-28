@@ -29,6 +29,11 @@ DEBUG = True
 
 ALLOWED_HOSTS = ['127.0.0.1', 'localhost', '10.0.6.44', '10.213.1.3']
 
+# URL users are redirected to for login
+LOGIN_URL = 'api:login'
+
+# URL to redirect to after successful login
+LOGIN_REDIRECT_URL= 'api:enhanced_filter'
 
 # Application definition
 
