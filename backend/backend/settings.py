@@ -33,7 +33,9 @@ ALLOWED_HOSTS = ['127.0.0.1', 'localhost', '10.0.6.44', '10.213.1.3']
 LOGIN_URL = 'api:login'
 
 # URL to redirect to after successful login
-LOGIN_REDIRECT_URL= 'api:enhanced_filter'
+LOGIN_REDIRECT_URL= 'api:home'
+
+WEATHER_API_KEY = '88f0c073e5d61b94034001c78d641119'
 
 # Application definition
 
