@@ -10,9 +10,11 @@ handler404 = views.view_404
 urlpatterns = [
     path("changeLog/", views.changeLog, name="changeLog"),
     path('test-404/', views.view_404, name='test_404'),
+    path('login/', views.login_view, name='login'),
+    path('home/', views.enhanced_filter_view, name='enhanced_filter'),
     path('', views.enhanced_filter_view, name='enhanced_filter'),
     path('api/filter_results/', views.filter_results, name='filter_results'),
-    path('api/upload-tmp', views.upload_temp, name='upload_temp'),
+    path('api/upload-tmp/', views.upload_temp, name='upload_temp'),
     path('send-email/', views.send_email, name='send_email'),
     path('demo/details-page/', views.details_page, name='details_page_test'),
     path(
