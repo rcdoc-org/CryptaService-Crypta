@@ -207,75 +207,48 @@ html, body {
 /* overlapping the two range inputs */
 .sliders_control {
   position: relative;
-  height: 0;
-}
-
-
-/* hide the built–in track so it doesn’t interfere */
-.sliders_control input[type="range"]::-webkit-slider-runnable-track,
-.sliders_control input[type="range"]::-moz-range-track {
-  background: transparent;
+  height: 16px;
 }
 
 /* the “bar” track */
 .sliders_control input[type="range"] {
-  -webkit-appearance: none;
-  appearance: none;
+  position: absolute;
+  top: 50%;
+  left: 0;
   width: 100%;
   height: 2px;
   background: transparent; /* hide default track */
-  position: absolute;
   pointer-events: none;
+  transform: translateY(-50%);
+  z-index: auto;
 }
 
-.sliders_control input[type="range"]::-webkit-slider-runnable-track {
-  -webkit-appearance: none;
-  background-color: #C6C6C6;
-  height: 2px;
-  position: relative;
-}
+.sliders_control input[type="range"]::-webkit-slider-runnable-track,
 .sliders_control input[type="range"]::-moz-range-track {
   background-color: #C6C6C6;
+  pointer-events: none;
   height: 2px;
   position: relative;
+  z-index: 0;
 }
 
 /* the draggable thumb */
-input[type="range"]::-webkit-slider-thumb {
-  -webkit-appearance: none;
-  pointer-events: all;
-  width: 16px;
-  height: 16px;
-  border-radius: 50%;
-  background: #fff;
-  /* border: 1px solid #4a5568; */
-  box-shadow: 0 0 0 1px #C6C6C6;
-  cursor: pointer;
-}
-input[type="range"]:active::-webkit-slider-thumb {
-  box-shadow: inset 0 0 3px #387bbe, 0 0 9px #387bbe;
-}
-
-/* Firefox thumb */
+input[type="range"]::-webkit-slider-thumb,
 input[type="range"]::-moz-range-thumb {
-  -webkit-appearance: none;
-  pointer-events: all;
   width: 16px;
   height: 16px;
-  border-radius: 50%;
+  /* border-radius: 50%; */
   background: #fff;
-  /* border: 1px solid #4a5568; */
-  box-shadow: 0 0 0 1px #C6C6C6;
+  box-shadow: inset 0 0 3px #387bbe, 0 0 9px #387bbe;
   cursor: pointer;
-}
-
-input[type=range]::-webkit-slider-thumb:hover {
-  background: #f7f7f7;
+  position: relative;
+  z-index: 1;
+  pointer-events: all;
 }
 
 input[type=range]::-webkit-slider-thumb:active {
-  box-shadow: inset 0 0 3px #387bbe, 0 0 9px #387bbe;
   -webkit-box-shadow: inset 0 0 3px #387bbe, 0 0 9px #387bbe;
+  box-shadow: inset 0 0 3px #387bbe, 0 0 9px #387bbe;
 }
 
 /* align number inputs */
