@@ -16,23 +16,7 @@
 {% endblock %}
 
 {% block style %}
-.actions {
-  text-align: center;
-}
 
-/* --- make the active-filters row wrap/scroll and stay on top --- */
-#activeFilters {
-  display: flex;
-  flex-wrap: wrap;           /* wrap to new lines instead of spilling out */
-  gap: 0.3rem;               /* spacing between badges */
-  max-height: 5rem;          /* constrain its height */
-  overflow-y: auto;          /* scroll if too tall */
-  padding: 0.5rem;           /* so scrollbars don’t sit on the text */
-  background: white;         /* avoid being hidden by underlying elements */
-  position: sticky;          /* stick to top of its parent <aside> */
-  top: 0;
-  z-index: 10;               /* sit above the results pane */
-}
 {% endblock %}
 
 {% block headScripts %}
@@ -60,69 +44,126 @@
 {% endblock %}
 
 {% block content %}
-    <div class="container my-5">
-      <!-- toggle between person and location base -->
-      <!-- Also the column choices system -->
-      <div class="d-flex align-items-center mb-4">
-        <aside class="col-md-2">
-          <span>Database</span>
-          <select class="form-select"
-                  id="baseSelect"
-                  aria-label="Choose base" 
-                  name="baseToggle">
-            <option value="person" selected>People</option>
-            <option value="location">Locations</option>
-          </select>
-        </aside>
-
-        <button
-          type='button'
-          class='btn btn-outline-primary btn-sm ms-3'
-          data-bs-toggle='modal'
-          data-bs-target='#columnModal'
-          id='columntogglebtn'
-        >Select Fields</button>
+<div class="container-fluid filter-page">
+  <div class="row">
+    <!-- Left Panel -->
+    <aside class="col-md-4 p-0 aside-panel shadow">
+      <div class="p-4">
+       <span class="side-panel-header">Database Options</span>
+        <select class="form-select side-panel-form"
+                id="baseSelect"
+                aria-label="Choose base" 
+                name="baseToggle">
+          <option value="person" selected>People</option>
+          <option value="location">Locations</option>
+        </select> 
       </div>
-
-      <div class="row rounded-3 shadow-sm bg-light">
-        <!-- sidebar: recursive filters -->
-        <aside class="col-md-2">
-          <h5>Filters</h5>
-
-          <!-- Search box for filter options -->
-          <div class="mb-2">
+      <div class="p-4">
+        <span class="side-panel-header">Filter Options</span>
+        <!-- Search box for filter options -->
+        <div class="mb-2">
+          <div class="filter-search d-flex align-items-center">
+            <i class="fas fa-search search-icon me-2"></i>
             <input
               type="text"
               id="filterSearch"
               class="form-control form-control-sm"
-              placeholder="Search filters..."
+              placeholder="Search filters options..."
+              aria-label="Search"
             />
           </div>
+        </div>
+        <div id="activeFilters" class="mb-3"></div>
+        <div id="filterSidebar" class="ps-5">
+          {% include "partials/filter_dynamic.html" with filter_tree=filter_tree applied=applied %}
+        </div> 
 
-            <div id="activeFilters" class="mb-3 bg-light"></div>
-            <div id="filterSidebar">
-              {% include "partials/filter_dynamic.html" with filter_tree=filter_tree applied=applied %}
-            </div> 
+        <!-- Used for raw stat filters -->
+        <div id="statsFilters" class="mt-4"></div>
+      </div>
+    </aside>
 
-            <!-- Used for raw stat filters -->
-            <div id="statsFilters" class="mt-4"></div>
-        </aside>
+    <main class="col-md-8 p-4 bg-light">
+      <div class="card mb-4 border-0 rounded-4 shadow-sm">
+        {% comment %} <div 
+        class="card-header d-flex justify-content-between align-items-center"
+        id="results-header">
+          <strong>Results</strong>
+        </div> {% endcomment %}
+        {% comment %} <div class="btn-toolbar p-2">
+          <button
+                  type='button'
+                  class='btn result-btn btn-sm me-2'
+                  data-bs-toggle='modal'
+                  data-bs-target='#columnModal'
+                  id='columntogglebtn'
+                >Select Additional Fields</button>
+          <button 
+                  type="button"  
+                  class="btn result-btn btn-sm me-2"
+                  data-bs-toggle="modal"
+                  data-bs-target="#actionModal"
+                  id="actiontogglebtn"
+                  >Actions</button>
+          <button
+                  type="button"
+                  class="btn result-btn btn-sm me-2"
+                  id="saveviewbtn"
+                  >Save View</button>
+        </div> {% endcomment %}
 
-        <!-- main content: results -->
-        <section class="col-md-8 card mb-4 border-0 rounded-4 shadow-sm">
-          <h5 id="results-header">Results</h5>
-          <div id="resultslist">
-            <!-- tabulator rendering-->
-            <div id="data-grid"></div> 
-          </div>
-        </section>
+        <div
+        class="card-body mb-4"
+        id="resultslist">
+          {% comment %} <h5 class="card-title p-2">Results</h5> {% endcomment %}
+          <small class="text-muted p-2">Results</small>
+          <div class="btn-toolbar p-2">
+          <button
+                  type='button'
+                  class='btn result-btn btn-sm me-2'
+                  data-bs-toggle='modal'
+                  data-bs-target='#columnModal'
+                  id='columntogglebtn'
+                >Add Fields</button>
+          <button 
+                  type="button"  
+                  class="btn result-btn btn-sm me-2"
+                  data-bs-toggle="modal"
+                  data-bs-target="#actionModal"
+                  id="actiontogglebtn"
+                  >Actions</button>
+          <button
+                  type="button"
+                  class="btn result-btn btn-sm me-2"
+                  id="saveviewbtn"
+                  >Save View</button>
+        </div>
+          <div id="data-grid"></div>
+          {% comment %} <button
+          type='button'
+          class='btn actions-btn mb-3'
+          data-bs-toggle='modal'
+          data-bs-target='#columnModal'
+          id='columntogglebtn'
+        >Add Fields...</button> {% endcomment %}
+        </div>
+      </div>
+    </main>
+</div>
 
-        <aside class="col-md-2">
-          <h5 class="actions">Actions<h5>
-          <div class="d-grid gap-2">
+<!-- Actions Modal -->
+<div class="modal fade" id="actionModal" tabindex="-1" aria-labelledby="actionmodallabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="actionmodallabel">Actions</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="close"></button>
+      </div>
+      <div class="modal-body">
+        <div class="d-grid gap-2">
             <button 
               type="button" 
-              class="btn btn-outline-primary btn-sm"
+              class="btn result-btn btn-sm"
               data-bs-toggle="modal"
               data-bs-target='#emailModal'
               id="emailtogglebtn"
@@ -130,128 +171,114 @@
             <button 
               type="button" 
               id="exportExcelBtn"
-              class="btn btn-outline-primary btn-sm">
+              class="btn result-btn btn-sm">
               Export to Excel
             </button>
             <button 
               type="button" 
               id="exportCsvBtn"
-              class="btn btn-outline-primary btn-sm">
+              class="btn result-btn btn-sm">
               Export to CSV
             </button>
-            <button type="button" class="btn btn-outline-primary btn-sm">Print Mailing Labels</button>
+            <button type="button" class="btn result-btn btn-sm">Print Mailing Labels</button>
+            {% comment %} <button type="button" class="btn btn-outline-primary btn-sm">Print Mailing Labels</button> {% endcomment %}
           </div>
-        </aside>
       </div>
     </div>
+  </div>
+</div>
 
   <!-- column chooser modal -->
-  <div class="modal fade" id="columnModal" tabindex="-1" aria-labelledby="columnmodallabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg">  <!-- large modal -->
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="columnmodallabel">Choose Columns</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="close"></button>
-        </div>
-        <div class="modal-body">
-          <form id="columnForm" class="row g-3">
-            <!-- js will inject checkboxes here -->
-          </form>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-          <button type="button" class="btn btn-primary" id="applyColumnsBtn">Apply</button>
-        </div>
+<div class="modal fade" id="columnModal" tabindex="-1" aria-labelledby="columnmodallabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">  <!-- large modal -->
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="columnmodallabel">Choose Columns</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="close"></button>
+      </div>
+      <div class="modal-body">
+        <form id="columnForm" class="row g-3">
+          <!-- js will inject checkboxes here -->
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-primary" id="applyColumnsBtn">Apply</button>
       </div>
     </div>
   </div>
-
-    <!-- details modal for person/location -->
-    <div class="modal fade" id="detailModal" tabindex="-1" aria-labelledby="detailmodallabel" aria-hidden="true">
-      <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title" id="columnmodallabel">Details Page</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="close"></button> 
-          </div>
-          <div class="modal-body">
-            <div id="detailModalBody" class="row g-2">
-              <!-- I'll inject javascript or use formatted html here later -->>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
+</div>
 
   <!-- Email printing options modal -->
-  <div class="modal fade" id="emailModal" tabindex="-1" aria-labelledby="emailmodallabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="emailmodallabel">Sending Email</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="close"></button>
-        </div>
-        <div class="modal-body">
-          <form id="emailForm" 
-          class="row g-3"
-          action='{% url 'api:send_email' %}'
-          method='POST'
-          enctype='multipart/form-data'
-          >
-            {% csrf_token %}
-            <!-- all checkboxes in one row -->
-            <div class="col-12">
-              <div class="form-check form-check-inline">
-                <input class="form-check-input" type="checkbox" id="personalEmail" name="personalEmail">
-                <label class="form-check-label" for="personalEmail">Include Personal Emails?</label>
-              </div>
-              <div class="form-check form-check-inline">
-                <input class="form-check-input" type="checkbox" id="parishEmail" name="parishEmail">
-                <label class="form-check-label" for="parishEmail">Include Parish Emails?</label>
-              </div>
-              <div class="form-check form-check-inline">
-                <input class="form-check-input" type="checkbox" id="diocesanEmail" name="diocesanEmail">
-                <label class="form-check-label" for="diocesanEmail">Include Diocesan Emails?</label>
-              </div>
+<div class="modal fade" id="emailModal" tabindex="-1" aria-labelledby="emailmodallabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="emailmodallabel">Sending Email</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="close"></button>
+      </div>
+      <div class="modal-body">
+        <form id="emailForm" 
+        class="row g-3"
+        action='{% url 'api:send_email' %}'
+        method='POST'
+        enctype='multipart/form-data'
+        >
+          {% csrf_token %}
+          <!-- all checkboxes in one row -->
+          <div class="col-12">
+            <div class="form-check form-check-inline">
+              <input class="form-check-input" type="checkbox" id="personalEmail" name="personalEmail">
+              <label class="form-check-label" for="personalEmail">Include Personal Emails?</label>
             </div>
-          
-            <!-- subject field -->
-            <div class="col-12">
-              <label for="subject" class="form-label">Subject:</label>
-              <input type="text" class="form-control" id="subject" name="subject">
+            <div class="form-check form-check-inline">
+              <input class="form-check-input" type="checkbox" id="parishEmail" name="parishEmail">
+              <label class="form-check-label" for="parishEmail">Include Parish Emails?</label>
             </div>
+            <div class="form-check form-check-inline">
+              <input class="form-check-input" type="checkbox" id="diocesanEmail" name="diocesanEmail">
+              <label class="form-check-label" for="diocesanEmail">Include Diocesan Emails?</label>
+            </div>
+          </div>
+        
+          <!-- subject field -->
+          <div class="col-12">
+            <label for="subject" class="form-label">Subject:</label>
+            <input type="text" class="form-control" id="subject" name="subject">
+          </div>
 
-            <!-- attachment -->
-             <div class="col-12">
-              <label for="attachment" class="form-label">Attachment:</label>
-              <input
-                type="file"
-                class="form-control"
-                id="attachment"
-                name="attachment"
-              >
-             </div>
-          
-            <!-- dynamic, auto-growing body textarea -->
+          <!-- attachment -->
             <div class="col-12">
-              <label for="body" class="form-label">Body:</label>
-              <textarea
-                class="form-control"
-                id="body"
-                name="body"
-                rows="3"
-                style="overflow:hidden; resize:none;"
-              ></textarea>
+            <label for="attachment" class="form-label">Attachment:</label>
+            <input
+              type="file"
+              class="form-control"
+              id="attachment"
+              name="attachment"
+            >
             </div>
-          </form>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-          <button type="button" class="btn btn-primary" id="sendEmailBtn">Send Email</button>
-        </div>
+        
+          <!-- dynamic, auto-growing body textarea -->
+          <div class="col-12">
+            <label for="body" class="form-label">Body:</label>
+            <textarea
+              class="form-control"
+              id="body"
+              name="body"
+              rows="3"
+              style="overflow:hidden; resize:none;"
+            ></textarea>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-primary" id="sendEmailBtn">Send Email</button>
       </div>
     </div>
   </div>
+</div>
+
 {% endblock %}
 
 {% block bodyScripts %}

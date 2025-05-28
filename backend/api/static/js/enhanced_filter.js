@@ -51,6 +51,89 @@
         return { base, filters: checked, stats };
     }
 
+    function controlFromInput(fromSlider, fromInput, toInput, controlSlider) {
+        const [from, to] = getParsed(fromInput, toInput);
+        fillSlider(fromInput, toInput, '#C6C6C6', '#25daa5', controlSlider);
+        if (from > to) {
+            fromSlider.value = to;
+            fromInput.value = to;
+        } else {
+            fromSlider.value = from;
+        }
+    }
+    
+    function controlToInput(toSlider, fromInput, toInput, controlSlider) {
+        const [from, to] = getParsed(fromInput, toInput);
+        fillSlider(fromInput, toInput, '#C6C6C6', '#25daa5', controlSlider);
+        setToggleAccessible(toInput);
+        if (from <= to) {
+            toSlider.value = to;
+            toInput.value = to;
+        } else {
+            toInput.value = from;
+        }
+    }
+
+    function controlFromSlider(fromSlider, toSlider, fromInput) {
+        const [from, to] = getParsed(fromSlider, toSlider);
+        fillSlider(fromSlider, toSlider, '#C6C6C6', '#25daa5', toSlider);
+        if (from > to) {
+            fromSlider.value = to;
+            fromInput.value = to;
+        } else {
+            fromInput.value = from;
+        }
+    }
+
+    function controlToSlider(fromSlider, toSlider, toInput) {
+        const [from, to] = getParsed(fromSlider, toSlider);
+        fillSlider(fromSlider, toSlider, '#C6C6C6', '#25daa5', toSlider);
+        setToggleAccessible(toSlider);
+        if (from <= to) {
+            toSlider.value = to;
+            toInput.value = to;
+        } else {
+            toInput.value = from;
+            toSlider.value = from;
+    }
+    }
+
+    function getParsed(currentFrom, currentTo) {
+        const from = parseInt(currentFrom.value, 10);
+        const to = parseInt(currentTo.value, 10);
+        return [from, to];
+    }
+
+    function fillSlider(fromEl, toEl, sliderColor, rangeColor) {
+        const rangeDistance = toEl.max - toEl.min;
+        const fromPos = fromEl.value - toEl.min;
+        const toPos   = toEl.value   - toEl.min;
+        const lowPct  = (fromPos / rangeDistance) * 100;
+        const highPct = (toPos   / rangeDistance) * 100;
+
+        // color outside the range in sliderColor, inside in rangeColor
+        toEl.style.background = `
+            linear-gradient(
+            to right,
+            ${sliderColor} 0%, 
+            ${sliderColor} ${lowPct}%,
+            ${rangeColor} ${lowPct}%,
+            ${rangeColor} ${highPct}%,
+            ${sliderColor} ${highPct}%,
+            ${sliderColor} 100%
+            )`;
+    }
+
+    function setToggleAccessible(toEl) {
+        // when at absolute minimum, bump its z-index
+        const toSlider = document.querySelector('#toSlider');
+        if (Number(currentTarget.value) <= 0 ) {
+            toSlider.style.zIndex = 2;
+        } else {
+            toSlider.style.zIndex = 0;
+        }
+    }
+
     function renderStatsFilters(info, savedStats) {
         const ctr = document.getElementById('statsFilters');
         ctr.innerHTML = '';
@@ -98,92 +181,78 @@
                     ctr.appendChild(div)
                 });
             } else { // number
-            const currentMin = savedStats[`${field}_min`] ?? min;
-            const currentMax = savedStats[`${field}_max`] ?? max;
+                const currentMin = savedStats[`${field}_min`] ?? min;
+                const currentMax = savedStats[`${field}_max`] ?? max;
 
-            // 1) container
-            const div = document.createElement('div');
-            div.className = 'mb-3';
+                // 1) container
+                const statDiv = document.createElement('div');
+                statDiv.className = 'mb-3';
 
-            // 2) label
-            const lbl = document.createElement('label');
-            lbl.textContent = `${display}:`;
-            div.appendChild(lbl);
+                // 2) label
+                const lbl = document.createElement('label');
+                lbl.textContent = `${display}:`;
+                lbl.className = "mb-2"
+                statDiv.appendChild(lbl);
 
-            // 3) slider wrapper
-            const wrapper = document.createElement('div');
-            wrapper.className = 'stats-slider-container';
+                const rangeContainer = document.createElement('div');
+                rangeContainer.className = 'range_container';
 
-            const minBox = document.createElement('input');
-            minBox.type = 'number';
-            minBox.className = 'stats-val-box';
-            minBox.value = currentMin;
-            minBox.min = min;
-            minBox.max = max;
+                const slidersControl = document.createElement('div');
+                slidersControl.className = 'sliders_control mb-1'
 
-            const sliderEl = document.createElement('div');
-            sliderEl.id = `slider_${field}`;
-            sliderEl.className = 'stats-slider';
+                const fromSliderEl = document.createElement('input');
+                fromSliderEl.type = 'range';
+                fromSliderEl.id = `fromSlider_${field}`;
+                fromSliderEl.min = min;
+                fromSliderEl.max = max;
+                fromSliderEl.value = currentMin;
 
-            const maxBox = document.createElement('input');
-            maxBox.type = 'number';
-            maxBox.className = 'stats-val-box';
-            maxBox.value = currentMax;
-            maxBox.min = min;
-            maxBox.max = max;
+                const toSliderEl = document.createElement('input');
+                toSliderEl.type= 'range'
+                toSliderEl.id = `toSlider_${field}`;
+                toSliderEl.min = min;
+                toSliderEl.max = max;
+                toSliderEl.value = currentMax;
 
-            wrapper.append(minBox, sliderEl, maxBox);
-            div.appendChild(wrapper);
+                slidersControl.append(fromSliderEl, toSliderEl);
+                fromSliderEl.classList.add('range-from');
+                toSliderEl.classList.add('range-to');
 
-            // 4) hidden inputs
-            const minInp = document.createElement('input');
-            minInp.type = 'hidden';  minInp.id = `stat_min_${field}`;  minInp.value = currentMin;
-            minInp.classList.add('stats-range');
-            minInp.dataset.field = field;
-            const maxInp = document.createElement('input');
-            maxInp.type = 'hidden';  maxInp.id = `stat_max_${field}`;  maxInp.value = currentMax;
-            maxInp.classList.add('stats-range');
-            maxInp.dataset.field = field;
-            div.append(minInp, maxInp);
+                const formControl = document.createElement('div');
+                formControl.className = 'form_control';
 
-            // 5) stick it all in the DOM
-            ctr.appendChild(div);
+                const minBox = document.createElement('input');
+                minBox.type = 'number';
+                minBox.className = 'stats-val-box';
+                minBox.id = `fromInput_${field}`;
+                minBox.value = currentMin;
+                minBox.min = min;
+                minBox.max = max;
 
-            // 6) init noUiSlider
-            if(!sliderEl.noUiSlider){
-                noUiSlider.create(sliderEl, {
-                start: [currentMin, currentMax],
-                connect: true,
-                range: { min, max },
-                step: (max - min) / 100 || 1,
-                format: wNumb({ decimals: Number.isInteger(min) && Number.isInteger(max) ? 0 : 2 })
-                });
+                const maxBox = document.createElement('input');
+                maxBox.type = 'number';
+                maxBox.className = 'stats-val-box';
+                maxBox.id = `toInput_${field}`;
+                maxBox.value = currentMax;
+                maxBox.min = min;
+                maxBox.max = max;
 
-            sliderEl.noUiSlider.on('slide', ([low, high]) => {
-                minBox.value = low;
-                maxBox.value = high;
-            });
+                formControl.append(minBox, maxBox);
 
-            sliderEl.noUiSlider.on('set', ([low, high]) => {
-                minBox.value = low;
-                maxBox.value = high;
-                minInp.value = low;
-                maxInp.value = high;
-                updateView();
-                });
+                rangeContainer.append(slidersControl, formControl);
+                statDiv.appendChild(rangeContainer);
+                ctr.appendChild(statDiv)
 
-            minBox.addEventListener('change', () =>{
-                let v = Math.max(min, Math.min(max, +minBox.value));
-                sliderEl.noUiSlider.set([v, null]);
-            });
+                // initial paint + stacking
+                fillSlider(fromSliderEl, toSliderEl, '#C6C6C6', '#4a5568');
+                setToggleAccessible(toSliderEl);
 
-            maxBox.addEventListener('change', () => {
-                let v = Math.max(min, Math.min(max, +maxBox.value));
-                sliderEl.noUiSlider.set([null, v]);
-            });
-            } else {
-                sliderEl.noUiSlider.set([currentMin, currentMax]);
-                }
+                // enforce min ≤ max and sync inputs
+                fromSliderEl.oninput = () => controlFromSlider(fromSliderEl, toSliderEl, minBox);
+                toSliderEl.oninput = () => controlToSlider(fromSliderEl, toSliderEl, maxBox);
+                // mirror changes from number inputs
+                minBox.oninput = () => controlFromInput(fromSliderEl, minBox, maxBox, toSliderEl);
+                maxBox.oninput = () => controlToInput(toSliderEl, minBox, maxBox, toSliderEl);    
             }
         });
     }
@@ -216,27 +285,28 @@
         data.filters.forEach(f => {
           const [field, value] = f.split(':', 2);
       
+          const selector = `.filter-checkbox[value="${field}:${value}"]`;
+          const cb = document.querySelector(selector);
+          if (!cb) return;
+
+          const groupName = cb.dataset.display;
+          const optionLabel = cb.dataset.label;
+
           // Build the badge
           const badge = document.createElement('span');
           badge.className = 'badge bg-secondary me-1';
-          badge.textContent = `${field}: ${value}`;    // or use a nicer label if you read data-display
+          badge.textContent = `${groupName}: ${optionLabel}`;    // or use a nicer label if you read data-display
       
+          badge.addEventListener('click', () =>{
+            cb.checked = false;
+            updateView();
+          });
+
           // The “×” icon
           const x = document.createElement('i');
           x.className = 'fas fa-times ms-1';
-          x.style.cursor = 'pointer';
-      
-          x.addEventListener('click', () => {
-            // **re-query** the *current* checkbox in the sidebar
-            const selector = `.filter-checkbox[value="${field}:${value}"]`;
-            const cb = document.querySelector(selector);
-            if (cb) {
-              cb.checked = false;
-              updateView();   // now gathers from the live inputs
-            }
-          });
-      
           badge.appendChild(x);
+
           container.appendChild(badge);
         });
       }
@@ -249,13 +319,18 @@
 
         groups.forEach(group => {
             // all options <li> under this group
-            const opts = group.querySelectorAll('ul.ps-3 li');
+            const headingEl = group.querySelector('h6');
+            const groupText = headingEl
+                ? headingEl.textContent.trim().toLowerCase()
+                : '';
 
+            const opts = group.querySelectorAll('ul.ps-3 li');
             let anyVisible = false;
+
             opts.forEach(li => {
                 const lbl = li.querySelector('label').textContent.toLowerCase();
 
-                if(!term || lbl.includes(term)) {
+                if(!term || lbl.includes(term) || groupText.includes(term)) {
                     li.style.display = ''; //show match
                     anyVisible = true;
                 } else {
@@ -347,9 +422,10 @@
                     columns: allCols,
                     placeholder: "No Data Available",
                     pagination:'local',
-                    paginationSize: 20,
+                    paginationSize: 25,
                     paginationCounter:'rows',
                     movableRows: true,
+                    selectableRows:true,
                 });
                 } else {
                 // base just flipped

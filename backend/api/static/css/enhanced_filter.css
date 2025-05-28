@@ -1,3 +1,8 @@
+html, body {
+  height: 100%;
+  margin:0;
+}
+
 .stats-slider-container {
   display: flex;
   align-items: center;
@@ -19,18 +24,269 @@
   flex: 1;
   height: 0.5rem;
 }
-.noUi-target {
-  border: none;
-  background: transparent;
+
+/* left panel background + text */
+.aside-panel {
+    /* background-color: #2272C5; */
+    background-image: linear-gradient(rgb(5, 83, 175),rgb(19, 116, 226));
+    color: #fff;
+    display: flex;
+    flex-direction: column;
+  }
+  .aside-panel .nav-link {
+    color: #fff;
+  }
+  .aside-panel .nav-link.active,
+  .aside-panel .nav-link:hover {
+    background-color: rgba(255,255,255,0.2);
+  }
+  .aside-panel .actions-btn {
+    border: 1px solid #fff;
+    color: #fff;
+    background: transparent;
+  }
+  .aside-panel .search-icon {
+    color: #6c757d;
+    font-size: 0.9rem;
+    pointer-events: none;
+  }
+  .aside-panel #filterSidebar {
+    color: #fff;
+    font-size: 0.9rem;
+  }
+  .aside-panel #filterSidebar a.text-decoration-none {
+    color: #fff !important;
+    font-size: 0.9rem !important;
+  }
+  .aside-panel #filterSidebar .form-check-label {
+    color: #fff !important;
+    font-size: 0.9rem !important;
+  }
+  .aside-panel #filterSidebar .text-muted {
+    color: rgba(255,255,255,0.7) !important;
+    font-size: 0.9rem !important;
+  }
+  .aside-panel .side-panel-header {
+    padding: 0.2rem;
+  }
+
+  .action-icons {
+    color: white;
+  }
+
+  .actions-btn:hover{
+    background-color: #fff;
+    color: #2272C5;
+  }
+  
+.photo-upload {
+    position: relative;
+    display: inline-block;
 }
-.noUi-connect {
-  background: #4a5568;       /* dark grey bar between handles */
+.photo-upload img {
+    cursor: pointer; /* show its clickable */
+    width: 120px;
+    height: 120px;
+    object-fit: cover;
+    object-position: center top;
 }
-.noUi-handle {
-  border: 1px solid #4a5568;
+.photo-upload input[type="file"] {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    cursor: pointer;
+}
+
+.filter-page {
+  height: calc(100vh - 56px); /* leave room for a sticky header */
+  display: flex;
+  padding: 0;
+  overflow: hidden;
+  }
+  
+  /* only the .row inside .filter-page */
+.filter-page > .row {
+  margin: 0;
+  display: flex;
+  flex: 1;
+  }
+  
+  /* only the aside in our details page */
+ .filter-page .aside-panel {
+  flex: 0 0 300px;
+  height: 100%;
+  position: sticky;
+  top: 0;
+  overflow-y: auto;
+  }
+  
+  /* only the main in our details page */
+.filter-page main {
+  flex: 1;
+  height: 100%;
+  overflow: auto;
+  padding: 1rem;
+  background: #f8f9fa;
+  }
+
+.filter-label {
+  color:white !important;
+  cursor: default;
+  text-decoration: none !important;
+}
+
+.card-header {
+  background-color: rgba(128, 128, 128, 0.202);
+  border-top-left-radius: .8rem !important;
+  border-top-right-radius: .8rem !important;
+}
+
+#resultslist {
+  align-items: flex-start;
+  overflow-x: auto;
+}
+
+#data-grid {
+  flex: 0 0 auto;
+  width: max-content;
+  border: white;
+  margin-left: 8px;
+}
+#data-grid .tabulator-header {
+  color: black;
+}
+#data-grid .tabulator-col {
+  background: white;
+  text-align: center;
+  border: white;
+}
+#data-grid .tabulator-footer {
+  background: white;
+  color: black;
+}
+#data-grid .tabulator-cell {
+  border: white;
+}
+
+.actions {
+  text-align: center;
+}
+
+/* --- make the active-filters row wrap/scroll and stay on top --- */
+#activeFilters {
+  display: flex;
+  flex-wrap: wrap;           /* wrap to new lines instead of spilling out */
+  gap: 0.3rem;               /* spacing between badges */
+  padding: 0.5rem;           /* so scrollbars don’t sit on the text */
+  background: transparent;         /* avoid being hidden by underlying elements */
+  position: sticky;          /* stick to top of its parent <aside> */
+  top: 0;
+  z-index: 10;               /* sit above the results pane */
+}
+
+.result-btn {
+ /* background: linear-gradient(to right, rgb(5, 83, 175),rgb(19, 116, 226)); */
+ background: white;
+ color: black;
+ border: 1px solid #000000;
+}
+.result-btn:hover{
+  /* background: linear-gradient(to right, grey, black); */
+  background: linear-gradient(to right, rgb( 5,83,175), rgb(19,116,226));
+  color: white;
+  border: 1px solid black;
+}
+
+/* container around both sliders + number inputs */
+.range_container {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 1rem;
+}
+
+/* overlapping the two range inputs */
+.sliders_control {
+  position: relative;
+  height: 16px;
+}
+
+/* the “bar” track */
+.sliders_control input[type="range"] {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: transparent; /* hide default track */
+  pointer-events: none;
+  transform: translateY(-50%);
+  z-index: auto;
+}
+
+.sliders_control input[type="range"]::-webkit-slider-runnable-track,
+.sliders_control input[type="range"]::-moz-range-track {
+  background-color: #C6C6C6;
+  pointer-events: none;
+  height: 2px;
+  position: relative;
+  z-index: 0;
+}
+
+/* the draggable thumb */
+input[type="range"]::-webkit-slider-thumb,
+input[type="range"]::-moz-range-thumb {
+  width: 16px;
+  height: 16px;
+  /* border-radius: 50%; */
   background: #fff;
-  border-radius: 50%;
-  width: 1rem;
-  height: 1rem;
-  top: -0.25rem;
+  box-shadow: inset 0 0 3px #387bbe, 0 0 9px #387bbe;
+  cursor: pointer;
+  position: relative;
+  z-index: 1;
+  pointer-events: all;
+}
+
+input[type=range]::-webkit-slider-thumb:active {
+  -webkit-box-shadow: inset 0 0 3px #387bbe, 0 0 9px #387bbe;
+  box-shadow: inset 0 0 3px #387bbe, 0 0 9px #387bbe;
+}
+
+/* align number inputs */
+.form_control {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 0.5rem;
+}
+
+/* Search input styling */
+.filter-search {
+  position: relative;
+  width: 100%;
+  max-width: 500px;      /* ← tweak for desired width */
+}
+.filter-search .form-control {
+  padding-left: 2rem;
+  border-radius: 999px;
+  height: 36px;
+  background: white;
+  border: 1px solid #e0e0e0;
+  font-size: 0.9rem;
+}
+.filter-search .search-icon {
+  position: absolute;
+  left: 0.75rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #888;
+  font-size: 1rem;
+}
+
+.form-select {
+  border-radius: 2rem !important;
+  height: 36px !important;
+  border: 1px solid #e0e0e0 !important;
+  font-size: 0.9rem !important;
 }

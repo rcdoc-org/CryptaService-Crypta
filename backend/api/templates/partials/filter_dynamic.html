@@ -25,6 +25,7 @@
                        id="filter_{{ group.field }}_{{ opt.value }}"
                        value="{{ group.field }}:{{ opt.value }}"
                        data-display="{{ group.display|escapejs }}"
+                       data-label="{{ opt.label|escapejs }}"
                        {% if applied|get_item:group.field and opt.value in applied|get_item:group.field %}checked{% endif %}>
                 <label class="form-check-label"
                        for="filter_{{ group.field }}_{{ opt.value }}">
