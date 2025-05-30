@@ -82,12 +82,12 @@ def import_historical(csv_file):
                 year = row['Year'],
                 defaults = {
                     # percentages of staff / volunteers
-                    'percentFullTime_deacons':    safe_decimal(row['FullTimeStaffDeacons']),
-                    'percentFullTime_brothers':   safe_decimal(row['FullTimeStaffBrothers']),
-                    'percentFullTime_sisters':    safe_decimal(row['FullTimeStaffSisters']),
-                    'percentFullTime_other':  safe_decimal(row['FullTimeStaffNonClergy']),
-                    'percentPartTime_staff':      safe_decimal(row['PartTimeStaff']),
-                    'percent_volunteers':         safe_decimal(row['Volunteers']),
+                    'fullTime_deacons':    safe_decimal(row['FullTimeStaffDeacons']),
+                    'fullTime_brothers':   safe_decimal(row['FullTimeStaffBrothers']),
+                    'fullTime_sisters':    safe_decimal(row['FullTimeStaffSisters']),
+                    'fullTime_other':  safe_decimal(row['FullTimeStaffNonClergy']),
+                    'partTime_staff':      safe_decimal(row['PartTimeStaff']),
+                    'volunteers':         safe_decimal(row['Volunteers']),
 
                     # BigInteger counts
                     'registeredHouseholds':       safe_int(row['RegisteredHouseholds']),
@@ -171,7 +171,7 @@ def import_historical(csv_file):
     
 if __name__ == "__main__":
     # Path to the CSV file
-    csv_file = '/Users/kbgreenberg/Documents/Github/CryptaApp/crypta/backend/api/Church Historical Data (2).csv'
+    csv_file = '/Users/kbgreenberg/Documents/Github/CryptaApp/crypta/backend/api/Church Historical Data (4).csv'
 
     # Run the import function
     import_historical(csv_file)

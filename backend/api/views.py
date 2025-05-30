@@ -178,11 +178,11 @@ def get_filtered_data(base, raw_filters, raw_stats=None):
     """
 
     DISPLAY_TO_PATH = {
-        "% Full-Time Deacons":  'statusAnimarum_church__percentFullTime_deacons',
-        "% Full-Time Brothers":  'statusAnimarum_church__percentFullTime_brothers',
-        "% Full-Time Sisters":  'statusAnimarum_church__percentFullTime_sisters',
-        "% Full-Time Lay":  'statusAnimarum_church__percentFullTime_other',
-        "% Part-Time Staff":  'statusAnimarum_church__percentPartTime_staff',
+        "# Deacons":  'statusAnimarum_church__fullTime_deacons',
+        "# Brothers":  'statusAnimarum_church__fullTime_brothers',
+        "# Sisters":  'statusAnimarum_church__fullTime_sisters',
+        "# Lay":  'statusAnimarum_church__fullTime_other',
+        "# Staff":  'statusAnimarum_church__partTime_staff',
         "% Volunteers":  'statusAnimarum_church__percent_volunteers',
         "Registered Households":  'statusAnimarum_church__registeredHouseholds',
         "Max Mass Size":  'statusAnimarum_church__maxMass',
@@ -348,12 +348,12 @@ def get_filtered_data(base, raw_filters, raw_stats=None):
         "Brothers Teaching":    "Staff",
         "Sisters Teaching":     "Staff",
         "Lay Staff Teaching":   "Staff",
-        "% Full-Time Deacons":          "Staff",
-        "% Full-Time Brothers":         "Staff",
-        "% Full-Time Sisters":          "Staff",
-        "% Full-Time Lay":              "Staff",
-        "% Part-Time Staff":            "Staff",
-        "% Volunteers":                 "Staff",
+        "# Deacons":          "Staff",
+        "# Brothers":         "Staff",
+        "# Sisters":          "Staff",
+        "# Lay":              "Staff",
+        "# Staff":            "Staff",
+        "# Volunteers":                 "Staff",
         
         
         # - Statistics - 
@@ -770,12 +770,12 @@ def get_filtered_data(base, raw_filters, raw_stats=None):
             sa = obj.statusAnimarum_church.first()
             if sa:
                 rec.update({
-                    "% Full-Time Deacons":  sa.percentFullTime_deacons,
-                    "% Full-Time Brothers":  sa.percentFullTime_brothers,
-                    "% Full-Time Sisters":  sa.percentFullTime_sisters,
-                    "% Full-Time Lay":  sa.percentFullTime_other,
-                    "% Part-Time Staff":  sa.percentPartTime_staff,
-                    "% Volunteers":  sa.percent_volunteers,
+                    "# Deacons":  sa.fullTime_deacons,
+                    "# Brothers":  sa.fullTime_brothers,
+                    "# Sisters":  sa.fullTime_sisters,
+                    "# Lay":  sa.fullTime_other,
+                    "# Staff":  sa.partTime_staff,
+                    "% Volunteers":  sa.volunteers,
                     "Registered Households":  sa.registeredHouseholds,
                     "Max Mass Size":  sa.maxMass,
                     "Seating Capacity":  sa.seatingCapacity,

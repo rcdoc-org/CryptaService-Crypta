@@ -1099,7 +1099,7 @@ class Assignment(models.Model):
 class StatusAnimarum(models.Model):
     choice_year = [
         ('2020-21', '2020-21'),
-        ('2023-24', '2023-24'),
+        ('2023', '2023'),
         ('2024-25', '2024-25')
     ]
     choice_schoolType = [
@@ -1116,54 +1116,36 @@ class StatusAnimarum(models.Model):
                                           },
                                       related_name='statusAnimarum_church')
     year = models.CharField(max_length=255, default=choice_year[-1],choices=choice_year, null=False)
-    percentFullTime_deacons = models.DecimalField(max_digits = 5,
-                                                  decimal_places =2,
-                                                  default = 0.0,
-                                                  null = False,
-                                                  validators = [
-                                                      MinLengthValidator(0.0),
-                                                      MaxLengthValidator(100.0)
-                                                  ])
-    percentFullTime_brothers = models.DecimalField(max_digits = 5,
-                                                   decimal_places = 2,
-                                                   default = 0.0,
-                                                   null = False,
-                                                   validators = [
-                                                       MinLengthValidator(0.0),
-                                                       MaxLengthValidator(100.0)
-                                                   ])
-    percentFullTime_sisters = models.DecimalField(max_digits = 5,
-                                                   decimal_places = 2,
-                                                   default = 0.0,
-                                                   null = False,
-                                                   validators = [
-                                                       MinLengthValidator(0.0),
-                                                       MaxLengthValidator(100.0)
-                                                   ]) 
-    percentFullTime_other = models.DecimalField(max_digits = 5,
-                                                   decimal_places = 2,
-                                                   default = 0.0,
-                                                   null = False,
-                                                   validators = [
-                                                       MinLengthValidator(0.0),
-                                                       MaxLengthValidator(100.0)
-                                                   ])
-    percentPartTime_staff = models.DecimalField(max_digits = 5,
-                                                   decimal_places = 2,
-                                                   default = 0.0,
-                                                   null = False,
-                                                   validators = [
-                                                       MinLengthValidator(0.0),
-                                                       MaxLengthValidator(100.0)
-                                                   ])
-    percent_volunteers = models.DecimalField(max_digits = 5,
-                                                   decimal_places = 2,
-                                                   default = 0.0,
-                                                   null = False,
-                                                   validators = [
-                                                       MinLengthValidator(0.0),
-                                                       MaxLengthValidator(100.0)
-                                                   ])
+    fullTime_deacons = models.BigIntegerField(default=0,
+                                                null=False,
+                                                validators=[
+                                                    MinLengthValidator(0)
+                                                ])
+    fullTime_brothers = models.BigIntegerField(default=0,
+                                                null=False,
+                                                validators=[
+                                                    MinLengthValidator(0)
+                                                ])
+    fullTime_sisters = models.BigIntegerField(default=0,
+                                                null=False,
+                                                validators=[
+                                                    MinLengthValidator(0)
+                                                ]) 
+    fullTime_other = models.BigIntegerField(default=0,
+                                                null=False,
+                                                validators=[
+                                                    MinLengthValidator(0)
+                                                ])
+    partTime_staff = models.BigIntegerField(default=0,
+                                                null=False,
+                                                validators=[
+                                                    MinLengthValidator(0)
+                                                ])
+    volunteers = models.BigIntegerField(default=0,
+                                                null=False,
+                                                validators=[
+                                                    MinLengthValidator(0)
+                                                ])
     registeredHouseholds = models.BigIntegerField(default=0,
                                                     null=False,
                                                     validators=[
