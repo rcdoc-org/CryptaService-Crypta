@@ -74,7 +74,7 @@ def import_churches(csv_file):
 
             # Create or get location
             location, _ = Location.objects.get_or_create(
-                name=row['Parish Full Name'],
+                name=row['Parish Unique Name'],
                 defaults={
                     'type': 'church',
                     # Handle NaN values for latitude and longitude
