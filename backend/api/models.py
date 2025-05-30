@@ -1116,7 +1116,7 @@ class StatusAnimarum(models.Model):
                                           },
                                       related_name='statusAnimarum_church')
     year = models.CharField(max_length=255, default=choice_year[-1],choices=choice_year, null=False)
-    fullTime_deacons = modelsBigIntegerField(default=0,
+    fullTime_deacons = models.BigIntegerField(default=0,
                                                 null=False,
                                                 validators=[
                                                     MinLengthValidator(0)
