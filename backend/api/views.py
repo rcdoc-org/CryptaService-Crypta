@@ -116,7 +116,10 @@ def details_page(request, base, pk):
         'lkp_assignmentType_id'
     ).all()
 
-    titles = obj.title
+    titles = obj.person_title_set.select_related(
+        'lkp_person_id',
+        'lkp_title_id'
+    ).all()
     
     if ctx_base == 'person':
         # get the person details
@@ -151,6 +154,7 @@ def details_page(request, base, pk):
             obj.location_details = None
     
     obj.assignments = assignments
+    obj.titles = titles
 
     # Get the object details
     records, applied, filter_tree, columns, stats_info = get_filtered_data(
