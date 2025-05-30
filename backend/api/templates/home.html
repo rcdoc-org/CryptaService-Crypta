@@ -9,121 +9,153 @@
 
 {% block content %}
 <div class="container my-5">
-  <div class="row g-4">
+  <div class="row">
     <!-- Header: greeting + weather -->
-    <div class="col-12">
-          <h2 class="mb-0">Welcome, Kyle Greenberg</h2>
-          <div class="text-end">
-            <span class="me-1">Charlotte, NC {{ temperature }}°F</span>
+    <div class="col-12 home-header mb-4">
+      <div class="row">
+          <h2 class="col mb-0">Welcome, Kyle Greenberg</h2>
+          <div class="col text-end">
+            <span class="me-1 align-bottom">Charlotte, NC {{ temperature }}°F</span>
             <i class="fas fa-sun"></i>
+          </div>
       </div>
     </div>
 
+
     <div class="col-lg-8">
-        <div class="card mb-4 border-0 rounded-4 shadow-sm">
+        <div class="card mb-4 border-0 rounded-4 shadow">
             <div class="card-body text-center">
                 <h3>Welcome to Crypta</h3>
                 <h4>The Diocese of Charlotte's data vault.</h4>
                 <h6>Here you can find informaiton on churches, priests, schools and many other things.</h6>
-                <button
-                    type='button'
-                    class='btn btn-sm me-2 mb-2'
-                    data-bs-toggle='modal'
-                    data-bs-target='#welcomeModal'
-                    id='welcometogglebtn'    
-                >Welcome</button>
+                <div class="pt-3 pb-2 align-items-middle">
+                  <button
+                      type='button'
+                      class='btn btn-sm me-2 mb-2'
+                      data-bs-toggle='modal'
+                      data-bs-target='#welcomeModal'
+                      id='welcometogglebtn'    
+                  >Learn More</button>
+                </div>
             </div>
         </div>
     </div>
 
     <div class="col-lg-4">
-        <div class="card mb-4 border-0 rounded-4 shadow-sm">
-            <div class="card-body">
-                <h3 class="text-center">Getting Started</h3>
-                <a href="{% url 'api:enhanced_filter' %}"
-                class="button btn btn-sm me-2 mb-2">Database
-                </a><br>
-                <a href="{% url 'api:changeLog' %}"
-                class="button btn btn-sm me-2 mb-2">Change Log
-                </a>
+      <div class="card mb-4 border-0 rounded-4 shadow">
+        <div class="card-body">
+          <h3 class="text-center">Getting Started</h3>
+          <div class="d-flex align-items-start mb-3">
+            <a
+            class="icon-links me-3 align-self-center"
+            href="{% url 'api:enhanced_filter' %}"><img 
+              src="/static/images/database.png" 
+              alt="database" 
+              class="database-icon mb-3" 
+              width='40px'
+              hieght='40px'></a>
+            <div>
+              <a
+                class="icon-links"
+                href="{% url 'api:enhanced_filter' %}"><p class="mb-0">Database</p></a>
+              <small class="text-muted">Search and access all data in Crypta.</small>
             </div>
+          </div>
+          <div class="d-flex align-items-start">
+            <a
+            class="icon-links me-3 align-self-center"
+            href="{% url 'api:enhanced_filter' %}"><img 
+              src="/static/images/scroll.png" 
+              alt="database" 
+              class="database-icon mb-3" 
+              width='40px'
+              hieght='40px'></a>
+            <div>
+              <a
+                class="icon-links"
+                href="{% url 'api:enhanced_filter' %}"><p class="mb-0">Change Log</p></a>
+              <small class="text-muted">Keep track of all the enhancements.</small>
+            </div>
+          </div>
         </div>
+      </div>
     </div>
 
-    <!-- Left Column: Awaiting Your Action & Things in Progress -->
+      <!-- Left Column: Awaiting Your Action & Things in Progress -->
     <div class="col-lg-6">
       <!-- Awaiting Your Action -->
-      <div class="card mb-4 border-0 rounded-4 shadow-sm">
+      <div class="card mb-4 border-0 rounded-4 shadow">
         <div class="card-body">
-            <div class="card-title"><strong>Awaiting Your Action</strong></div>
-            <div class="d-flex align-items-start mb-3">
-              <i class="fas fa-inbox fa-2x me-3 align-self-center"></i>
-              <div>
-                <p class="mb-1">Demo Crypta 2.0</p>
-                <small class="text-muted">Due 6-11-2025</small>
-              </div>
+          <small class="text-muted">Awaiting Your Action</small><br><br>
+          <div class="d-flex align-items-start mb-3">
+            <i class="fas fa-inbox fa-2x me-3 align-self-center"></i>
+            <div>
+              <p class="mb-0">Demo Crypta 2.0</p>
+              <small class="text-muted">Due 6-11-2025</small>
             </div>
+          </div>
         </div>
       </div>
 
       <!-- Things in Progress -->
-    <div class="card mb-4 border-0 rounded-4 shadow-sm">
+      <div class="card mb-4 border-0 rounded-4 shadow">
         <div class="card-body">
-            <div class="card-title"><strong>Things in Progress</strong></div>
-                <div class="d-flex align-items-start mb-3">
-                    <i class="fas fa-tasks fa-2x me-3 align-self-center"></i>
-                    <div class="flex-grow-1">
-                        <p class="mb-1">Build the Home page.</p>
-                        <small class="text-muted">Create a homepage similar to the picture given by Adam.</small>
-                    </div>
-                    <a href="{% url 'api:home' %}" class="align-self-center">View</a>
-                </div>
-                <div class="d-flex align-items-start mb-3">
-                    <i class="fas fa-tasks fa-2x me-3 align-self-center"></i>
-                    <div class="flex-grow-1">
-                        <p class="mb-1">Build a Sudo Login Page.</p>
-                        <small class="text-muted">Create a nice looking fake login page.</small>
-                    </div>
-                    <a href="{% url 'api:login' %}" class="align-self-center">View</a>
-                </div>
-                <div class="d-flex align-items-start mb-3">
-                    <i class="fas fa-tasks fa-2x me-3 align-self-center"></i>
-                    <div class="flex-grow-1">
-                        <p class="mb-1">Finish the Details Page.</p>
-                        <small class="text-muted">Bill gave me new categories and we have finished the layout design.</small>
-                    </div>
-                    <a href="{% url 'api:enhanced_filter' %}" class="align-self-center">View</a>
-                </div>
-            </div>
+          <small class="text-muted">Things In Progress</small><br><br>
+          <div class="d-flex align-items-start mb-3">
+              <i class="fas fa-tasks fa-2x me-3 align-self-center"></i>
+              <div class="flex-grow-1">
+                  <p class="mb-0">Build the Home page.</p>
+                  <small class="text-muted">Create a homepage similar to the picture given by Adam.</small>
+              </div>
+              <a href="{% url 'api:home' %}" class="align-self-center">View</a>
+          </div>
+          <div class="d-flex align-items-start mb-3">
+              <i class="fas fa-tasks fa-2x me-3 align-self-center"></i>
+              <div class="flex-grow-1">
+                  <p class="mb-0">Build a Sudo Login Page.</p>
+                  <small class="text-muted">Create a nice looking fake login page.</small>
+              </div>
+              <a href="{% url 'api:login' %}" class="align-self-center">View</a>
+          </div>
+          <div class="d-flex align-items-start mb-3">
+              <i class="fas fa-tasks fa-2x me-3 align-self-center"></i>
+              <div class="flex-grow-1">
+                  <p class="mb-0">Finish the Details Page.</p>
+                  <small class="text-muted">Bill gave me new categories and we have finished the layout design.</small>
+              </div>
+              <a href="{% url 'api:enhanced_filter' %}" class="align-self-center">View</a>
+          </div>
         </div>
+      </div>
     </div>
 
     <!-- Right Column: Important Dates & Quick Tasks -->
     <div class="col-lg-6">
       <!-- Important Dates -->
-      <div class="card mb-4 border-0 rounded-4 shadow-sm">
+      <div class="card mb-4 border-0 rounded-4 shadow">
         <div class="card-body">
-            <div class="card-title"><strong>Important Dates</strong></div>
+            <small class="text-muted">Important Dates</small><br><br>
           <ul class="list-unstyled mb-2">
               <li class="d-flex justify-content-between align-items-center py-2 border-bottom">
-                <span><strong>6-11-2025</strong> Demo Crypta</span>
+                <span>6-11-2025 &nbsp&nbsp Demo Crypta</span>
                 <small class="text-muted">To Msgr. Winslow</small>
               </li>
           </ul>
-          <a href="#" class="d-block text-decoration-none">View More</a>
+          <a href="#" class="d-block">View More</a>
         </div>
       </div>
 
       <!-- Quick Tasks -->
-      <div class="card mb-4 border-0 rounded-4 shadow-sm">
+      <div class="card mb-4 border-0 rounded-4 shadow">
         <div class="card-body">
-            <div class="card-title"><strong>Quick Tasks</strong></div>
-          {% for task in quick_tasks %}
-            <a href="{{ task.link }}"
-               class="btn btn-outline-primary w-100 rounded-pill mb-2">
-              {{ task.label }}
-            </a>
-          {% endfor %}
+            <small class="text-muted">Quick Tasks</small><br><br>
+            <ul>
+              <li>Help Desk Tickets</li>
+              <li>Expense Authorization</li>
+              <li>Request a Crypta Feature</li>
+              <li>Canon 1281 Request</li>
+              <li>AI Chat Bot</li>
+            </ul>
         </div>
       </div>
     </div>

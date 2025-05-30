@@ -8,3 +8,4 @@ manifest*/
 *.csv
 init.sql
 tmp
+.DS_Store

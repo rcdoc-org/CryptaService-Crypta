@@ -1,6 +1,18 @@
-html,body {
-    background: #f8f9fa;
+html {
+    height: 100%;
+    margin: 0;
+    background-size: 100% 100%;
+    background: linear-gradient(rgb( 5,83,175), rgb(19,116,226)), no-repeat fixed;
 }
+
+body{
+  background:transparent;
+}
+
+.home-header {
+  color: white;
+}
+
 .container {
     flex: 1;
     height: 100%;
@@ -40,6 +52,10 @@ html,body {
     border: 1px solid black;
 }
 
+a.icon-links {
+  text-decoration: none;
+  color: black;
+}
 a.button {
     border: 1px solid #000000;
     color: black;
