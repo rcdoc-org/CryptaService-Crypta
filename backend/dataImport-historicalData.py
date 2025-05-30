@@ -171,7 +171,7 @@ def import_historical(csv_file):
     
 if __name__ == "__main__":
     # Path to the CSV file
-    csv_file = '/Users/kbgreenberg/Documents/Github/CryptaApp/crypta/backend/api/Church Historical Data (2).csv'
+    csv_file = '/Users/kbgreenberg/Documents/Github/CryptaApp/crypta/backend/api/Church Historical Data (4).csv'
 
     # Run the import function
     import_historical(csv_file)
