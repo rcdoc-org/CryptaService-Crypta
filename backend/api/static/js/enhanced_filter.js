@@ -417,7 +417,8 @@
                 if (!table) {
                 // very first creation
                 table = new Tabulator("#data-grid", {
-                    layout: "fitColumns",
+                    rowHeader: {frozen:true, },
+                    layout: "fitDataFill",
                     data: payload.grid.data,
                     columns: allCols,
                     placeholder: "No Data Available",
