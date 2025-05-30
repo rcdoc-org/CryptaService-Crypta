@@ -1,7 +1,7 @@
 {% extends "base.html" %} 
 <!-- Enter Any Style sheet imports here -->
 {% block stylesheets %}
-
+  <link rel="stylesheet" href="/static/css/changeLog.css">
 {% endblock %}
 
 <!-- Change the Title here -->
@@ -16,31 +16,78 @@
 
 <!-- Any body content goes here-->
 {% block content %}
-  <section class="py-5 bg-light text-center">
-      <div class="container">
-        <h1 class="display-5 fw-bold mb-4">Welcome to Nimbus / Crypta</h1>
-        <p class="lead mb-4">
-          In the spirit of our Catholic mission—to evangelize, serve, and unite the Body of Christ—we’re pleased to introduce a demo of our new diocesan portal.
-        </p>
-        <p class="mb-4">
-          This demonstration environment highlights:
-        </p>
-        <ul class="list-unstyled mb-4">
-          <li>✅ An <strong>enhanced filtering &amp; sorting system</strong> to find parishes, schools, and resources instantly</li>
-          <li>✅ A dedicated <strong>Parish Portal</strong> for streamlined communication and sacramental scheduling</li>
-          <li>✅ Complete <strong>flexibility</strong>—we can add any feature you need, from ministry calendars to volunteer sign-ups</li>
-        </ul>
-        <p class="mb-5 text-muted">
-          <em>Note: This is a demo. All data and functionality shown here are for preview purposes only.</em>
-        </p>
-        <a href="#features" 
-        class="btn btn-primary btn-lg me-2"
-        data-bs-toggle='modal'
-        data-bs-target='#featureModal'
-        >Explore Features</a>
+  <div class="container my-5">
+    <div class="col-12">
+      <div class="card mb-4 border-0 rounded-4 shadow-sm">
+        <div class="card-body">
+          <h2 class="text-center">Change Log</h2>
+          <p>
+            <strong>5-22-2025: A long list of GUI changes</strong><br>
+            <ol>
+              <li>Added Crypta 2.0 to Header.</li>
+              <li>Changed home page to database and what was the home page to change log.</li>
+              <li>Updated URL paths.</li>
+              <li>Made the relationship button on details page a teams message link.</li>
+              <li>Update database table with pagination.</li>
+              <li>Update database with row moving capabilities.</li>
+              <li>Rounded table results for future main usage with new database look upcoming.</li>
+              <li>Matched Gradient to Workday for details page.</li>
+              <li>Updated rounding to better match workday.</li>
+              <li>Update primary info with boxes that Bill Weldon prefered.</li>
+              <li>Added Main overflow feature for horizontal and vertical main section of details page.</li>
+              <li>Added sticky feature to header</li>
+              <li>Added sticky feature to left nav of details page.</li>
+              <li>Updated return button to match action button.</li>
+              <li>Fixed aspect ratio on photos.</li>
+              <li>Shrunk left nav using css.</li>
+              <li>Added label for which database you query.</li>
+              <li>Added new and improved stat filtering.</li>
+              <li>Added new icons for default usage on details pages.</li>
+            </ol>        
+            <strong>5-12-2025: Created a search feature for the application</strong><br>
+            We can now use the search bar to find detail pages from the crypta database and pull specific detail pages up.
+            <br><br>
+            <strong>5-12-2025: Added dynamic address query system with google for physical locations on Details Page.</strong><br>
+            Created a basic django parser on the page to make a query with google based on the 
+            physical location of churches and schools.
+            <br><br>
+            <strong>5-12-2025: Added locations functionality for basic location data on Details Page.</strong><br>
+            Went through and added logic for when location id's are passed to the details Page.
+            <br><br>
+            <strong>5-12-2025: Added Export to CSV and Excel</strong><br>
+            The action buttons for exporting to excel and csv are now live!<br>
+            It will export as result.csv/xlsx and only give you the filtered results and 
+            choosen columns by the user.<br><br>
+            <strong>5-12-2025: Added count to email recipients in email confirmation</strong><br>
+            We now have a total recipients item in the email confirmation page for sending emails.
+            This will make it easier to confirm the number of emails being sent out prior to sending.
+            <br><br>
+            <strong>5-12-2025: Created a Dynamic Details Page</strong> <br>
+            We now have a dynamic details page that allows you to see the details of 
+            the selected person. It does have logic started for locations but is not 
+            fully functional with data yet. <br><br>
+            <strong>5-12-2025: Added Search Filters</strong> <br>
+            We now have a search input bar that allows you to search for filters by name.
+            This doesn't search the filter tree names but the values available 
+            in the filter tree groups. <br><br>
+            <strong>5-10-2025: Added Column Chooser</strong> <br>
+            We now have a column chooser modal that allows you to select which columns you want to see in the results. <br><br>
+            <strong>5-8-2025: Header & GUI Updates</strong> <br>
+            We have updated the header to be more user friendly and match more with workday example provided by Adam Padron. <br/><br/>
+            <strong>5-5-2025: Introduced Action Buttons</strong> <br>
+            You'll find place holders for exporting to excel, csv, and mailing labels. <br>
+            But the Send email option is under live development and already has a working attachment system and body expansion setup. <br>
+            Link to page: <a href="{% url 'api:enhanced_filter' %}">Links</a>
+            <br/><br/>
+            <strong>4-25-2025: Entire Filtering & Sorting System Operational</strong> <br>
+            You can find the enhanced filtering system here: <a href="{% url 'api:enhanced_filter' %}">Links</a> <br/>
+            You'll find it more user friendly and similar to Amazon purchasing experiences. <br>
+          </p>
+        </div>
       </div>
-  </section>
-
+    </div>
+  </div>
+  
   <!-- Modal -->
   <div class="modal fade" id="featureModal" tabindex="-1" 
       aria-labelledby="featureModalLabel" aria-hidden="true">
@@ -133,55 +180,6 @@
 <!-- Any footer changes goes here -->
  {% load static %}
  {% block footer %}
- <footer class="custom-footer py-5">
-  <div class="container">
-
-    <!-- contact & logo row -->
-    <div class="row align-items-center my-4">
-      <div class="col-md-6 text-center text-md-start mb-3 mb-md-0">
-        <a href="{% url 'api:changeLog' %}">
-          <img src="{% static 'images/logo.png' %}"
-               alt="Diocese of Charlotte"
-               class="img-fluid"
-               style="max-width: 250px;">
-          <span class='org-title'>Diocese of Charlotte </span>
-        </a>
-      </div>
-      <div class="col-md-6">
-        <ul class="list-unstyled mb-0">
-          <li class="mb-2">
-            <i class="fas fa-envelope me-2"></i>
-            <a href="mailto:helpdesk@rcdoc.org"
-               class="text-white">
-               helpdesk@rcdoc.org
-            </a>
-          </li>
-          <li class="mb-2">
-            <i class="fas fa-phone me-2"></i>
-            <a href="tel:+17043703388" class="text-white" target="_blank">
-              (704) 370-3388
-            </a>
-          </li>
-          <li>
-            <i class="fas fa-map-marker-alt me-2"></i>
-            <a href="https://www.google.com/maps?q=1123+S.+Church+Street,+Charlotte,+NC"
-               class="text-white" 
-               target="_blank"> 
-               1123 South Church Street, Charlotte, NC 28203
-            </a>
-          </li>
-        </ul>
-      </div>
-    </div>
-
-    <!-- copyright & privacy -->
-    <div class="text-center">
-      <small class="text-muted">
-        &copy; 2025 Diocese of Charlotte
-      </small>
-    </div>
-  </div>
-</footer>
  {% endblock %}
 
 <!-- Any body scripts goes here -->

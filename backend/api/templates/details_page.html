@@ -138,29 +138,21 @@
         <!-- Navigation pane: Controls -->
         <nav class="nav flex-column px-3 mb-auto">
           <a class="nav-link active" href="#" data-target="primary-info">Primary Info</a>
-          <a class="nav-link" href="#" data-target="contact-info">Contact Info</a>
           {% if base == 'person' %}
-            <a class="nav-link" href="#" data-target="birth-info">Birth</a>
-          {% endif %}
-          {% if object.personType == 'priest' or object.personType == 'deacon' %}
-            <a class="nav-link" href="#" data-target="baptism-info">Baptism</a>
-          {% endif %}
-          {% if object.personType == 'priest' %}
-            <a class="nav-link" href="#" data-target="priest-info">Priest Details</a>
-          {% endif %}
-          {% if object.personType == 'deacon' %}
-            <a class="nav-link" href="#" data-target="deacon-info">Deacon Details</a>
+            <a class="nav-link" href="#" data-target="contact-info">Contact Info</a>
+            <a class="nav-link" href="#" data-target="birth-info">Birth/Sacraments</a>
+            <a class="nav-link" href="#" data-target="standing-info">Standing in Diocese</a>
+            <a class="nav-link" href="#" data-target="degrees-info">Degrees/Skills/Lang.</a>
+            <a class="nav-link" href="#" data-target="formation-info">Formation</a>
+            <a class="nav-link" href="#" data-target="name-info">Name Details</a>
+            <a class="nav-link" href="#" data-target="emergency-info">Emergency Info</a>
           {% endif %}
           {% if base == 'location' %}
-            {% if object.type == 'church' %}
-              <a class="nav-link" href="#" data-target="church-info">Church Details</a>
-            {% endif %}
-            {% if object.type == 'school' %}
-              <a class="nav-link" href="#" data-target="school-info">School Details</a>
-            {% endif %}
-            {% if object.type == 'church' or object.type == 'school' %}
+              <a class="nav-link" href="#" data-target="location-info">Location Info</a>
+              <a class="nav-link" href="#" data-target="clergy-info">Clergy</a>
+              <a class="nav-link" href="#" data-target="mass-info">Masses/Ministries</a>
+              <a class="nav-link" href="#" data-target="staff-info">Staff</a>
               <a class="nav-link" href="#" data-target="stat-info">Statistics</a>
-            {% endif %}
           {% endif %}
         </nav>
   

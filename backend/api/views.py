@@ -228,127 +228,135 @@ def get_filtered_data(base, raw_filters, raw_stats=None):
     
     FIELD_CATEGORIES = {
         # PERSON ONLY
-        # — Basic info —
-        "Full Name":          "Basic",
-        "First Name":         "Basic",
-        "Middle Name":        "Basic",
-        "Last Name":          "Basic",
-        "Person Type":        "Basic",
-        "Prefix":             "Basic",
-        "Suffix":             "Basic",
-
-        # — Dates —
-        "Birth Date":         "Dates",
-        "Baptism Date":       "Dates",
-        "Retirement Date":    "Dates",
-        "Deceased Date":      "Dates",
-
-        # — Flags —
-        "Safe Env Trng":      "Flags",
-        "Paid Employee":      "Flags",
-        "Is Priest?":         "Flags",
-        "Is Deacon?":         "Flags",
-        "Is Lay?":            "Flags",
-
-        # — Addresses —
-        "Residence Addr":     "Residence Info",
-        "Residence City":     "Residence Info",
-        "Residence State":     "Residence Info",
-        "Residence Zip Code":     "Residence Info",
-        "Residence Country":     "Residence Info",
-        "Mailing Addr":       "Mailing Info",
-        "Mailing City":       "Mailing Info",
-        "Mailing State":       "Mailing Info",
-        "Mailing Zip Code":       "Mailing Info",
-        "Mailing Country":       "Mailing Info",
-
-        # — Contact —
-        "Personal Emails":    "Contact",
-        "Parish Emails":      "Contact",
-        "Diocesan Emails":    "Contact",
-        "Cell Phones":        "Contact",
-        "Home Phones":        "Contact",
-
-        # — Skills & Education —
-        "Languages":          "Skills",
-        "Degrees":            "Skills",
-        "Faculties Grants":   "Skills",
-
-        # — History —
-        "Status History":     "History",
-        "Titles":             "History",
-        "Assignments":        "History",
-        "Relationships":      "History",
-
-        # — Priest Details —
-        "Priest Ordination":      "Priest Details",
-        "Diocesan/Religious":      "Priest Details",
-        "Place of Baptism":        "Priest Details",
-        "Birth (City,State)":      "Priest Details",
-        "Priest Notes":            "Priest Details",
+        # — Primary Info —
+        "Full Name":          "Primary Info",
+        "Person Type":        "Primary Info",
+        "Retirement Date":    "Primary Info",
+        "Deceased Date":      "Primary Info",
+        "Status History":     "Primary Info",
+        "Titles":             "Primary Info",
+        "Assignments":        "Primary Info",
+        "Diocesan/Religious":      "Primary Info",
         
+        
+        # - Contact Info -
+        "Residence Addr":     "Contact Info",
+        "Residence City":     "Contact Info",
+        "Residence State":     "Contact Info",
+        "Residence Zip Code":     "Contact Info",
+        "Residence Country":     "Contact Info",
+        "Mailing Address":       "Contact Info",
+        "Mailing City":       "Contact Info",
+        "Mailing State":       "Contact Info",
+        "Mailing Zip Code":       "Contact Info",
+        "Mailing Country":       "Contact Info",
+        "Personal Emails":    "Contact Info",
+        "Parish Emails":      "Contact Info",
+        "Diocesan Emails":    "Contact Info",
+        "Cell Phones":        "Contact Info",
+        "Home Phones":        "Contact Info",
+        
+        
+        # - Birth/Sacraments - 
+        "Birth Date":         "Birth/Sacraments",
+        "Baptism Date":       "Birth/Sacraments",
+        "Priest Ordination":      "Birth/Sacraments",
+        "Place of Baptism":        "Birth/Sacraments",
+        "Birth (City,State)":      "Birth/Sacraments",
+        
+        
+        # - Standing in Diocese - 
+        "Safe Env Trng":      "Standing in Diocese",
+        "Paid Employee":      "Standing in Diocese",
+        "Is Priest?":         "Standing in Diocese",
+        "Is Deacon?":         "Standing in Diocese",
+        "Is Lay?":            "Standing in Diocese",
+        
+        
+        # - Degrees/Skills/Lang -
+        "Languages":          "Degrees/Skills/Lang",
+        "Degrees":            "Degrees/Skills/Lang",
+        "Faculties Grants":   "Degrees/Skills/Lang",
+        
+        
+        # - Formation - 
+        
+        
+        # - Name Details -
+        "First Name":         "Name Details",
+        "Middle Name":        "Name Details",
+        "Last Name":          "Name Details",
+        "Prefix":             "Name Details",
+        "Suffix":             "Name Details",
+        
+        
+        # - Emergency Info -
+        "Relationships":      "Emergency Info",
+        "Priest Notes":            "Emergency Info",
+        
+
         # LOCATION ONLY
-        # Basic
-        "Name":            "Basic",
-        "Type":            "Basic",
-
-        # Jurisdiction
-        "Vicariate":       "Location Info",
-        "County":          "Location Info",
-
-        # Address
-        "Physical Addr":   "Address",
-
-        # Contact
-        "Website":         "Contact",
-        "Emails":          "Contact",
-        "Phones":          "Contact",
-
-        # Church Details
-        "Parish Name":     "Church Details",
-        "Is Mission":      "Church Details",
-        "Boundary File":   "Church Details",
-        "City Served":     "Church Details",
-        "Date Established":"Church Details",
-        "First Dedication":"Church Details",
-        "Second Dedication":"Church Details",
-        "Church Notes":    "Church Details",
+        # - Primary Info - 
+        "Name":            "Primary Info",
+        "Type":            "Primary Info",
+        "Vicariate":       "Primary Info",
+        "County":          "Primary Info",
+        "Website":         "Primary Info",
+        "Emails":          "Primary Info",
+        "Phones":          "Primary Info",
+        "Parish Name":     "Primary Info",
+        "Is Mission":      "Primary Info",
+        "City Served":     "Primary Info",
+        "Date Established":"Primary Info",
+        "First Dedication":"Primary Info",
+        "Second Dedication":"Primary Info",
+        "Missions":       "Primary Info",
+        "Parishes":       "Primary Info",
         
-        # School Details
-        "School Code":          "School Details",
-        "School Type":          "School Details",
-        "Grade Levels":         "School Details",
-        "Affiliated Parish":    "School Details",
-        "MACS School":          "School Details",
-        "Priests Teaching":     "School Details",
-        "Brothers Teaching":    "School Details",
-        "Sisters Teaching":     "School Details",
-        "Lay Staff Teaching":   "School Details",
-        "Canonical Status":     "School Details",
-        "Chapel on Site":       "School Details",
-
-        # Services
-        "Mass Languages":          "Services",
-        "Campus Mass At Parish":   "Services",
-        "Served By":               "Services",
-        "Mass Schedule":           "Services",
-        "Hours":                   "Services",
-        "Facility Type":           "Services",
-        "Diocese":                 "Services",
-        "Parish Boundary":         "Services",
-        "Is Other Entity":         "Services",
-
-        # Relations
-        "Missions":       "Relations",
-        "Parishes":       "Relations",
-
-        #Statistics
-        "% Full-Time Deacons":          "Statistics",
-        "% Full-Time Brothers":         "Statistics",
-        "% Full-Time Sisters":          "Statistics",
-        "% Full-Time Lay":              "Statistics",
-        "% Part-Time Staff":            "Statistics",
-        "% Volunteers":                 "Statistics",
+        
+        # - Location Info -
+        "Physical Addr":   "Location Info",
+        "Mailing Addr":     "Location Info",
+        "Boundary File":   "Location Info",
+        "Church Notes":    "Location Info",
+        "School Code":          "Location Info",
+        "School Type":          "Location Info",
+        "Grade Levels":         "Location Info",
+        "Affiliated Parish":    "Location Info",
+        "MACS School":          "Location Info",
+        "Canonical Status":     "Location Info",
+        "Chapel on Site":       "Location Info",
+        
+        
+        # - Clergy - 
+        
+        
+        # - Masses/Ministry - 
+        "Mass Languages":          "Masses/Ministries",
+        "Campus Mass At Parish":   "Masses/Minitries",
+        "Served By":               "Masses/Minitries",
+        "Mass Schedule":           "Masses/Minitries",
+        "Hours":                   "Masses/Minitries",
+        "Facility Type":           "Masses/Minitries",
+        "Diocese":                 "Masses/Minitries",
+        "Parish Boundary":         "Masses/Minitries",
+        "Is Other Entity":         "Masses/Minitries",
+        
+        
+        # - Staff -
+        "Priests Teaching":     "Staff",
+        "Brothers Teaching":    "Staff",
+        "Sisters Teaching":     "Staff",
+        "Lay Staff Teaching":   "Staff",
+        "% Full-Time Deacons":          "Staff",
+        "% Full-Time Brothers":         "Staff",
+        "% Full-Time Sisters":          "Staff",
+        "% Full-Time Lay":              "Staff",
+        "% Part-Time Staff":            "Staff",
+        "% Volunteers":                 "Staff",
+        
+        
+        # - Statistics - 
         "Registered Households":        "Statistics",
         "Max Mass Size":                "Statistics",
         "Seating Capacity":             "Statistics",
