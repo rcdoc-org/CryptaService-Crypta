@@ -115,6 +115,8 @@ def details_page(request, base, pk):
         'lkp_location_id',
         'lkp_assignmentType_id'
     ).all()
+
+    titles = obj.title
     
     if ctx_base == 'person':
         # get the person details
@@ -455,6 +457,7 @@ def get_filtered_data(base, raw_filters, raw_stats=None):
                 
                 # assignments & vicariate:
                 "assignment_set",
+                'title_set'
                 "vicariate_set",
                 
                 # explicit related_names on person_relationship:
