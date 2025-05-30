@@ -457,7 +457,6 @@ def get_filtered_data(base, raw_filters, raw_stats=None):
                 
                 # assignments & vicariate:
                 "assignment_set",
-                'title_set'
                 "vicariate_set",
                 
                 # explicit related_names on person_relationship:
@@ -484,6 +483,9 @@ def get_filtered_data(base, raw_filters, raw_stats=None):
                 
                 # assignments:
                 "assignment_set",
+                
+                # titles:
+                "person_title_set"
                 
                 # Location Relationships
                 "churchDetail_mission",
@@ -598,6 +600,9 @@ def get_filtered_data(base, raw_filters, raw_stats=None):
                                     f"{pl.lkp_language_id.name} ({pl.lkp_languageProficiency_id.name})"
                                     for pl in obj.person_language_set.all()
                                 ),
+                
+                "Ecclesiastical Offices":       ", ".join(eo.lkp_title_id.name for oe in obj.person_title_set
+                                                          .filter(lkp_title_id__is_ecclesiastical__iexact="True")),
 
                 # degrees & certificates
                 "Degrees":          "; ".join(
