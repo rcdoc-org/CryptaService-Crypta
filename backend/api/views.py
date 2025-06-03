@@ -146,7 +146,13 @@ def details_page(request, base, pk):
 
     else:
         # Location-specific details
-        location_details = getattr(obj, 'churchDetail_location', None) or getattr(obj, 'campusMinistry_location', None) or getattr(obj, 'hospital_location', None) or getattr(obj, 'otherEntity_detail_set', None).first() or getattr(obj, 'school_location', None)
+        location_details = (
+            obj.churchDetail_location.first()
+            or obj.campusMinistry_location.first()
+            or obj.hospital_location.first()
+            or obj.otherentity_detail_set.first()
+            or obj.school_location.first()
+        )
         obj.location_details = location_details
 
         # Phones and primary phone
@@ -174,7 +180,7 @@ def details_page(request, base, pk):
         # Statistical records
         obj.october_counts = obj.octoberCount_church.all()
         obj.statusAnimarum = obj.statusAnimarum_church.all()
-        obj.boundary = location_details.boundary if location_details else None
+        obj.boundary = getattr(location_details, 'boundary', None)
 
     return render(request, 'details_page.html', {'object': obj, 'base': ctx_base})
 
