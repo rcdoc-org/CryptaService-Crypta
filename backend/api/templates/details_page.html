@@ -3,6 +3,8 @@
 
 {% block stylesheets %}
   <link rel="stylesheet" href="{% static 'css/details_page.css' %}" />
+
+  <scripts src="https://cdn.jsdelivr.net/npm/chart.js"></scipts>
 {% endblock %}
 
 {% block title %}
@@ -505,10 +507,11 @@
                   {% if object.lkp_physicalAddress_id %}
                     <div>
                       <small class="text-muted">Physical Address</small><br>
-                      <small>{{ object.lkp_physicalAddress_id.address1 }}</small><br>
-                      {% if object.lkp_physicalAddress_id.address2 %}<small>{{ object.lkp_physicalAddress_id.address2 }}</small><br>{% endif %}
-                      <small>{{ object.lkp_physicalAddress_id.city }}, {{ object.lkp_physicalAddress_id.state }} {{ object.lkp_physicalAddress_id.zip_code }}</small><br>
-                      <small>{{ object.lkp_physicalAddress_id.country }}</small>
+                      <address>{{ object.lkp_physicalAddress_id.address1 }}<br>
+                      {% if object.lkp_physicalAddress_id.address2 %}{{ object.lkp_physicalAddress_id.address2 }}<br>{% endif %}
+                      {{ object.lkp_physicalAddress_id.city }}, {{ object.lkp_physicalAddress_id.state }} {{ object.lkp_physicalAddress_id.zip_code }}<br>
+                      {{ object.lkp_physicalAddress_id.country }}
+                      </address>
                     </div>
                   {% else %}
                     <div>
@@ -527,10 +530,11 @@
                   {% if object.lkp_mailingAddress_id %}
                     <div>
                       <small class="text-muted">Mailing Address</small><br>
-                      <small>{{ object.lkp_mailingAddress_id.address1 }}</small><br>
-                      {% if object.lkp_mailingAddress_id.address2 %}<small>{{ object.lkp_mailingAddress_id.address2 }}</small><br>{% endif %}
-                      <small>{{ object.lkp_mailingAddress_id.city }}, {{ object.lkp_mailingAddress_id.state }} {{ object.lkp_mailingAddress_id.zip_code }}</small><br>
-                      <small>{{ object.lkp_mailingAddress_id.country }}</small>
+                      <address>{{ object.lkp_mailingAddress_id.address1 }}<br>
+                      {% if object.lkp_mailingAddress_id.address2 %}{{ object.lkp_mailingAddress_id.address2 }}<br>{% endif %}
+                      {{ object.lkp_mailingAddress_id.city }}, {{ object.lkp_mailingAddress_id.state }} {{ object.lkp_mailingAddress_id.zip_code }}<br>
+                      {{ object.lkp_mailingAddress_id.country }}
+                      </address>
                     </div>
                   {% else %}
                     <div>
@@ -542,8 +546,10 @@
               </div>
             </div>
           </div>
+        </div>
 
           <!-- Location Details -->
+        <div id="location-info" class="detail-section">
           <div class="card mb-4">
             <div class="card-body">
               <small class="text-muted">Location Details</small>
@@ -577,6 +583,7 @@
               </div>
             </div>
           </div>
+        </div>
 
           <!-- CLERGY INFO -->
           <div id="clergy-info" class="detail-section d-none">
@@ -588,9 +595,9 @@
                     <div>
                       <small class="text-muted">Church/Mission</small><br>
                       {% if object.location_details.is_mission %}
-                        <strong>Mission</strong>
+                        <p>Mission</p>
                       {% else %}
-                        <strong>Church</strong>
+                        <p>Church</p>
                       {% endif %}
                     </div>
                   </div>
@@ -601,7 +608,7 @@
                   <div class="card-body d-flex align-items-center">
                     <div>
                       <small class="text-muted">Parish ID</small><br>
-                      <strong>{{ object.location_details.parish_id }}</strong>
+                      <p>{{ object.location_details.parish_id }}</p>
                     </div>
                   </div>
                 </div>
@@ -610,7 +617,7 @@
 
             <div class="card mb-4">
               <div class="card-body">
-                <h5 class="card-title">Church Details</h5>
+                <small class="text-muted">Church Details</small>
                 <dl class="row">
                   <dt class="col-sm-4">Parish Unique Name</dt>
                   <dd class="col-sm-8">{{ object.location_details.parishUniqueName }}</dd>
@@ -641,24 +648,20 @@
             </div>
 
             <div class="row">
-              <div class="col-md-6">
-                <div class="card mb-4">
-                  <div class="card-header d-flex justify-content-between align-items-center">
-                    <span>Dedications</span>
-                  </div>
+              <div class="col">
+                <div class="card mb-4 border-0 rounded-4 shadow-sm">
                   <div class="card-body">
-                    <dl>
+                    <small class="text-muted">Dedications</small>
                       <dt>First Dedication</dt>
-                      <dd>{{ object.location_details.date_firstDedication|date:"Y-m-d"|default:"None" }}</dd>
+                      <dd class="indent">{{ object.location_details.date_firstDedication|date:"Y-m-d"|default:"None" }}</dd>
 
                       <dt>Second Dedication</dt>
-                      <dd>{{ object.location_details.date_secondDedication|date:"Y-m-d"|default:"None" }}</dd>
-                    </dl>
+                      <dd class="indent">{{ object.location_details.date_secondDedication|date:"Y-m-d"|default:"None" }}</dd>
                   </div>
                 </div>
                 <div class="card mb-4 border-0 rounded-4 shadow-sm">
-                  <div class="card-header">Boundary</div>
                   <div class="card-body">
+                    <small class="text-muted">Boundary</small>
                     {% if object.boundary %}
                       <p><a href="{{ object.boundary.url }}" target="_blank">View Boundary File</a></p>
                     {% else %}
@@ -668,11 +671,11 @@
                 </div>
               </div>
 
-              <div class="col-md-6">
-                <div class="card mb-4">
-                  <div class="card-header">Notes</div>
+              <div class="col">
+                <div class="card mb-4 border-0 rounded-4 shadow-sm">
                   <div class="card-body">
-                    <small class="text-muted">{{ object.location_details.notes|default:"No notes" }}</small>
+                    <small class="text-muted">Notes</small>
+                    <p class="indent">{{ object.location_details.notes|default:"No notes" }}</p>
                   </div>
                 </div>
               </div>
@@ -681,15 +684,14 @@
 
           <!-- MASS & MINISTRY INFO -->
           <div id="mass-info" class="detail-section d-none">
-            <div class="card mb-4">
+            <div class="card mb-4 border-0 rounded-4 shadow-sm">
               <div class="card-body">
                 <small class="text-muted">Mass Languages & Times</small>
                 {% if object.languages %}
-                  <ul class="mt-2">
                     {% for lang in object.languages %}
-                      <li>{{ lang.lkp_language_id.name }}: {{ lang.massTime|time:"H:i" }}</li>
+                      <dt>{{ lang.lkp_language_id.name }}</dt>
+                      <dd class="indent">{{ lang.massTime|time:"H:i" }}</dd>
                     {% endfor %}
-                  </ul>
                 {% else %}
                   <p class="mt-2">No mass schedule recorded</p>
                 {% endif %}
@@ -779,4 +781,5 @@
 
 {% block bodyScripts %}
   <script src="{% static 'js/details_page.js' %}"></script>
+
 {% endblock %}
