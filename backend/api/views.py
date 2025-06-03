@@ -852,6 +852,7 @@ def get_filtered_data(base, raw_filters, raw_stats=None):
         {
             "title":    key,
             "field":    key,
+            "sqlField": DISPLAY_TO_PATH.get(key, key).split("__").pop(),
             "category": FIELD_CATEGORIES.get(key, "Other")
         }
         for key in all_fields
