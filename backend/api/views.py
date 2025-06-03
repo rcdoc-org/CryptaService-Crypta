@@ -785,7 +785,10 @@ def get_filtered_data(base, raw_filters, raw_stats=None):
                     "Chapel on Site":   sc.is_schoolChapel,
                 })
             
-            sa = obj.statusAnimarum_church.first()
+            """ Found an issue where this was pulling the oldest data and not the newest. """
+            # sa = obj.statusAnimarum_church.first()
+            sa_qs = obj.statusAnimarum_church.order_by('-year')
+            sa = sa_qs.first()
             if sa:
                 rec.update({
                     "# Deacons":  sa.fullTime_deacons,
