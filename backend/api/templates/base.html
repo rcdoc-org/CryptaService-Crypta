@@ -112,7 +112,39 @@
           <!-- RIGHT SIDE: action icons -->
           <div class="header-icons d-flex align-items-center">
             <a href="#" class="header-icon me-3"><i class="far fa-comment"></i></a>
-            <a href="#" class="header-icon me-3"><i class="fas fa-bell"></i></a>
+            {% comment %} <a href="#" class="header-icon me-3"><i class="fas fa-bell"></i></a> {% endcomment %}
+            <div class="dropdown me-3">
+              <a 
+                class="header-icon position-relative dropdown-toggle"
+                href="#"
+                role="button"
+                id="alertsDropdown"
+                data-bs-toggle="dropdown"
+                aria-expanded="false"
+              >
+                <i class="fas fa-bell"></i>
+                <span
+                  class="position-absolute top-0 start-75 translate-middle badge rounded-pill bg-danger bell-badge"
+                >
+                  1
+                  <span class="visually-hidden">unread alerts</span>
+                </span>
+              </a>
+              <!-- ▼ The small box that drops down ▼ -->
+              <ul
+                class="dropdown-menu dropdown-menu-end p-2"
+                aria-labelledby="alertsDropdown"
+                style="min-width: 200px;"
+              >
+                <li>
+                  <div class="small">
+                    <!-- customize this content however you like -->
+                    <strong>RTFV:</strong> Pending Approval Tech Services.
+                  </div>
+                </li>
+                <!-- you can add more <li>…</li> here if multiple alerts -->
+              </ul>
+            </div>
             <a href="#" class="header-icon me-3"><i class="fas fa-inbox"></i></a>
             <a href="#" class="header-icon">
               <!--<i class="fas fa-user-circle"></i></a>-->
