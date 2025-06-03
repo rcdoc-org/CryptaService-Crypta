@@ -12,7 +12,7 @@ from django.template.loader import render_to_string
 from django.db.models import Count, Q
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
-from django.contrib.auth import authenticate, login, get_user_model
+from django.contrib.auth import authenticate, login, get_user_model, logout
 from django.contrib.auth.decorators import login_required
 
 from .models import (
@@ -51,6 +51,23 @@ def login_view(request):
         login(request, demo_user)
         return redirect('api:home')
     return render(request, 'login.html')
+
+def logout_view(request):
+    """Logs out the current user and redirects to the home page.
+
+    Args:
+        request (_type_): _description_
+
+    Raises:
+        Http404: _description_
+        Http404: _description_
+
+    Returns:
+        _type_: _description_
+    """
+    logout(request)
+    
+    return redirect('api:home')
 
 @login_required
 def home_view(request):

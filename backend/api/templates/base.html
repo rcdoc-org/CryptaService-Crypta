@@ -137,21 +137,65 @@
                 style="min-width: 200px;"
               >
                 <li>
-                  <div class="small">
-                    <!-- customize this content however you like -->
+                  <a class="dropdown-item" href="#">
                     <strong>RTFV:</strong> Pending Approval Tech Services.
-                  </div>
+                  </a>
                 </li>
                 <!-- you can add more <li>…</li> here if multiple alerts -->
               </ul>
             </div>
             <a href="#" class="header-icon me-3"><i class="fas fa-inbox"></i></a>
-            <a href="#" class="header-icon">
+            {% comment %} <a href="#" class="header-icon">
               <!--<i class="fas fa-user-circle"></i></a>-->
               <img src="{% static 'images/profilePic.jpg' %}"
                     alt="Profile"
                     class="profile-pic rounded-circle">
-            </a>
+            </a> {% endcomment %}
+            <div class="header-icons d-flex align-items-center">
+              <a href="#" class="header-icon me-3"><i class="far fa-comment"></i></a>
+              <div class="dropdown me-3">
+                <!--
+                  1) profile-pic as the dropdown-toggle
+                  2) `dropdown-menu-end` makes it right-align under the pic
+                -->
+                <a
+                  href="#"
+                  class="header-icon dropdown-toggle"
+                  id="profileDropdown"
+                  data-bs-toggle="dropdown"
+                  aria-expanded="false"
+                >
+                  <img
+                    src="{% static 'images/profilePic.jpg' %}"
+                    alt="Profile"
+                    class="profile-pic rounded-circle"
+                  >
+                </a>
+                <ul
+                  class="dropdown-menu dropdown-menu-end"
+                  aria-labelledby="profileDropdown"
+                  style="min-width: 150px;"
+                >
+                  <li>
+                    <a class="dropdown-item" href="#">
+                      Profile
+                    </a>
+                  </li>
+                  <li>
+                    <a class="dropdown-item" href="#">
+                      Security
+                    </a>
+                  </li>
+                  <li><hr class="dropdown-divider"></li>
+                  <li>
+                    <a class="dropdown-item" href="{% url 'api:logout' %}">
+                      Log Out
+                    </a>
+                  </li>
+                </ul>
+              </div>
+            </div>
+
           </div>
         </div> 
       </div>
