@@ -91,7 +91,7 @@ def import_priests(csv_file):
                 state=row['Residence State / Province'],
                 zip_code=row['Residence ZIP/Postal Code'],
                 country=row['Residence Country'],
-                defaults={'friendlyName': f"{row['Residence City']} Residence"}
+                defaults={'friendlyName': f"{row['Last Name']} Residence"}
             )
 
             mailing_address, _ = Address.objects.get_or_create(
@@ -101,7 +101,7 @@ def import_priests(csv_file):
                 state=row['Mailing Address (State / Province)'],
                 zip_code=row['Mailing Address (ZIP / Postal Code)'],
                 country=row['Mailing Address (Country)'],
-                defaults={'friendlyName': f"{row['Mailing Address (City)']} Mailing"}
+                defaults={'friendlyName': f"{row['Last Name']} Mailing"}
             )
 
             diocese_order, _ = DioceseOrder.objects.get_or_create(
@@ -196,7 +196,7 @@ def import_priests(csv_file):
 
 if __name__ == "__main__":
     # Path to the CSV file
-    csv_file = '/Users/kbgreenberg/Documents/Github/CryptaApp/crypta/backend/api/Priests (11).csv'
+    csv_file = '/Users/kbgreenberg/Documents/Github/CryptaApp/crypta/backend/api/data/Priests (11).csv'
 
     # Run the import function
     import_priests(csv_file)

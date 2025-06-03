@@ -396,6 +396,40 @@
                 ? ["First Name", "Middle Name", "Last Name"]
                 : ["Name", "Type"];
             
+            // List all fields that should use numeric sorting
+            const numericFields = [
+                "registeredHouseholds",
+                "maxMass",
+                "seatingCapacity",
+                "baptismAge_1_7",
+                "baptismAge_8_17",
+                "baptismAge_18",
+                "fullTime_deacons",
+                "fullTime_brothers",
+                "fullTime_sisters",
+                "fullTime_other",
+                "partType_staff",
+                "fullCommunionRCIA",
+                "firstCommunion",
+                "confirmation",
+                "marriage_catholic",
+                "marriage_interfaith",
+                "deaths",
+                "childrenInFaithFormation",
+                "school_prek_5",
+                "school_grade6_8",
+                "school_grade9_12",
+                "youthMinistry",
+                "adult_education",
+                "adult_sacramentPrep",
+                "catechist_paid",
+                "catechist_vol",
+                "rcia_rcic",
+                "volunteersWorkingYouth",
+                "referrals_catholicCharities"
+                // add any other numeric field keys here
+            ];
+
             // merge detailCol + dynamicCols, tagging each dynamic col with visible:true/false
             const allCols = [
                 detailCol,
@@ -403,13 +437,18 @@
                     // if the table already hasthis column, keep its visibility
                     // otherwise default to your initial set
                     const existing = table?.getColumn(col.field);
-                    return {
+                    const baseDef = {
                         ...col,
                         visible: existing
                             ? existing.isVisible()
-                            : defaults.includes(col.field)
+                            : defaults.includes(col.field),
                     };
-                }),
+                    if (numericFields.includes(col.sqlField)) {
+                        baseDef.sorter = "number";
+                        baseDef.hozAlign = "right";
+                    }
+                    return baseDef;
+                })
             ];
 
             // —— initialize or re-initialize on base change
@@ -417,7 +456,8 @@
                 if (!table) {
                 // very first creation
                 table = new Tabulator("#data-grid", {
-                    layout: "fitColumns",
+                    rowHeader: {frozen:true, },
+                    layout: "fitDataFill",
                     data: payload.grid.data,
                     columns: allCols,
                     placeholder: "No Data Available",

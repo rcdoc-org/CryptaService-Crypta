@@ -49,7 +49,7 @@ def import_churches(csv_file):
                 state=row['Physical Address (State)'],
                 zip_code=row['Physical Address (Zip Code)'],
                 country='USA',  # Assuming all addresses are in the USA
-                defaults={'friendlyName': f"{row['Parish']} Physical Address"}
+                defaults={'friendlyName': f"{row['Parish Unique Name']} Physical Address"}
             )
 
             # Create or get mailing address
@@ -59,7 +59,7 @@ def import_churches(csv_file):
                 state=row['Mailing Address (State)'],
                 zip_code=row['Mailing Address (Zip Code)'],
                 country='USA',  # Assuming all addresses are in the USA
-                defaults={'friendlyName': f"{row['Parish']} Mailing Address"}
+                defaults={'friendlyName': f"{row['Parish Unique Name']} Mailing Address"}
             )
 
             # Create or get vicariate
@@ -178,7 +178,7 @@ def parse_date(date_str):
 
 if __name__ == "__main__":
     # Path to the CSV file
-    csv_file = '/Users/kbgreenberg/Documents/Github/CryptaApp/crypta/backend/api/Churches (6).csv'
+    csv_file = '/Users/kbgreenberg/Documents/Github/CryptaApp/crypta/backend/api/data/Churches (6).csv'
 
     # Run the import function
     import_churches(csv_file)

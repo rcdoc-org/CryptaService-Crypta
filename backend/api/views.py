@@ -82,7 +82,6 @@ def changeLog(request):
 @login_required
 def details_page(request, base, pk):
     if request.method == 'POST' and request.FILES.get('photo'):
-        # handle file upload
         slug = base.lower()
         if slug in ('person', 'persons'):
             Model = Person
@@ -92,12 +91,11 @@ def details_page(request, base, pk):
             ctx_base = 'location'
         else:
             raise Http404(f"Unknown detail type: {base}")
-        
         obj = get_object_or_404(Model, pk=pk)
         obj.photo = request.FILES['photo']
         obj.save()
-        return redirect(request.path) # reload GET so you don’t repost on refresh
-    
+        return redirect(request.path)
+
     slug = base.lower()
     if slug in ('person', 'persons'):
         Model = Person
@@ -107,67 +105,84 @@ def details_page(request, base, pk):
         ctx_base = 'location'
     else:
         raise Http404(f"Unknown detail type: {base}")
-    
-    obj = get_object_or_404(Model, pk=pk)
-    
-    # all assignments
-    assignments = obj.assignment_set.select_related(
-        'lkp_location_id',
-        'lkp_assignmentType_id'
-    ).all()
-    
-    if ctx_base == 'person':
-        # get the person details
-        person_details = obj.priest_detail_set.first() or obj.deacon_detail_set.first() or obj.lay_detail_set.first()
-        if person_details:
-            obj.person_details = person_details
-        else:
-            obj.person_details = None
-        
-        # primary phone
-        phones = obj.person_phone_set.all()
-        primary_phone = phones.first().phoneNumber if phones.exists() and phones.first().is_primary else phones.first().phoneNumber if phones.exists() else None
-        obj.primary_phone = primary_phone
-        
-        # primary email
-        emails = obj.person_email_set.all()
-        primary_email = emails.first().email if emails.exists() and emails.first().is_primary else None
-        obj.primary_email = primary_email
 
-        # diocesan email
-        diocesan_email = obj.person_email_set.\
-            filter(lkp_emailType_id__name='diocesan')\
-                .first()
-        if diocesan_email:
-            obj.diocesan_email = diocesan_email.email
-    
-    if ctx_base == 'location':
-        location_details = obj.churchDetail_location.first() or obj.school_location.first() or obj.otherentity_detail_set.first() or obj.hospital_location.first() or obj.campusMinistry_location.first()
-        if location_details:
-            obj.location_details = location_details
-        else:
-            obj.location_details = None
-    
+    obj = get_object_or_404(Model, pk=pk)
+
+    # Common assignments
+    assignments = obj.assignment_set.select_related(
+        'lkp_location_id', 'lkp_assignmentType_id'
+    ).all()
     obj.assignments = assignments
 
-    # Get the object details
-    records, applied, filter_tree, columns, stats_info = get_filtered_data(
-        base=ctx_base,
-        raw_filters=[f"id:{pk}"],
-        raw_stats=None
-    )
-    
-    detail_data = records[0] if records else {}
-    # render
-    return render(request, 'details_page.html', {
-        'base':         ctx_base,      # 'person' or 'location'
-        'object':       obj,           # your ORM object, for any custom template logic
-        'detail_data':  detail_data,   # the flattened dict: detail_data["First Name"], etc
-        'filter_tree':  filter_tree,   # if you ever want to rebuild the sidebar
-        'applied':      applied,
-        'columns':      columns,       # column metadata (title, field, category)
-        'stats_info':   stats_info,    # stats_info for any numeric/boolean fields
-    })
+    if ctx_base == 'person':
+        # Person-specific details
+        person_details = obj.priest_detail_set.first() or obj.deacon_detail_set.first() or obj.lay_detail_set.first()
+        obj.person_details = person_details
+
+        # Phones and primary phone
+        phones = obj.person_phone_set.all()
+        obj.phones = phones
+        obj.primary_phone = next((p.phoneNumber for p in phones if p.is_primary), None)
+
+        # Emails and primary email
+        emails = obj.person_email_set.all()
+        obj.emails = emails
+        obj.primary_email = next((e.email for e in emails if e.is_primary), None)
+
+        # Titles
+        obj.titles = obj.person_title_set.select_related('lkp_title_id').all()
+        # Status history
+        obj.statuses = obj.person_status_set.select_related('lkp_status_id').all()
+        # Degrees
+        obj.degrees = obj.person_degreecertificate_set.select_related('lkp_degreeCertificate_id').all()
+        # Languages
+        obj.languages = obj.person_language_set.select_related('lkp_language_id', 'lkp_languageProficiency_id').all()
+        # Relationships (e.g., emergency contacts)
+        obj.relationships = obj.first_person.select_related('lkp_relationshipType_id', 'lkp_secondPerson_id').all()
+
+        # Addresses
+        obj.residence = obj.lkp_residence_id
+        obj.mailing = obj.lkp_mailing_id
+
+    else:
+        # Location-specific details
+        location_details = (
+            obj.churchDetail_location.first()
+            or obj.campusMinistry_location.first()
+            or obj.hospital_location.first()
+            or obj.otherentity_detail_set.first()
+            or obj.school_location.first()
+        )
+        obj.location_details = location_details
+
+        # Phones and primary phone
+        phones = obj.location_phone_set.all()
+        obj.phones = phones
+        obj.primary_phone = next((p.phoneNumber for p in phones if p.is_primary), None)
+
+        # Emails and primary email
+        emails = obj.location_email_set.all()
+        obj.emails = emails
+        obj.primary_email = next((e.email for e in emails if e.is_primary), None)
+
+        # Status history
+        obj.statuses = obj.location_status_set.select_related('lkp_status_id').all()
+        # Languages for churches
+        obj.languages = obj.church_language_set.select_related('lkp_language_id').all()
+        # Assignments
+        obj.assignments = obj.assignment_set.select_related('lkp_person_id', 'lkp_assignmentType_id').all()
+
+        # For churches: parish/mission connections
+        obj.missions = obj.churchDetail_mission.all() if hasattr(obj, 'churchDetail_mission') else []
+        obj.parishes = obj.parish.all() if hasattr(obj, 'parish') else []
+        # Schools: enrollment and relationships
+        obj.enrollments = obj.enrollment_set.all()
+        # Statistical records
+        obj.october_counts = obj.octoberCount_church.all()
+        obj.statusAnimarum = obj.statusAnimarum_church.all()
+        obj.boundary = getattr(location_details, 'boundary', None)
+
+    return render(request, 'details_page.html', {'object': obj, 'base': ctx_base})
 
 def get_filtered_data(base, raw_filters, raw_stats=None):
     """
@@ -595,6 +610,9 @@ def get_filtered_data(base, raw_filters, raw_stats=None):
                                     f"{pl.lkp_language_id.name} ({pl.lkp_languageProficiency_id.name})"
                                     for pl in obj.person_language_set.all()
                                 ),
+                
+                "Ecclesiastical Offices":       ", ".join(eo.lkp_title_id.name for oe in obj.person_title_set
+                                                          .filter(lkp_title_id__is_ecclesiastical__iexact="True")),
 
                 # degrees & certificates
                 "Degrees":          "; ".join(
@@ -767,7 +785,10 @@ def get_filtered_data(base, raw_filters, raw_stats=None):
                     "Chapel on Site":   sc.is_schoolChapel,
                 })
             
-            sa = obj.statusAnimarum_church.first()
+            """ Found an issue where this was pulling the oldest data and not the newest. """
+            # sa = obj.statusAnimarum_church.first()
+            sa_qs = obj.statusAnimarum_church.order_by('-year')
+            sa = sa_qs.first()
             if sa:
                 rec.update({
                     "# Deacons":  sa.fullTime_deacons,
@@ -831,6 +852,7 @@ def get_filtered_data(base, raw_filters, raw_stats=None):
         {
             "title":    key,
             "field":    key,
+            "sqlField": DISPLAY_TO_PATH.get(key, key).split("__").pop(),
             "category": FIELD_CATEGORIES.get(key, "Other")
         }
         for key in all_fields

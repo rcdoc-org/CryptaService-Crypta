@@ -157,6 +157,7 @@ html, body {
 }
 #data-grid .tabulator-header {
   color: black;
+  font-weight: 450;
 }
 #data-grid .tabulator-col {
   background: white;

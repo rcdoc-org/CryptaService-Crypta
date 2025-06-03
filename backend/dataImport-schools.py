@@ -137,6 +137,6 @@ def import_schools(csv_file):
 
 
 if __name__ == "__main__":
-    csv_file = '/Users/kbgreenberg/Documents/Github/CryptaApp/crypta/backend/api/schools.csv'
+    csv_file = '/Users/kbgreenberg/Documents/Github/CryptaApp/crypta/backend/api/data/schools.csv'
 
     import_schools(csv_file)
