@@ -41,6 +41,9 @@
   <!-- Used for allowing excel export -->
   <script src="https://oss.sheetjs.com/sheetjs/xlsx.full.min.js"></script>
 
+  <!-- jsPDF and AutoTable (required for Tabulator's PDF Download)-->
+   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
 {% endblock %}
 
 {% block content %}
@@ -85,33 +88,6 @@
 
     <main class="col-md-8 p-4 bg-light">
       <div class="card mb-4 border-0 rounded-4 shadow-sm">
-        {% comment %} <div 
-        class="card-header d-flex justify-content-between align-items-center"
-        id="results-header">
-          <strong>Results</strong>
-        </div> {% endcomment %}
-        {% comment %} <div class="btn-toolbar p-2">
-          <button
-                  type='button'
-                  class='btn result-btn btn-sm me-2'
-                  data-bs-toggle='modal'
-                  data-bs-target='#columnModal'
-                  id='columntogglebtn'
-                >Select Additional Fields</button>
-          <button 
-                  type="button"  
-                  class="btn result-btn btn-sm me-2"
-                  data-bs-toggle="modal"
-                  data-bs-target="#actionModal"
-                  id="actiontogglebtn"
-                  >Actions</button>
-          <button
-                  type="button"
-                  class="btn result-btn btn-sm me-2"
-                  id="saveviewbtn"
-                  >Save View</button>
-        </div> {% endcomment %}
-
         <div
         class="card-body mb-4"
         id="resultslist">
@@ -139,13 +115,6 @@
                   >Save View</button>
         </div>
           <div id="data-grid"></div>
-          {% comment %} <button
-          type='button'
-          class='btn actions-btn mb-3'
-          data-bs-toggle='modal'
-          data-bs-target='#columnModal'
-          id='columntogglebtn'
-        >Add Fields...</button> {% endcomment %}
         </div>
       </div>
     </main>
@@ -180,6 +149,12 @@
               class="btn result-btn btn-sm">
               Export to CSV
             </button>
+            <button
+              type="button"
+              id="exportPdfBtn"
+              class="btn result-btn btn-sm">
+              Export to PDF
+          </button>
             <button type="button" class="btn result-btn btn-sm">Print Mailing Labels</button>
             {% comment %} <button type="button" class="btn btn-outline-primary btn-sm">Print Mailing Labels</button> {% endcomment %}
           </div>

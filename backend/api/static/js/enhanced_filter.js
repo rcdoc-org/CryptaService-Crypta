@@ -10,6 +10,7 @@
     const filterSearch      = document.getElementById('filterSearch');
     const exportExcelBtn    = document.getElementById('exportExcelBtn');
     const exportCsvBtn      = document.getElementById('exportCsvBtn');
+    const exportPdfBtn      = document.getElementById('exportPdfBtn');
 
     let lastBase = null;
     
@@ -739,6 +740,13 @@
         });
         exportExcelBtn.addEventListener('click', () => {
             table.download("xlsx", "results.xlsx", { sheetName: "Results" });
+        });
+        exportPdfBtn.addEventListener('click', () => {
+            table.download('pdf', 'results.pdf', {
+                orientation: 'portrait', // or 'landscape'
+                jsPDF: { unit: 'pt', format: 'a4'},
+                autoTable: { styles: { fontSize: 10 }},
+            });
         });
 
         // ensure we populate everytime the modal opens
