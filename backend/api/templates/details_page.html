@@ -236,9 +236,9 @@
               <div class="card mb-4 border-0 rounded-4 shadow-sm">
                 <div class="card-body">
                   <small class="text-muted">Emails</small>
-                  <ul class="mt-2">
                     {% for email in object.emails %}
-                      <li>{{ email.lkp_emailType_id.name }}: <a href="mailto:{{ email.email }}">{{ email.email }}</a></li>
+                      <dt>{{ email.lkp_emailType_id.name }}</dt>
+                      <dd class="indent"><a href="mailto:{{ email.email }}">{{ email.email }}</a></dd>
                     {% endfor %}
                   </ul>
                 </div>
@@ -294,8 +294,10 @@
                 <div class="card-body">
                   <small class="text-muted">Birth Details</small>
                   {% if object.person_details %}
-                    <p class="mt-2">Date of Birth: {{ object.date_birth|date:"Y-m-d" }}</p>
-                    <p>Place of Birth: {{ object.person_details.birth_city }}, {{ object.person_details.birth_state }}, {{ object.person_details.birth_country }}</p>
+                    <dt>Date of Birth:</dt>
+                    <dd class="indent">{{ object.date_birth|date:"Y-m-d" }}</dd>
+                    <dt>Place of Birth:</dt>
+                    <dd class="indent">{{ object.person_details.birth_city }}, {{ object.person_details.birth_state }} {{ object.person_details.birth_country }}</dd>
                   {% else %}
                     <p class="mt-2">No birth details</p>
                   {% endif %}
@@ -307,8 +309,10 @@
                 <div class="card-body">
                   <small class="text-muted">Sacraments</small>
                   {% if object.date_baptism or object.person_details.lkp_placeOfBaptism_id %}
-                    <p class="mt-2">Baptism Date: {{ object.date_baptism|date:"Y-m-d" }}</p>
-                    <p>Place of Baptism: {{ object.person_details.lkp_placeOfBaptism_id.name }}</p>
+                    <dt>Baptism Date:</dt>
+                    <dd class="indent">{{ object.date_baptism|date:"Y-m-d" }}</dd>
+                    <dt>Place of Baptism:</dt>
+                    <dd class="indent">{{ object.person_details.lkp_placeOfBaptism_id.name }}</dd>
                   {% else %}
                     <p class="mt-2">No sacrament info</p>
                   {% endif %}
@@ -326,11 +330,10 @@
                 <div class="card-body">
                   <small class="text-muted">Status History</small>
                   {% if object.statuses %}
-                    <ul class="mt-2">
                       {% for status in object.statuses %}
-                        <li>{{ status.lkp_status_id.name }}: {{ status.date_assigned|date:"Y-m-d" }}{% if status.date_released %} - {{ status.date_released|date:"Y-m-d" }}{% endif %}</li>
+                        <dt>{{ status.lkp_status_id.name }}:</dt>
+                        <dd class="indent">{{ status.date_assigned|date:"Y-m-d" }}{% if status.date_released %} - {{ status.date_released|date:"Y-m-d" }}{%else%} - Present{% endif %}</dd>
                       {% endfor %}
-                    </ul>
                   {% else %}
                     <p class="mt-2">No history</p>
                   {% endif %}
@@ -348,11 +351,10 @@
                 <div class="card-body">
                   <small class="text-muted">Degrees & Certificates</small>
                   {% if object.degrees %}
-                    <ul class="mt-2">
                       {% for deg in object.degrees %}
-                        <li>{{ deg.lkp_degreeCertificate_id.institute }} ({{ deg.date_acquired|date:"Y-m-d" }}{% if deg.date_expiration %} - {{ deg.date_expiration|date:"Y-m-d" }}{% endif %})</li>
+                        <dt>{{ deg.lkp_degreeCertificate_id.institute }} {{deg.lkp_degreeCertificate_id.lkp_subjectMatter_id.name}}</dt>
+                        <dd class="indent">Type of Degree: {{deg.lkp_degreeCertificate_id.lkp_typeOfDegree_id.name}} ({{ deg.date_acquired|date:"Y-m-d" }}{% if deg.date_expiration %} - {{ deg.date_expiration|date:"Y-m-d" }}{% endif %})</dd>
                       {% endfor %}
-                    </ul>
                   {% else %}
                     <p class="mt-2">None recorded</p>
                   {% endif %}
@@ -365,14 +367,20 @@
                 <div class="card-body">
                   <small class="text-muted">Languages & Skills</small>
                   {% if object.languages %}
-                    <ul class="mt-2">
                       {% for lang in object.languages %}
-                        <li>{{ lang.lkp_language_id.name }} - {{ lang.lkp_languageProficiency_id.name }}</li>
+                        <dt>{{ lang.lkp_language_id.name }}</dt>
+                        <dd class="indent">{{ lang.lkp_languageProficiency_id.name }}</dd>
                       {% endfor %}
-                    </ul>
+                  {% else %}
+                    <dt>Languagues<dt>
+                    <dd class="indent">None</dd>
                   {% endif %}
                   {% if object.person_details.otherSkillsCompentencies %}
-                    <p class="mt-2">Other Skills: {{ object.person_details.otherSkillsCompentencies }}</p>
+                    <dt>Other Skills</dt>
+                    <dd class="indent">{{ object.person_details.otherSkillsCompentencies }}</dd>
+                  {% else %}
+                    <dt>Other Skills</dt>
+                    <dd class="indent">None</dd>
                   {% endif %}
                 </div>
               </div>
@@ -388,23 +396,26 @@
                 <div class="card-body">
                   <small class="text-muted">Formation Dates</small>
                   {% if object.person_details %}
-                    <ul class="mt-2">
                       {% if object.person_details.date_ordination %}
-                        <li>Ordination: {{ object.person_details.date_ordination|date:"Y-m-d" }}</li>
+                        <dt>Ordination</dt>
+                          <dd class="indent">{{ object.person_details.date_ordination|date:"Y-m-d" }}</dd>
                       {% endif %}
                       {% if object.person_details.date_transitionalDiaconateOrdination %}
-                        <li>Transitional Diaconate Ordination: {{ object.person_details.date_transitionalDiaconateOrdination|date:"Y-m-d" }}</li>
+                        <dt>Transitional Diaconate Ordination</dt>
+                          <dd class="indent">{{ object.person_details.date_transitionalDiaconateOrdination|date:"Y-m-d" }}</dd>
                       {% endif %}
                       {% if object.person_details.date_priestOrdination %}
-                        <li>Priest Ordination: {{ object.person_details.date_priestOrdination|date:"Y-m-d" }}</li>
+                        <dt>Priest Ordination</dt>
+                          <dd class="indent">{{ object.person_details.date_priestOrdination|date:"Y-m-d" }}</dd>
                       {% endif %}
                       {% if object.person_details.date_episcopalOrdination %}
-                        <li>Episcopal Ordination: {{ object.person_details.date_episcopalOrdination|date:"Y-m-d" }}</li>
+                        <dt>Episcopal Ordination</dt>
+                          <dd class="indent">{{ object.person_details.date_episcopalOrdination|date:"Y-m-d" }}</dd>
                       {% endif %}
                       {% if object.person_details.date_incardination %}
-                        <li>Incardination: {{ object.person_details.date_incardination|date:"Y-m-d" }}</li>
+                        <dt>Incardination</dt>
+                          <dd class="indent">{{ object.person_details.date_incardination|date:"Y-m-d" }}</dd>
                       {% endif %}
-                    </ul>
                   {% else %}
                     <p class="mt-2">No formation info</p>
                   {% endif %}
@@ -421,28 +432,34 @@
               <div class="card mb-4 border-0 rounded-4 shadow-sm">
                 <div class="card-body">
                   <small class="text-muted">Name Details</small>
-                  <dl class="row mt-3">
-                    <dt class="col-sm-3">Prefix</dt>
-                    <dd class="col-sm-9">{{ object.prefix|default:"None" }}</dd>
-
-                    <dt class="col-sm-3">First Name</dt>
-                    <dd class="col-sm-9">{{ object.name_first }}</dd>
-
-                    <dt class="col-sm-3">Middle Name</dt>
-                    <dd class="col-sm-9">{{ object.name_middle|default:"None" }}</dd>
-
-                    <dt class="col-sm-3">Last Name</dt>
-                    <dd class="col-sm-9">{{ object.name_last }}</dd>
-
-                    <dt class="col-sm-3">Suffix</dt>
-                    <dd class="col-sm-9">{{ object.suffix|default:"None" }}</dd>
-
-                    <dt class="col-sm-3">Religious Suffix</dt>
-                    <dd class="col-sm-9">{{ object.person_details.religiousSuffix|default:"None" }}</dd>
-
-                    <dt class="col-sm-3">Diocesan Suffix</dt>
-                    <dd class="col-sm-9">{{ object.person_details.diocesanSuffix|default:"None" }}</dd>
-                  </dl>
+                    <div class="row">
+                      <dt class="col-auto">Prefix:</dt>
+                      <dd class="col">{{ object.prefix|default:"None" }}</dd>
+                    </div>
+                    <div class="row">
+                      <dt class="col-auto">First Name:</dt>
+                      <dd class="col">{{ object.name_first }}</dd>
+                    </div>
+                    <div class="row">
+                      <dt class="col-auto">Middle Name:</dt>
+                      <dd class="col">{{ object.name_middle|default:"None" }}</dd>
+                    </div>
+                    <div class="row">
+                      <dt class="col-auto">Last Name:</dt>
+                      <dd class="col">{{ object.name_last }}</dd>
+                    </div>
+                    <div class="row">
+                      <dt class="col-auto">Suffix:</dt>
+                      <dd class="col">{% if object.suffix != 'nan' %}{{ object.suffix }}{% else %}None{% endif %}</dd>
+                    </div>
+                    <div class="row">
+                      <dt class="col-auto">Religious Suffix:</dt>
+                      <dd class="col">{{ object.person_details.religiousSuffix|default:"None" }}</dd>
+                    </div>
+                    <div class="row">
+                      <dt class="col-auto">Diocesan Suffix:</dt>
+                      <dd class="col">{{ object.person_details.diocesanSuffix|default:"None" }}</dd>
+                    </div>
                 </div>
               </div>
             </div>
@@ -459,7 +476,9 @@
                   {% if object.relationships %}
                     <ul class="mt-2">
                       {% for rel in object.relationships %}
-                        <li>{{ rel.lkp_relationshipType_id.name }}: {{ rel.lkp_secondPerson_id.name }}</li>
+                        {% if rel.lkp_relationshipType_id.name == 'emergency' %}
+                          <li>{{ rel.lkp_relationshipType_id.name }}: {{ rel.lkp_secondPerson_id.name }}</li>
+                        {% endif %}
                       {% endfor %}
                     </ul>
                   {% else %}
