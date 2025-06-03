@@ -2,13 +2,13 @@
 <!-- Enter Any Style sheet imports here -->
 {% block stylesheets %}
 {% load static %}
-    <link rel="stylesheet" 
-    href="{% static 'css/details_page.css' %}" />
+  <link rel="stylesheet" 
+  href="{% static 'css/details_page.css' %}" />
 {% endblock %}
 
 <!-- Change the Title here -->
 {% block title %} 
-    {% if base == 'person' %}Person Details{% else %}Location Details{% endif %}
+  {% if base == 'person' %}Person Details{% else %}Location Details{% endif %}
 {% endblock %}
 
 <!-- Any unique styles not on the Stylesheets goes here -->
@@ -20,149 +20,149 @@
 {% block content %}
 {% load static %}
 <div class="container-fluid details-page">
-    <div class="row">
+  <div class="row">
       <!-- LEFT PANEL -->
-      <aside class="col-md-4 p-0 aside-panel shadow">
-        <div class="p-3">
-          <button
-            type="button"
-            class="btn actions-btn"
-            onclick="history.back()"
-          >
-            <i class="fas fa-arrow-left"></i> Back to Results
-          </button>
-          <button class="btn actions-btn">Actions</button>
-        </div>
+    <aside class="col-md-4 p-0 aside-panel shadow">
+      <div class="p-3">
+        <button
+          type="button"
+          class="btn actions-btn"
+          onclick="history.back()"
+        >
+          <i class="fas fa-arrow-left"></i> Back to Results
+        </button>
+        <button class="btn actions-btn">Actions</button>
+      </div>
 
-        <!-- Picture -->
-        {% if base == 'person' %}
-          <div class="text-center mt-5">
-            <div class="text-center photo-upload">
-              <form method="POST" enctype="multipart/form-data">
-                {% csrf_token %}
-                {% if object.photo %}
-                  <img src="{{ object.photo.url }}"
-                      alt="Profile Photo"
-                      class="rounded-circle mb-3"
-                      width="120"
-                      height="120">
-                {% else %}
-                  <img src="{% static 'images/person.png' %}"
-                    alt="Profile Photo"
-                    class="rounded-circle mb-3"
-                    width="120"
-                    height="120">
-                {% endif %}
+      <!-- Picture -->
+      {% if base == 'person' %}
+        <div class="text-center mt-5">
+          <div class="text-center photo-upload">
+            <form method="POST" enctype="multipart/form-data">
+              {% csrf_token %}
+              {% if object.photo %}
+                <img src="{{ object.photo.url }}"
+                  alt="Profile Photo"
+                  class="rounded-circle mb-3"
+                  width="120"
+                  height="120">
+              {% else %}
+                <img src="{% static 'images/person.png' %}"
+                  alt="Profile Photo"
+                  class="rounded-circle mb-3"
+                  width="120"
+                  height="120">
+              {% endif %}
 
-                <!-- invisible file-input sits atop the image -->
-                <input 
-                  type="file" 
-                  name="photo" 
-                  accept="image/*"
-                  onchange="this.form.submit()">
-              </form>
-            </div>
+              <!-- invisible file-input sits atop the image -->
+              <input 
+                type="file" 
+                name="photo" 
+                accept="image/*"
+                onchange="this.form.submit()">
+            </form>
           </div>
-        {% else %}
-          <div class="text-center mt-5">
-            <div class="text-center photo-upload">
-              <form method="POST" enctype="multipart/form-data">
-                {% csrf_token %}
-                {% if object.photo %}
-                  <img src="{{ object.photo.url }}"
-                      alt="Profile Photo"
-                      class="rounded-circle mb-3"
-                      width="120" height="120">
-                {% else %}
-                  <img src="{% static 'images/location.png' %}"
+        </div>
+      {% else %}
+        <div class="text-center mt-5">
+          <div class="text-center photo-upload">
+            <form method="POST" enctype="multipart/form-data">
+              {% csrf_token %}
+              {% if object.photo %}
+                <img src="{{ object.photo.url }}"
                     alt="Profile Photo"
                     class="rounded-circle mb-3"
                     width="120" height="120">
-                {% endif %}
-
-                <!-- invisible file-input sits atop the image -->
-                <input 
-                  type="file" 
-                  name="photo" 
-                  accept="image/*"
-                  onchange="this.form.submit()">
-              </form>
-            </div>
-          </div>
-        {% endif %}
-
-        <div class="text-center">
-          <div>
-            <h4 class="detail-label">
-              {% if base == 'person' %}
-                {{ object.name }}
-              {% elif base == 'location' %}
-                {{ object.name}}
               {% else %}
-                Kyle Greenberg
+                <img src="{% static 'images/location.png' %}"
+                  alt="Profile Photo"
+                  class="rounded-circle mb-3"
+                  width="120" height="120">
               {% endif %}
-            </h4>
-            <p class="mb-3 detail-label">
-              {% if base == 'person' %}
-                {{ object.personType | title }}
-              {% elif base == 'location' %}
-                {{ object.type| title }}
-              {% else %}
-                Technology Manager
-              {% endif %}
-            </p>
-          </div>
-          <div>
-            <div class="d-flex justify-content-center mb-3">
-              <!-- Used for primary phone -->
-              <a 
-              href="tel:{{ object.primary_phone }}" class="action-icons me-4">
-                <i class="fas fa-phone fa-lg"></i>
-              </a>
 
-              <!-- Used for primary Email -->
-              <a href="mailto:{{ object.primary_email }}" class="action-icons me-4">
-                <i class="fas fa-envelope fa-lg"></i>
-              </a>
-              
-              <!-- Message via Teams -->
-              {% if base == 'person' %}
-                <a href="msteams://teams.microsoft.com/l/chat/0/0?users={{ object.diocesan_email|urlencode }}" class="action-icons">
-                  <i class="fas fa-users fa-lg"></i>
-                </a>
-              {% endif %}
-            </div>
+              <!-- invisible file-input sits atop the image -->
+              <input 
+                type="file" 
+                name="photo" 
+                accept="image/*"
+                onchange="this.form.submit()">
+            </form>
           </div>
         </div>
-        
-        <!-- Navigation pane: Controls -->
-        <nav class="nav flex-column px-3 mb-auto">
-          <a class="nav-link active" href="#" data-target="primary-info">Primary Info</a>
-          {% if base == 'person' %}
-            <a class="nav-link" href="#" data-target="contact-info">Contact Info</a>
-            <a class="nav-link" href="#" data-target="birth-info">Birth/Sacraments</a>
-            <a class="nav-link" href="#" data-target="standing-info">Standing in Diocese</a>
-            <a class="nav-link" href="#" data-target="degree-info">Degrees/Skills/Lang.</a>
-            <a class="nav-link" href="#" data-target="formation-info">Formation</a>
-            <a class="nav-link" href="#" data-target="name-info">Name Details</a>
-            <a class="nav-link" href="#" data-target="emergency-info">Emergency Info</a>
-          {% endif %}
-          {% if base == 'location' %}
-              <a class="nav-link" href="#" data-target="location-info">Location Info</a>
-              <a class="nav-link" href="#" data-target="clergy-info">Clergy</a>
-              <a class="nav-link" href="#" data-target="mass-info">Masses/Ministries</a>
-              <a class="nav-link" href="#" data-target="staff-info">Staff</a>
-              <a class="nav-link" href="#" data-target="stat-info">Statistics</a>
-          {% endif %}
-        </nav>
+      {% endif %}
+
+      <div class="text-center">
+        <div>
+          <h4 class="detail-label">
+            {% if base == 'person' %}
+              {{ object.name }}
+            {% elif base == 'location' %}
+              {{ object.name}}
+            {% else %}
+              Kyle Greenberg
+            {% endif %}
+          </h4>
+          <p class="mb-3 detail-label">
+            {% if base == 'person' %}
+              {{ object.personType | title }}
+            {% elif base == 'location' %}
+              {{ object.type| title }}
+            {% else %}
+              Technology Manager
+            {% endif %}
+          </p>
+        </div>
+        <div>
+          <div class="d-flex justify-content-center mb-3">
+            <!-- Used for primary phone -->
+            <a 
+            href="tel:{{ object.primary_phone }}" class="action-icons me-4">
+              <i class="fas fa-phone fa-lg"></i>
+            </a>
+
+            <!-- Used for primary Email -->
+            <a href="mailto:{{ object.primary_email }}" class="action-icons me-4">
+              <i class="fas fa-envelope fa-lg"></i>
+            </a>
+            
+            <!-- Message via Teams -->
+            {% if base == 'person' %}
+              <a href="msteams://teams.microsoft.com/l/chat/0/0?users={{ object.diocesan_email|urlencode }}" class="action-icons">
+                <i class="fas fa-users fa-lg"></i>
+              </a>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+      
+      <!-- Navigation pane: Controls -->
+      <nav class="nav flex-column px-3 mb-auto">
+        <a class="nav-link active" href="#" data-target="primary-info">Primary Info</a>
+        {% if base == 'person' %}
+          <a class="nav-link" href="#" data-target="contact-info">Contact Info</a>
+          <a class="nav-link" href="#" data-target="birth-info">Birth/Sacraments</a>
+          <a class="nav-link" href="#" data-target="standing-info">Standing in Diocese</a>
+          <a class="nav-link" href="#" data-target="degree-info">Degrees/Skills/Lang.</a>
+          <a class="nav-link" href="#" data-target="formation-info">Formation</a>
+          <a class="nav-link" href="#" data-target="name-info">Name Details</a>
+          <a class="nav-link" href="#" data-target="emergency-info">Emergency Info</a>
+        {% endif %}
+        {% if base == 'location' %}
+            <a class="nav-link" href="#" data-target="location-info">Location Info</a>
+            <a class="nav-link" href="#" data-target="clergy-info">Clergy</a>
+            <a class="nav-link" href="#" data-target="mass-info">Masses/Ministries</a>
+            <a class="nav-link" href="#" data-target="staff-info">Staff</a>
+            <a class="nav-link" href="#" data-target="stat-info">Statistics</a>
+        {% endif %}
+      </nav>
+
+    </aside>
   
-      </aside>
-  
-      <!-- RIGHT PANEL -->
-      {% if base == 'person' %}
-        <main class="col-md-8 p-4 bg-light">
-          <!-- PRIMARY INFO -->
-           <div id="primary-info" class="detail-section">
+    <!-- RIGHT PANEL -->
+    {% if base == 'person' %}
+      <main class="col-md-8 p-4 bg-light">
+        <!-- PRIMARY INFO -->
+          <div id="primary-info" class="detail-section">
             <div class="row mb-1">
               <div class="col">
                 <div class="card mb-4 border-0 rounded-4 shadow-sm">
@@ -177,10 +177,10 @@
                             - As of: {{ assignment.date_assigned }}
                           </span>
                         {% else %}
-                          <span>No active assignments</span>
+                          <dd>No active assignments</dd>
                         {% endif %}
                       {% empty %}
-                        <span>No assignments found</span>
+                        <dd>No assignments found</dd>
                       {% endfor %}
                     </div>
                   </div>
@@ -189,28 +189,78 @@
               <div class="col">
                 <div class="card mb-4 border-0 rounded-4 shadow-sm">
                   <div class="card-body">
-                    <small class="text-muted">Eastern Catholic</small>
-                    <div class="row">
-                      <dd>Membership</dd>
-                      <dd>&nbsp&nbsp&nbsp {{ object.person_details.is_easternCatholicChurchMember }}</dd>
+                    <small class="text-muted">Status Info</small>
+                    <dt>Status</dt>
+                    {% if object.person_status_set.first.lkp_status_id.name %}
+                      <dt class="indent">{{ object.person_status_set.last.lkp_status_id.name }}</dd>
+                    {% else %}
+                      <dd class="indent">None</dd>
+                    {% endif %}
+                      <dt>Status Date</dt>
+                    {% if object.person_status_set.first.date_assigned %}
+                      <dd class="indent">{{ object.person_status_set.last.date_assigned|date:"Y-m-d" }}</dd>
+                    {% else %}
+                      <dd class="indent">Unknown</dd>
+                    {% endif %}
+                  </div>
+                </div>
+              </div> 
+            </div>
+            <div class="row mb-1">
+              <div class="col">
+                <div class="card mb-4 border-0 rounded-4 shadow-sm">
+                  <div class="card-body">
+                    <small class="text-muted">Person Details</small><br><br>
+                    <dl class="mb-0">
+                      <div class="row mb-1">
+                        <dt class="col-auto">Assigned Vicariate:</dt>
+                        <dd class="col">{{ object.assignment_set.first.lkp_location_id.lkp_vicariate_id.name }}</dd>
+                      </div>
+
+                      <div class="row mb-1">
+                        <dt class="col-auto">Assigned County:</dt>
+                        <dd class="col">{{ object.assignment_set.first.lkp_location_id.lkp_county_id.name }}</dd>
+                      </div>
+
+                      <div class="row mb-1">
+                        <dt class="col-auto">Eastern Catholic Membership:</dt>
+                        <dd class="col"> {{ object.person_details.is_easternCatholicChurchMember }}</dd>
+                      </div>
+
                       {% if object.person_details.is_easternCatholicChurchMember %}
-                        <dd>Church Name:</dd>
-                        <dd>&nbsp&nbsp&nbsp {{ object.person_details.lkp_easternChurch_id.name }}</dd>
+                      <div class="row mb-1">
+                        <dt class="col-auto">Church Name:</dt>
+                        <dd class="col answer"> {{ object.person_details.lkp_easternChurch_id.name }}</dd>
+                      </div>
                       {% endif %}
-                    </div>
+
+                      {% if object.date_retired %}
+                      <div class="row mb-1">
+                        <dt class="col-auto">Retired On:</dt>
+                        <dd class="col">{{ object.date_retired }}</dd>
+                      </div>
+                      {% endif %}
+
+                      {% if object.date_deceased %}
+                      <div class="row mb-1">
+                        <dt class="col-auto">Deceased On:</dt>
+                        <dd class="col">{{ object.date_deceased }}</dd>
+                      </div>
+                      {% endif %}
+                    </dl>
                   </div>
                 </div>
               </div>
-            </div>
+            </div> 
             <div class="row mb-1">
               <div class="col">
                 <div class="card mb-4 border-0 rounded-4 shadow-sm">
                   <div class="card-body">
                     <small class="text-muted">Religious Institute</small>
                     <dd>Religious Institute Type</dd>
-                    <dd>&nbsp&nbsp&nbsp {{ object.person_details.religiousInstituteType }}</dd>
+                    <dd class="indent"> {{ object.person_details.religiousInstituteType }}</dd>
                     <dd>Religious Order Province</dd>
-                    <dd>&nbsp&nbsp&nbsp {{ object.person_details.religiousOrderProvince }}</dd>
+                    <dd class="indent"> {{ object.person_details.religiousOrderProvince }}</dd>
                   </div>
                 </div>
               </div>
@@ -218,8 +268,11 @@
                 <div class="card mb-4 border-0 rounded-4 shadow-sm">
                   <div class="card-body">
                     <small class="text-muted">Current Ecclesiastical Offices/Positions</small>
-                    {% for %}
-                    <dd> {{ object.name_last }} </dd>
+                    {% for title in object.titles %}
+                      {% if title.is_ecclesiastical %}
+                        <dd> {{ title }} </dd>
+                      {% endif %}
+                    {% endfor %}
                   </div>
                 </div>
               </div>
@@ -228,308 +281,382 @@
               <div class="col">
                 <div class="card mb-4 border-0 rounded-4 shadow-sm">
                   <div class="card-body">
-                    <small class="text-muted">Suffixes</small><br><br>
-                    <dl class="row">
-                      <dd class="col-sm-2">Suffix:</dd>
-                      <dd class="col-sm-10">{{ object.suffix }}</dd>
-                      <dd class="col-sm-2">Religious Suffix:</dd>
-                      <dd class="col-sm-10">{{ object.person_details.religiousSuffix  }}</dd>
-                      <dd class="col-sm-2">Diocesan Suffix:</dd>
-                      <dd class="col-sm-10">{{  object.person_details.diocesanSuffix  }}</dd>
-                    </dl>
-                  </div>
-                </div>
-              </div>
-            </div> 
-           </div>
-
-          <!-- CONTACT INFO-->
-           <div id="contact-info" class="detail-section d-none">
-
-           </div>
-          <!-- BIRTH INFO -->
-           <div id="birth-info" class="detail-section d-none">
-
-           </div>
-          <!-- STANDING INFO -->
-           <div id="standing-info" class="detail-section d-none">
-
-           </div>
-          <!-- DEGREE INFO -->
-           <div id="degree-info" class="detail-section d-none">
-            
-           </div>
-    
-          <!-- FORMATION INFO -->
-           <div id="formation-info" class="detail-section d-none">
-
-           </div>
-
-          <!-- NAME INFO -->
-           <div id="name-info" class="detail-section d-none">
-            <div class="row mb-1">
-              <div class="col">
-                <div class="card mb-4 border-0 rounded-4 shadow-sm">
-                  <div class="card-body">
-                    <small class="text-muted">Prefix</small>
-                    <dd> {{object.prefix}} </dd>
+                    <small class="text-muted">Assignment History</small>
+                    {% for assignment in object.assignments %}
+                      <p class="mb-1">{{ assignment.lkp_assignmentType_id.title }}</p>
+                      <span class="text-muted">
+                        {{ assignment.lkp_location_id.name }}, 
+                        As of: {{ assignment.date_assigned }} 
+                        {% if assignment.date_released %}
+                          Released On: {{ assignment.date_released }}
+                        {% endif %}
+                      </span><br><br>
+                    {% endfor %}
                   </div>
                 </div>
               </div>
               <div class="col">
                 <div class="card mb-4 border-0 rounded-4 shadow-sm">
                   <div class="card-body">
-                    <small class="text-muted">First Name</small>
-                    <dd> {{ object.name_first }} </dd>
+                    <small class="text-muted">Notes</small>
+                    <p class="indent">Testing notes</p>
                   </div>
-                </div>
-              </div>
-            </div>
-            <div class="row mb-1">
-              <div class="col">
-                <div class="card mb-4 border-0 rounded-4 shadow-sm">
-                  <div class="card-body">
-                    <small class="text-muted">Middle Name</small>
-                    <dd> {{object.name_middle}} </dd>
-                  </div>
-                </div>
-              </div>
-              <div class="col">
-                <div class="card mb-4 border-0 rounded-4 shadow-sm">
-                  <div class="card-body">
-                    <small class="text-muted">Last Name</small>
-                    <dd> {{ object.name_last }} </dd>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div class="row mb-1">
-              <div class="col">
-                <div class="card mb-4 border-0 rounded-4 shadow-sm">
-                  <div class="card-body">
-                    <small class="text-muted">Suffixes</small><br><br>
-                    <dl class="row">
-                      <dd class="col-sm-2">Suffix:</dd>
-                      <dd class="col-sm-10">{{ object.suffix }}</dd>
-                      <dd class="col-sm-2">Religious Suffix:</dd>
-                      <dd class="col-sm-10">{{ object.person_details.religiousSuffix  }}</dd>
-                      <dd class="col-sm-2">Diocesan Suffix:</dd>
-                      <dd class="col-sm-10">{{  object.person_details.diocesanSuffix  }}</dd>
-                    </dl>
-                  </div>
-                </div>
-              </div>
-            </div>
-           </div>
-           
-          <!-- EMERGENCY INFO -->
-           <div id="emergency-info" class="detail-section d-none">
-            <!-- job details -->
-           <div class="card mb-4 border-0 rounded-4 shadow-sm">
-            <div class="card-body">
-              <small class="text-muted">Job Details</small><br><br>
-              <dl class="row">
-                <dd class="col-sm-4">Priest Code</dd>
-                <dd class="col-sm-8">{{object.person_details.priestCode}}</dd>
-    
-                <dd class="col-sm-4">Religious Institute Type</dd>
-                <dd class="col-sm-8">{{object.person_details.religiousInstituteType}}</dd>
-    
-                <dd class="col-sm-4">Religious Order Province</dd>
-                <dd class="col-sm-8">{{object.person_details.religiousOrderProvince}}</dd>
-    
-                <dd class="col-sm-4">Religious Suffix</dd>
-                <dd class="col-sm-8">{{object.person_details.religiousSuffix}}</dd>
-    
-                <dd class="col-sm-4">Diocesan Suffix</dd>
-                <dd class="col-sm-8">{{object.person_details.diocesanSuffix}}</dd>
-    
-                <dd class="col-sm-4">Diocesan/Religious</dd>
-                <dd class="col-sm-8">{{object.person_details.diocesanReligious}}</dd>
-                <dd class="col-sm-4">
-                  Is a Member of the Eastern Catholic Church?
-                </dd>
-                <dd class="col-sm-8">
-                  {{ object.person_details.is_easternCatholicChurchMember}}
-                </dd>
-                <dd class="col-sm-4">
-                  Is Approved for Letters of Good Standing?
-                </dd>
-                <dd class="col-sm-8">
-                  {{ object.person_details.is_approvedLetterOfGoodStanding}}
-                </dd>
-
-                {# add more fields as needed #}
-              </dl>
-            </div>
-           </div>
-
-           <div class="card mb-4 border-0 rounded-4 shadow-sm">
-            <div class="card-body">
-              <small class="text-muted">Dates</small><br><br>
-              <dl class="row">
-                <dt class="col-sm-8">Ordination:</dt>
-                <dd class="col-sm-4">
-                  {{ object.person_details.date_ordination|date:"Y-m-d"}}
-                </dd>
-                <dt class="col-sm-8">
-                  Transitional Diaconate Ordination:
-                </dt>
-                <dd class="col-sm-4">
-                  {{ object.person_details.date_transitionalDiaconateOrdination|date:"Y-m-d"}}
-                </dd>
-                <dt class="col-sm-8">
-                  Priest Ordination:
-                </dt>
-                <dd class="col-sm-4">
-                  {{ object.person_details.date_priestOrdination|date:"Y-m-d"}}
-                </dd>
-                <dt class="col-sm-8">
-                  Episcopal Ordination:
-                </dt>
-                <dd class="col-sm-4">
-                  {{ object.person_details.date_episcopalOrdination|date:"Y-m-d"}}
-                </dd>
-                <dt class="col-sm-8">
-                  Incardination:
-                </dt>
-                <dd class="col-sm-4">
-                  {{ object.person_details.date_incardination|date:"Y-m-d"}}
-                </dd>
-                <dt class="col-sm-8">
-                  Incardination Requested On:
-                </dt>
-                <dd class="col-sm-4">
-                  {{ object.person_details.date_incardinationRequested|date:"Y-m-d"}}
-                </dd>
-                <dt class="col-sm-8">
-                  Faculties Requested:
-                </dt>
-                <dd class="col-sm-4">
-                  {{ object.person_details.date_facultiesRequested|date:"Y-m-d"}}
-                </dd>
-                <dt class="col-sm-8">
-                  Faculties Granted:
-                </dt>
-                <dd class="col-sm-4">
-                  {{ object.person_details.date_facultiesGranted|date:"Y-m-d"}}
-                </dd>
-                <dt class="col-sm-8">
-                  Extern Priest Assignment Start Date:
-                </dt>
-                <dd class="col-sm-4">
-                  {{ object.person_details.date_externPriestAssignmentStart|date:"Y-m-d"}}
-                </dd>
-                <dt class="col-sm-8">
-                  Extern Priest Assignment End Date:
-                </dt>
-                <dd class="col-sm-4">
-                  {{ object.person_details.date_incardinationRequested|date:"Y-m-d"}}
-                </dd>
-                <dt class="col-sm-8">
-                  Onboard Date:
-                </dt>
-                <dd class="col-sm-4">
-                  {{ object.person_details.date_onboard|date:"Y-m-d"}}
-                </dd>
-                <dt class="col-sm-8">
-                  Baptism Date:
-                </dt>
-                <dd class="col-sm-4">
-                  {{ object.person_details.date_baptism|date:"Y-m-d"}}
-                </dd>
-              </dl>
-            </div>
-           </div>
-    
-          <!-- lower two-column cards -->
-          <div class="row">
-            <!-- LEFT half -->
-            <div class="col">
-              <div class="card mb-4 border-0 rounded-4 shadow-sm">
-                <div class="card-body">
-                  <small class="text-muted">Language Capabilities</small><br><br>
-                  <dd>Can Celebrate Mass in English?</dd>
-                  <dd> &nbsp;&nbsp;&nbsp; {{object.person_details.is_massEnglish}}</dd>
-                  <dd>Can Celebrate Mass in Spanish?</dd>
-                  <dd>&nbsp;&nbsp;&nbsp; {{object.person_details.is_massSpanish}}</dd>
-                  <dd>Can Celebrate Sacraments in English?</dd>
-                  <dd>&nbsp;&nbsp;&nbsp; {{object.person_details.is_sacramentsEnglish}}</dd>
-                  <dd>Can Celebrate Sacraments in Spanish?</dd>
-                  <dd>&nbsp;&nbsp;&nbsp; {{object.person_details.is_sacramentsSpanish}}</dd>
-                </div>
-              </div>
-            </div>
-    
-            <!-- RIGHT half -->
-            <div class="col-md-6">
-              <div class="card mb-4 border-0 rounded-4 shadow-sm">
-                <div class="card-body">
-                  <small class="text-muted">Dates</small><br><br>
-                  <dl class="row">
-                    <dt class="col-sm-6">Ordination:</dt>
-                    <dd class="col-sm-6">{{ object.person_details.date_ordination|date:"Y-m-d"}}</dd>
-                    <dt class="col-sm-6">Transitional Diaconate Ordination:</dt>
-                    <dd class="col-sm-6">{{ object.person_details.date_transitionalDiaconateOrdination|date:"Y-m-d"}}</dd>
-                    <dt class="col-sm-6">Priest Ordination:</dt>
-                    <dd class="col-sm-6">{{ object.person_details.date_priestOrdination|date:"Y-m-d"}}</dd>
-                    <dt class="col-sm-6">Episcopal Ordination:</dt>
-                    <dd class="col-sm-6">{{ object.person_details.date_episcopalOrdination|date:"Y-m-d"}}</dd>
-                    <dt class="col-sm-6">Incardination:</dt>
-                    <dd class="col-sm-6">{{ object.person_details.date_incardination|date:"Y-m-d"}}</dd>
-                    <dt class="col-sm-6">Incardination Requested On:</dt>
-                    <dd class="col-sm-6">{{ object.person_details.date_incardinationRequested|date:"Y-m-d"}}</dd>
-                  </dl>
                 </div>
               </div>
             </div>
           </div>
-           </div>
-           
-          
-        </div>
-          <!-- DEACON DETAILS -->
-           <div id="deacon-info" class="detail-section d-none">
 
-           </div>
-          <!-- LAY DETAILS  -->
-        </main>
-
-
-
-      {% elif base == 'location' %}
-        <main class="col-md-8 p-4 bg-light">
-          <!--PRIMARY INFO -->
-          <div id="primary-info" class="detail-section">
-            <!-- Address Cards -->
-            <div class="row mb-4">
+        <!-- CONTACT INFO-->
+          <div id="contact-info" class="detail-section d-none">
+            <div class="row mb-1">
               <div class="col">
                 <div class="card mb-4 border-0 rounded-4 shadow-sm">
-                  {# Build a single string for the street, city, state, zip #}
-                  {% if object.lkp_physicalAddress_id %}
-                    {% with pa=object.lkp_physicalAddress_id %}
-                    {% with addr=pa.address1|default_if_none:""|add:"+"|add:pa.city|default_if_none:""|add:",+"|add:pa.state|default_if_none:""|add:"+"|add:pa.zip_code|default_if_none:"" %}
-                    <a href="https://www.google.com/maps?q={{ addr }}"
-                      target="_blank"
-                      class="text-decoration-none text-dark">
-                      <div class="card-body d-flex align-items-center">
-                        <i class="fas fa-map-marker-alt me-2"></i>
-                        <div>
-                          <small class="text-muted">Physical Address</small><br>
-                          <small>{{ object.lkp_physicalAddress_id.address1 }}</small><br>
-                          {% if object.lkp_physicalAddress_id.address2 %}
-                            <small>{{ object.lkp_physicalAddress_id.address1 }}</small><br>
-                          {% endif %}
-                          <small>{{ object.lkp_physicalAddress_id.city }}, </small>
-                          <small>{{ object.lkp_physicalAddress_id.state }} </small>
-                          <small>{{ object.lkp_physicalAddress_id.zip_code }}</small><br>
-                          <small>{{ object.lkp_physicalAddress_id.country }}</small><br>
-                        </div>
-                      </div>
-                    </a>
-                    {% endwith %}
-                    {% endwith %}
-                  {% else %}
+                  <div class="card-body">
+                    <small class="text-muted">Box1</small>
+                  </div>
+                </div>
+              </div>
+              <div class="col">
+                <div class="card mb-4 border-0 rounded-4 shadow-sm">
+                  <div class="card-body">
+                    <small class="text-muted">Box2</small>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="row mb-1">
+              <div class="col">
+                <div class="card mb-4 border-0 rounded-4 shadow-sm">
+                  <div class="card-body">
+                    <small class="text-muted">Box3</small>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="row mb-1">
+              <div class="col">
+                <div class="card mb-4 border-0 rounded-4 shadow-sm">
+                  <div class="card-body">
+                    <small class="text-muted">Box4</small>
+                  </div>
+                </div>
+              </div>
+              <div class="col">
+                <div class="card mb-4 border-0 rounded-4 shadow-sm">
+                  <div class="card-body">
+                    <small class="text-muted">Box5</small>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        <!-- BIRTH INFO -->
+          <div id="birth-info" class="detail-section d-none">
+            <div class="row mb-1">
+              <div class="col">
+                <div class="card mb-4 border-0 rounded-4 shadow-sm">
+                  <div class="card-body">
+                    <small class="text-muted">Box1</small>
+                  </div>
+                </div>
+              </div>
+              <div class="col">
+                <div class="card mb-4 border-0 rounded-4 shadow-sm">
+                  <div class="card-body">
+                    <small class="text-muted">Box2</small>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="row mb-1">
+              <div class="col">
+                <div class="card mb-4 border-0 rounded-4 shadow-sm">
+                  <div class="card-body">
+                    <small class="text-muted">Box3</small>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="row mb-1">
+              <div class="col">
+                <div class="card mb-4 border-0 rounded-4 shadow-sm">
+                  <div class="card-body">
+                    <small class="text-muted">Box4</small>
+                  </div>
+                </div>
+              </div>
+              <div class="col">
+                <div class="card mb-4 border-0 rounded-4 shadow-sm">
+                  <div class="card-body">
+                    <small class="text-muted">Box5</small>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        <!-- STANDING INFO -->
+          <div id="standing-info" class="detail-section d-none">
+            <div class="row mb-1">
+              <div class="col">
+                <div class="card mb-4 border-0 rounded-4 shadow-sm">
+                  <div class="card-body">
+                    <small class="text-muted">Box1</small>
+                  </div>
+                </div>
+              </div>
+              <div class="col">
+                <div class="card mb-4 border-0 rounded-4 shadow-sm">
+                  <div class="card-body">
+                    <small class="text-muted">Box2</small>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="row mb-1">
+              <div class="col">
+                <div class="card mb-4 border-0 rounded-4 shadow-sm">
+                  <div class="card-body">
+                    <small class="text-muted">Box3</small>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="row mb-1">
+              <div class="col">
+                <div class="card mb-4 border-0 rounded-4 shadow-sm">
+                  <div class="card-body">
+                    <small class="text-muted">Box4</small>
+                  </div>
+                </div>
+              </div>
+              <div class="col">
+                <div class="card mb-4 border-0 rounded-4 shadow-sm">
+                  <div class="card-body">
+                    <small class="text-muted">Box5</small>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        <!-- DEGREE INFO -->
+          <div id="degree-info" class="detail-section d-none">
+            <div class="row mb-1">
+              <div class="col">
+                <div class="card mb-4 border-0 rounded-4 shadow-sm">
+                  <div class="card-body">
+                    <small class="text-muted">Box1</small>
+                  </div>
+                </div>
+              </div>
+              <div class="col">
+                <div class="card mb-4 border-0 rounded-4 shadow-sm">
+                  <div class="card-body">
+                    <small class="text-muted">Box2</small>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="row mb-1">
+              <div class="col">
+                <div class="card mb-4 border-0 rounded-4 shadow-sm">
+                  <div class="card-body">
+                    <small class="text-muted">Box3</small>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="row mb-1">
+              <div class="col">
+                <div class="card mb-4 border-0 rounded-4 shadow-sm">
+                  <div class="card-body">
+                    <small class="text-muted">Box4</small>
+                  </div>
+                </div>
+              </div>
+              <div class="col">
+                <div class="card mb-4 border-0 rounded-4 shadow-sm">
+                  <div class="card-body">
+                    <small class="text-muted">Box5</small>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+  
+        <!-- FORMATION INFO -->
+          <div id="formation-info" class="detail-section d-none">
+            <div class="row mb-1">
+              <div class="col">
+                <div class="card mb-4 border-0 rounded-4 shadow-sm">
+                  <div class="card-body">
+                    <small class="text-muted">Box1</small>
+                  </div>
+                </div>
+              </div>
+              <div class="col">
+                <div class="card mb-4 border-0 rounded-4 shadow-sm">
+                  <div class="card-body">
+                    <small class="text-muted">Box2</small>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="row mb-1">
+              <div class="col">
+                <div class="card mb-4 border-0 rounded-4 shadow-sm">
+                  <div class="card-body">
+                    <small class="text-muted">Box3</small>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="row mb-1">
+              <div class="col">
+                <div class="card mb-4 border-0 rounded-4 shadow-sm">
+                  <div class="card-body">
+                    <small class="text-muted">Box4</small>
+                  </div>
+                </div>
+              </div>
+              <div class="col">
+                <div class="card mb-4 border-0 rounded-4 shadow-sm">
+                  <div class="card-body">
+                    <small class="text-muted">Box5</small>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        <!-- NAME INFO -->
+          <div id="name-info" class="detail-section d-none">
+            <div class="row mb-1">
+              <div class="col">
+                <div class="card mb-4 border-0 rounded-4 shadow-sm">
+                  <div class="card-body">
+                    <small class="text-muted">Name Details</small><br><br>
+                    <dl class="row">
+                      <dd class="col-sm-2">Prefix</dd>
+                      <dd class="col-sm-10">{{ object.prefix }}</dd>
+                      <dd class="col-sm-2">First Name:</dd>
+                      <dd class="col-sm-10">{{ object.name_first }}</dd>
+                      <dd class="col-sm-2">Middle Name:</dd>
+                      <dd class="col-sm-10">{{ object.name_middle }}</dd>
+                      <dd class="col-sm-2">Last Name:</dd>
+                      <dd class="col-sm-10">{{ object.name_last }}</dd>
+                    </dl>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="row mb-1">
+              <div class="col">
+                <div class="card mb-4 border-0 rounded-4 shadow-sm">
+                  <div class="card-body">
+                    <small class="text-muted">Religious Suffix</small>
+                    <dd> {{object.person_details.religiousSuffix}} </dd>
+                  </div>
+                </div>
+              </div>
+              <div class="col">
+                <div class="card mb-4 border-0 rounded-4 shadow-sm">
+                  <div class="card-body">
+                    <small class="text-muted">Diocesan Suffix</small>
+                    <dd> {{ object.person_details.diocesanSuffix }} </dd>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="row mb-1">
+              <div class="col">
+                <div class="card mb-4 border-0 rounded-4 shadow-sm">
+                  <div class="card-body">
+                    <small class="text-muted">Suffix</small>
+                    {% if object.suffix == 'nan' %}
+                    <dd>None<dd>
+                    {% else %}
+                    <dd> {{object.suffix}} </dd>
+                    {% endif %}
+                  </div>
+                </div>
+              </div>
+              <div class="col">
+                {% comment %} <div class="card mb-4 border-0 rounded-4 shadow-sm">
+                  <div class="card-body">
+                    <small class="text-muted"></small>
+                    <dd></dd>
+                  </div>
+                </div> {% endcomment %}
+              </div>
+            </div>
+          </div>
+          
+        <!-- EMERGENCY INFO -->
+          <div id="emergency-info" class="detail-section d-none">
+            <div class="row mb-1">
+              <div class="col">
+                <div class="card mb-4 border-0 rounded-4 shadow-sm">
+                  <div class="card-body">
+                    <small class="text-muted">Box1</small>
+                  </div>
+                </div>
+              </div>
+              <div class="col">
+                <div class="card mb-4 border-0 rounded-4 shadow-sm">
+                  <div class="card-body">
+                    <small class="text-muted">Box2</small>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="row mb-1">
+              <div class="col">
+                <div class="card mb-4 border-0 rounded-4 shadow-sm">
+                  <div class="card-body">
+                    <small class="text-muted">Box3</small>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="row mb-1">
+              <div class="col">
+                <div class="card mb-4 border-0 rounded-4 shadow-sm">
+                  <div class="card-body">
+                    <small class="text-muted">Box4</small>
+                  </div>
+                </div>
+              </div>
+              <div class="col">
+                <div class="card mb-4 border-0 rounded-4 shadow-sm">
+                  <div class="card-body">
+                    <small class="text-muted">Box5</small>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+        
+        </div>
+      </main>
+
+
+
+    {% elif base == 'location' %}
+      <main class="col-md-8 p-4 bg-light">
+        <!--PRIMARY INFO -->
+        <div id="primary-info" class="detail-section">
+          <!-- Address Cards -->
+          <div class="row mb-4">
+            <div class="col">
+              <div class="card mb-4 border-0 rounded-4 shadow-sm">
+                {# Build a single string for the street, city, state, zip #}
+                {% if object.lkp_physicalAddress_id %}
+                  {% with pa=object.lkp_physicalAddress_id %}
+                  {% with addr=pa.address1|default_if_none:""|add:"+"|add:pa.city|default_if_none:""|add:",+"|add:pa.state|default_if_none:""|add:"+"|add:pa.zip_code|default_if_none:"" %}
+                  <a href="https://www.google.com/maps?q={{ addr }}"
+                    target="_blank"
+                    class="text-decoration-none text-dark">
                     <div class="card-body d-flex align-items-center">
                       <i class="fas fa-map-marker-alt me-2"></i>
                       <div>
@@ -544,286 +671,80 @@
                         <small>{{ object.lkp_physicalAddress_id.country }}</small><br>
                       </div>
                     </div>
-                  {% endif %}
-                </div>
-              </div>
-
-              <!-- Mailing Address Card-->
-              <div class="col">
-                <div class="card mb-4 border-0 rounded-4 shadow-sm">
+                  </a>
+                  {% endwith %}
+                  {% endwith %}
+                {% else %}
                   <div class="card-body d-flex align-items-center">
                     <i class="fas fa-map-marker-alt me-2"></i>
                     <div>
-                      <small class="text-muted">Mailing Address</small><br>
-                      <small>{{ object.lkp_mailingAddress_id.address1 }}</small><br>
-                      {% if object.lkp_mailingAddress_id.address2 %}
-                        <small>{{ object.lkp_mailingAddress_id.address1 }}</small><br>
+                      <small class="text-muted">Physical Address</small><br>
+                      <small>{{ object.lkp_physicalAddress_id.address1 }}</small><br>
+                      {% if object.lkp_physicalAddress_id.address2 %}
+                        <small>{{ object.lkp_physicalAddress_id.address1 }}</small><br>
                       {% endif %}
-                      <small>{{ object.lkp_mailingAddress_id.city }}, </small>
-                      <small>{{ object.lkp_mailingAddress_id.state }} </small>
-                      <small>{{ object.lkp_mailingAddress_id.zip_code }}</small><br>
-                      <small>{{ object.lkp_mailingAddress_id.country }}</small><br>
+                      <small>{{ object.lkp_physicalAddress_id.city }}, </small>
+                      <small>{{ object.lkp_physicalAddress_id.state }} </small>
+                      <small>{{ object.lkp_physicalAddress_id.zip_code }}</small><br>
+                      <small>{{ object.lkp_physicalAddress_id.country }}</small><br>
                     </div>
                   </div>
-                </div>
+                {% endif %}
               </div>
             </div>
-            <!-- location details -->
-            <div class="card mb-4">
-              <div class="card-body">
-                <h5 class="card-title">Location Details</h5>
-                <dl class="row">
-                  <dt class="col-sm-4">Latitude</dt>
-                  <dd class="col-sm-8">{{ object.latitude }}</dd>
-      
-                  <dt class="col-sm-4">Longitude</dt>
-                  <dd class="col-sm-8">{{ object.longitude }}</dd>
-      
-                  <dt class="col-sm-4">Website</dt>
-                  <dd class="col-sm-8">
-                    <a href="{{ object.website }}"
-                      target="_blank">
-                      {{ object.website }}
-                    </a>
-                  </dd>
-      
-                  <dt class="col-sm-4">Vicariate</dt>
-                  <dd class="col-sm-8">{{ object.lkp_vicariate_id.name }}</dd>
-      
-                  <dt class="col-sm-4">County</dt>
-                  <dd class="col-sm-8">{{ object.lkp_county_id.name }}</dd>
-                  {# add more fields as needed #}
-                </dl>
-              </div>
-            </div>
-            <!-- lower two-column cards -->
-            <div class="row">
-              <!-- LEFT half -->
-              {% comment %} <div class="col-md-6">
-                <div class="card mb-4">
-                  <div class="card-header d-flex justify-content-between align-items-center">
-                    <span>Statements</span>
-                    <a href="#">Add</a>
-                  </div>
-                  <div class="card-body">
-                    {# statements content #}
-                  </div>
-                </div>
-                <div class="card mb-4 border-0 rounded-4 shadow-sm">
-                  <div class="card-header">Feedback</div>
-                  <div class="card-body">
-                    <div class="d-flex mb-3">
-                      <img src="{% static 'images/profilePic.jpg' %}"
-                          class="rounded-circle me-3"
-                          width="40" height="40"
-                          alt="Feedback User">
-                      <div>
-                        <strong>Kyle Greenberg</strong><br>
-                        <small class="text-muted">05/08/2025</small>
-                        <p class="mt-2 mb-0">
-                          This project is enjoyable to build but challenging at times.
-                        </p>
-                      </div>
-                    </div>
-                    <a href="#">View More</a>
-                  </div>
-                </div>
-              </div> {% endcomment %}
-      
-              {% comment %} <!-- RIGHT half -->
-              <div class="col-md-6">
-                <div class="card mb-4">
-                  <div class="card-header">Job History</div>
-                  <div class="card-body">
-                    <p class="mb-1"><a href="#">Technology Manager</a></p>
-                    <small class="text-muted">
-                      Maintain and developt the technology use for the Diocese of Charlotte. 
-                      Both from the technical perspective and the via management of the level 3 staff members.
-                    </small>
-                    <a href="#" class="d-block mt-2">Edit</a>
-                  </div>
-                </div>
-              </div> {% endcomment %}
-            </div>
-          </div>
-          <!-- CONTACT INFO-->
-          <div id="contact-info" class="detail-section d-none">
 
-          </div>
-
-          <div id="church-info" class="detail-section d-none">
-            <!--Top Row-->
-            <div class="row mb-4">
-              <div class="col">
-                <div class="card mb-4 border-0 rounded-4 shadow-sm">
-                  <div class="card-body d-flex align-items-center">
-                    <i class="fas fa-map-marker-alt me-2"></i>
-                    <div>
-                      <small class="text-muted">Church/Mission</small><br>
-                      {% if object.location_details.is_mission %}
-                        <strong>Mission</strong>
-                      {% else %}
-                        <strong>Church</strong>
-                      {% endif %}
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div class="col">
-                <div class="card mb-4 border-0 rounded-4 shadow-sm">
-                  <div class="card-body d-flex align-items-center">
-                    <div>
-                      <small class="text-muted">Parish ID</small><br>
-                      <strong>{{ object.location_details.parish_id }}</strong>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-      
-            <!-- church details -->
-            <div class="card mb-4">
-              <div class="card-body">
-                <h5 class="card-title">Church Details</h5>
-                <dl class="row">
-                  <dt class="col-sm-4">Parish Unique Name</dt>
-                  <dd class="col-sm-8">{{ object.location_details.parishUniqueName }}</dd>
-      
-                  <dt class="col-sm-4">Diocese of Charlotte: Entity</dt>
-                  {% if object.location_details.is_doc %}
-                    <dd class="col-sm-8">Yes</dd>
-                  {% else %}
-                    <dd class="col-sm-8">No</dd>
-                  {% endif %}
-                  <dt class="col-sm-4">Tax ID</dt>
-                  <dd class="col-sm-8">{{ object.location_details.tax_id }}</dd>
-      
-                  <dt class="col-sm-4">Geo ID</dt>
-                  <dd class="col-sm-8">{{ object.location_details.geo_id }}</dd>
-                  
-                  {% if object.location_details.type_id %}
-                    <dt class="col-sm-4">Type ID</dt>
-                    <dd class="col-sm-8">{{ object.location_details.type_id }}</dd>
-                  {% endif %}
-      
-                  <dt class="col-sm-4">Date Established</dt>
-                  {% if object.location_details.date_established %}
-                    <dd class="col-sm-8">{{ object.location_details.date_established|date:"Y-m-d"}}</dd>
-                  {% else %}
-                    <dd class="col-sm-8">Unknown</dd>
-                  {% endif %}
-                    {# add more fields as needed #}
-                </dl>
-              </div>
-            </div>
-      
-            <!-- lower two-column cards -->
-            <div class="row">
-              <!-- LEFT half -->
-              <div class="col-md-6">
-                <div class="card mb-4">
-                  <div class="card-header d-flex justify-content-between align-items-center">
-                    <span>Dedications</span>
-                  </div>
-                  <div class="card-body">
-                    <dt class="col-sm-4">First Dedication</dt>
-                    <dd class="col-sm-8">{{ object.location_details.date_firstDedication|date:"Y-m-d" }}
-                    <dt class="col-sm-4">Second Dedication</dt>
-                    <dd class="col-sm-8">{{ object.location_details.date_secondDedication|date:"Y-m-d" }}
-                  </div>
-                </div>
-                <div class="card mb-4 border-0 rounded-4 shadow-sm">
-                  <div class="card-header">Boundary</div>
-                  <div class="card-body">
-                    <div class="d-flex mb-3">
-                      <img src="{% static 'images/profilePic.jpg' %}"
-                          class="rounded-circle me-3"
-                          width="40" height="40"
-                          alt="Feedback User">
-                    </div>
-                    <a href="#">View More</a>
-                  </div>
-                </div>
-              </div>
-      
-              <!-- RIGHT half -->
-              <div class="col-md-6">
-                <div class="card mb-4">
-                  <div class="card-header">Notes</div>
-                  <div class="card-body">
-                    <small class="text-muted">
-                      {{ object.location_details.notes }}
-                    </small>
-                    <a href="#" class="d-block mt-2">Edit</a>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div id="stat-info" class="detail-section d-none">
-
-          </div>
-        </main>
-      {% else %}
-        <main class="col-md-8 p-4 bg-light">
-          <!-- top cards -->
-          <div class="row mb-4">
+            <!-- Mailing Address Card-->
             <div class="col">
               <div class="card mb-4 border-0 rounded-4 shadow-sm">
                 <div class="card-body d-flex align-items-center">
                   <i class="fas fa-map-marker-alt me-2"></i>
                   <div>
-                    <small class="text-muted">Location</small><br>
-                    <strong>Pastoral Center</strong>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div class="col">
-              <div class="card mb-4 border-0 rounded-4 shadow-sm">
-                <div class="card-body d-flex align-items-center">
-                  <i class="fas fa-user me-2"></i>
-                  <div>
-                    <small class="text-muted">Manager</small><br>
-                    <strong>Scott Long</strong>
+                    <small class="text-muted">Mailing Address</small><br>
+                    <small>{{ object.lkp_mailingAddress_id.address1 }}</small><br>
+                    {% if object.lkp_mailingAddress_id.address2 %}
+                      <small>{{ object.lkp_mailingAddress_id.address1 }}</small><br>
+                    {% endif %}
+                    <small>{{ object.lkp_mailingAddress_id.city }}, </small>
+                    <small>{{ object.lkp_mailingAddress_id.state }} </small>
+                    <small>{{ object.lkp_mailingAddress_id.zip_code }}</small><br>
+                    <small>{{ object.lkp_mailingAddress_id.country }}</small><br>
                   </div>
                 </div>
               </div>
             </div>
           </div>
-    
-          <!-- job details -->
+          <!-- location details -->
           <div class="card mb-4">
             <div class="card-body">
-              <h5 class="card-title">Job Details</h5>
+              <h5 class="card-title">Location Details</h5>
               <dl class="row">
-                <dt class="col-sm-4">Employee ID</dt>
-                <dd class="col-sm-8">Unknown</dd>
+                <dt class="col-sm-4">Latitude</dt>
+                <dd class="col-sm-8">{{ object.latitude }}</dd>
     
-                <dt class="col-sm-4">Position</dt>
-                <dd class="col-sm-8">Technology Manager</dd>
+                <dt class="col-sm-4">Longitude</dt>
+                <dd class="col-sm-8">{{ object.longitude }}</dd>
     
-                <dt class="col-sm-4">Business Title</dt>
-                <dd class="col-sm-8">Miracle Worker</dd>
+                <dt class="col-sm-4">Website</dt>
+                <dd class="col-sm-8">
+                  <a href="{{ object.website }}"
+                    target="_blank">
+                    {{ object.website }}
+                  </a>
+                </dd>
     
-                <dt class="col-sm-4">Job Profile</dt>
-                <dd class="col-sm-8">Unknown</dd>
+                <dt class="col-sm-4">Vicariate</dt>
+                <dd class="col-sm-8">{{ object.lkp_vicariate_id.name }}</dd>
     
-                <dt class="col-sm-4">Employee Type</dt>
-                <dd class="col-sm-8">Excempt</dd>
-    
-                <dt class="col-sm-4">Management Level</dt>
-                <dd class="col-sm-8">Tier 2 Manager</dd>
+                <dt class="col-sm-4">County</dt>
+                <dd class="col-sm-8">{{ object.lkp_county_id.name }}</dd>
                 {# add more fields as needed #}
               </dl>
             </div>
           </div>
-    
           <!-- lower two-column cards -->
           <div class="row">
             <!-- LEFT half -->
-            <div class="col-md-6">
+            {% comment %} <div class="col-md-6">
               <div class="card mb-4">
                 <div class="card-header d-flex justify-content-between align-items-center">
                   <span>Statements</span>
@@ -852,9 +773,9 @@
                   <a href="#">View More</a>
                 </div>
               </div>
-            </div>
+            </div> {% endcomment %}
     
-            <!-- RIGHT half -->
+            {% comment %} <!-- RIGHT half -->
             <div class="col-md-6">
               <div class="card mb-4">
                 <div class="card-header">Job History</div>
@@ -867,12 +788,236 @@
                   <a href="#" class="d-block mt-2">Edit</a>
                 </div>
               </div>
+            </div> {% endcomment %}
+          </div>
+        </div>
+        <!-- CONTACT INFO-->
+        <div id="contact-info" class="detail-section d-none">
+
+        </div>
+
+        <div id="church-info" class="detail-section d-none">
+          <!--Top Row-->
+          <div class="row mb-4">
+            <div class="col">
+              <div class="card mb-4 border-0 rounded-4 shadow-sm">
+                <div class="card-body d-flex align-items-center">
+                  <i class="fas fa-map-marker-alt me-2"></i>
+                  <div>
+                    <small class="text-muted">Church/Mission</small><br>
+                    {% if object.location_details.is_mission %}
+                      <strong>Mission</strong>
+                    {% else %}
+                      <strong>Church</strong>
+                    {% endif %}
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="col">
+              <div class="card mb-4 border-0 rounded-4 shadow-sm">
+                <div class="card-body d-flex align-items-center">
+                  <div>
+                    <small class="text-muted">Parish ID</small><br>
+                    <strong>{{ object.location_details.parish_id }}</strong>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
-        </main>
-      {% endif %}
-    </div>
+    
+          <!-- church details -->
+          <div class="card mb-4">
+            <div class="card-body">
+              <h5 class="card-title">Church Details</h5>
+              <dl class="row">
+                <dt class="col-sm-4">Parish Unique Name</dt>
+                <dd class="col-sm-8">{{ object.location_details.parishUniqueName }}</dd>
+    
+                <dt class="col-sm-4">Diocese of Charlotte: Entity</dt>
+                {% if object.location_details.is_doc %}
+                  <dd class="col-sm-8">Yes</dd>
+                {% else %}
+                  <dd class="col-sm-8">No</dd>
+                {% endif %}
+                <dt class="col-sm-4">Tax ID</dt>
+                <dd class="col-sm-8">{{ object.location_details.tax_id }}</dd>
+    
+                <dt class="col-sm-4">Geo ID</dt>
+                <dd class="col-sm-8">{{ object.location_details.geo_id }}</dd>
+                
+                {% if object.location_details.type_id %}
+                  <dt class="col-sm-4">Type ID</dt>
+                  <dd class="col-sm-8">{{ object.location_details.type_id }}</dd>
+                {% endif %}
+    
+                <dt class="col-sm-4">Date Established</dt>
+                {% if object.location_details.date_established %}
+                  <dd class="col-sm-8">{{ object.location_details.date_established|date:"Y-m-d"}}</dd>
+                {% else %}
+                  <dd class="col-sm-8">Unknown</dd>
+                {% endif %}
+                  {# add more fields as needed #}
+              </dl>
+            </div>
+          </div>
+    
+          <!-- lower two-column cards -->
+          <div class="row">
+            <!-- LEFT half -->
+            <div class="col-md-6">
+              <div class="card mb-4">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                  <span>Dedications</span>
+                </div>
+                <div class="card-body">
+                  <dt class="col-sm-4">First Dedication</dt>
+                  <dd class="col-sm-8">{{ object.location_details.date_firstDedication|date:"Y-m-d" }}
+                  <dt class="col-sm-4">Second Dedication</dt>
+                  <dd class="col-sm-8">{{ object.location_details.date_secondDedication|date:"Y-m-d" }}
+                </div>
+              </div>
+              <div class="card mb-4 border-0 rounded-4 shadow-sm">
+                <div class="card-header">Boundary</div>
+                <div class="card-body">
+                  <div class="d-flex mb-3">
+                    <img src="{% static 'images/profilePic.jpg' %}"
+                        class="rounded-circle me-3"
+                        width="40" height="40"
+                        alt="Feedback User">
+                  </div>
+                  <a href="#">View More</a>
+                </div>
+              </div>
+            </div>
+    
+            <!-- RIGHT half -->
+            <div class="col-md-6">
+              <div class="card mb-4">
+                <div class="card-header">Notes</div>
+                <div class="card-body">
+                  <small class="text-muted">
+                    {{ object.location_details.notes }}
+                  </small>
+                  <a href="#" class="d-block mt-2">Edit</a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div id="stat-info" class="detail-section d-none">
+
+        </div>
+      </main>
+    {% else %}
+      <main class="col-md-8 p-4 bg-light">
+        <!-- top cards -->
+        <div class="row mb-4">
+          <div class="col">
+            <div class="card mb-4 border-0 rounded-4 shadow-sm">
+              <div class="card-body d-flex align-items-center">
+                <i class="fas fa-map-marker-alt me-2"></i>
+                <div>
+                  <small class="text-muted">Location</small><br>
+                  <strong>Pastoral Center</strong>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col">
+            <div class="card mb-4 border-0 rounded-4 shadow-sm">
+              <div class="card-body d-flex align-items-center">
+                <i class="fas fa-user me-2"></i>
+                <div>
+                  <small class="text-muted">Manager</small><br>
+                  <strong>Scott Long</strong>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+  
+        <!-- job details -->
+        <div class="card mb-4">
+          <div class="card-body">
+            <h5 class="card-title">Job Details</h5>
+            <dl class="row">
+              <dt class="col-sm-4">Employee ID</dt>
+              <dd class="col-sm-8">Unknown</dd>
+  
+              <dt class="col-sm-4">Position</dt>
+              <dd class="col-sm-8">Technology Manager</dd>
+  
+              <dt class="col-sm-4">Business Title</dt>
+              <dd class="col-sm-8">Miracle Worker</dd>
+  
+              <dt class="col-sm-4">Job Profile</dt>
+              <dd class="col-sm-8">Unknown</dd>
+  
+              <dt class="col-sm-4">Employee Type</dt>
+              <dd class="col-sm-8">Excempt</dd>
+  
+              <dt class="col-sm-4">Management Level</dt>
+              <dd class="col-sm-8">Tier 2 Manager</dd>
+              {# add more fields as needed #}
+            </dl>
+          </div>
+        </div>
+  
+        <!-- lower two-column cards -->
+        <div class="row">
+          <!-- LEFT half -->
+          <div class="col-md-6">
+            <div class="card mb-4">
+              <div class="card-header d-flex justify-content-between align-items-center">
+                <span>Statements</span>
+                <a href="#">Add</a>
+              </div>
+              <div class="card-body">
+                {# statements content #}
+              </div>
+            </div>
+            <div class="card mb-4 border-0 rounded-4 shadow-sm">
+              <div class="card-header">Feedback</div>
+              <div class="card-body">
+                <div class="d-flex mb-3">
+                  <img src="{% static 'images/profilePic.jpg' %}"
+                      class="rounded-circle me-3"
+                      width="40" height="40"
+                      alt="Feedback User">
+                  <div>
+                    <strong>Kyle Greenberg</strong><br>
+                    <small class="text-muted">05/08/2025</small>
+                    <p class="mt-2 mb-0">
+                      This project is enjoyable to build but challenging at times.
+                    </p>
+                  </div>
+                </div>
+                <a href="#">View More</a>
+              </div>
+            </div>
+          </div>
+  
+          <!-- RIGHT half -->
+          <div class="col-md-6">
+            <div class="card mb-4">
+              <div class="card-header">Job History</div>
+              <div class="card-body">
+                <p class="mb-1"><a href="#">Technology Manager</a></p>
+                <small class="text-muted">
+                  Maintain and developt the technology use for the Diocese of Charlotte. 
+                  Both from the technical perspective and the via management of the level 3 staff members.
+                </small>
+                <a href="#" class="d-block mt-2">Edit</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+    {% endif %}
   </div>
+</div>
 {% endblock %}
 
 

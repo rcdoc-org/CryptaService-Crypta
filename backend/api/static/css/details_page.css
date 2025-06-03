@@ -98,3 +98,16 @@ html, body {
   border-top-left-radius: .8rem !important;
   border-top-right-radius: .8rem !important;
 }
+
+.indent {
+  text-indent: 1em;
+}
+
+.answer {
+  text-align: center;
+  vertical-align: middle;
+}
+
+dt {
+  font-weight: normal;
+}
