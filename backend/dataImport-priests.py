@@ -196,7 +196,7 @@ def import_priests(csv_file):
 
 if __name__ == "__main__":
     # Path to the CSV file
-    csv_file = '/Users/kbgreenberg/Documents/Github/CryptaApp/crypta/backend/api/Priests (11).csv'
+    csv_file = '/Users/kbgreenberg/Documents/Github/CryptaApp/crypta/backend/api/data/Priests (11).csv'
 
     # Run the import function
     import_priests(csv_file)
