@@ -114,12 +114,7 @@ def details_page(request, base, pk):
     assignments = obj.assignment_set.select_related(
         'lkp_location_id',
         'lkp_assignmentType_id'
-    ).all()
-
-    titles = obj.person_title_set.select_related(
-        'lkp_person_id',
-        'lkp_title_id'
-    ).all()
+    ).all()    
     
     if ctx_base == 'person':
         # get the person details
@@ -133,6 +128,22 @@ def details_page(request, base, pk):
         phones = obj.person_phone_set.all()
         primary_phone = phones.first().phoneNumber if phones.exists() and phones.first().is_primary else phones.first().phoneNumber if phones.exists() else None
         obj.primary_phone = primary_phone
+        
+        # titles
+        titles = obj.person_title_set.select_related(
+                                                    'lkp_person_id',
+                                                    'lkp_title_id'
+                                                    ).all()
+        
+        obj.titles = titles
+        
+        # status
+        status = obj.person_status_set.select_related(
+                                                    'lkp_person_id',
+                                                    'lkp_status_id'
+                                                    ).all()
+        
+        obj.statuses = status
         
         # primary email
         emails = obj.person_email_set.all()
@@ -154,7 +165,6 @@ def details_page(request, base, pk):
             obj.location_details = None
     
     obj.assignments = assignments
-    obj.titles = titles
 
     # Get the object details
     records, applied, filter_tree, columns, stats_info = get_filtered_data(
@@ -487,9 +497,6 @@ def get_filtered_data(base, raw_filters, raw_stats=None):
                 
                 # assignments:
                 "assignment_set",
-                
-                # titles:
-                "person_title_set"
                 
                 # Location Relationships
                 "churchDetail_mission",
