@@ -348,14 +348,14 @@ def get_filtered_data(base, raw_filters, raw_stats=None):
         
         # - Masses/Ministry - 
         "Mass Languages":          "Masses/Ministries",
-        "Campus Mass At Parish":   "Masses/Minitries",
-        "Served By":               "Masses/Minitries",
-        "Mass Schedule":           "Masses/Minitries",
-        "Hours":                   "Masses/Minitries",
-        "Facility Type":           "Masses/Minitries",
-        "Diocese":                 "Masses/Minitries",
-        "Parish Boundary":         "Masses/Minitries",
-        "Is Other Entity":         "Masses/Minitries",
+        "Campus Mass At Parish":   "Masses/Ministries",
+        "Served By":               "Masses/Ministries",
+        "Mass Schedule":           "Masses/Ministries",
+        "Hours":                   "Masses/Ministries",
+        "Facility Type":           "Masses/Ministries",
+        "Diocese":                 "Masses/Ministries",
+        "Parish Boundary":         "Masses/Ministries",
+        "Is Other Entity":         "Masses/Ministries",
         
         
         # - Staff -
@@ -401,6 +401,7 @@ def get_filtered_data(base, raw_filters, raw_stats=None):
         "% Hispanic":                   "Statistics",
         "% American-Indian":            "Statistics",
         "% Other":                      "Statistics",
+        "% Volunteers":                 "Statistics",
         "Estimate Census?":             "Statistics",
         "# Referrals to Catholic Charities":            "Statistics",
         "HomeSchool Program?":          "Statistics",
