@@ -458,7 +458,7 @@
                 // very first creation
                 table = new Tabulator("#data-grid", {
                     rowHeader: {frozen:true, },
-                    layout: "fitDataFill",
+                    layout: "fitData",
                     data: payload.grid.data,
                     columns: allCols,
                     placeholder: "No Data Available",

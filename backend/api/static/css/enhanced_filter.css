@@ -109,9 +109,9 @@ html, body {
   
   /* only the .row inside .filter-page */
 .filter-page > .row {
-  margin: 0;
   display: flex;
   flex: 1;
+  min-width: 0;
   }
   
   /* only the aside in our details page */
@@ -127,10 +127,18 @@ html, body {
 .filter-page main {
   flex: 1;
   height: 100%;
-  overflow: auto;
+  width: 100%;
+  overflow-y: auto;
+  overflow-x: hidden;
   padding: 1rem;
   background: #f8f9fa;
   }
+.filter-page main .card {
+  width: 100%;
+  box-sizing: border-box;
+  max-width: 100%;
+  overflow: hidden;
+}
 
 .filter-label {
   color:white !important;
@@ -145,15 +153,32 @@ html, body {
 }
 
 #resultslist {
-  align-items: flex-start;
-  overflow-x: auto;
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden;
 }
 
 #data-grid {
-  flex: 0 0 auto;
-  width: max-content;
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden;
+  overflow-y: hidden;
   border: white;
-  margin-left: 8px;
+  margin: 0;
+  /* margin-left: 8px; */
+}
+#data-grid .tabulator {
+  width: auto;
+  min-width: max-content !important;
+}
+#data-grid .tabulator-tableholder {
+  overflow-x: auto !important;
+  overflow-y: hidden;
+}
+#data-grid .tabulator-tableholder .tabulator-table {
+  display: inline-table;
 }
 #data-grid .tabulator-header {
   color: black;
