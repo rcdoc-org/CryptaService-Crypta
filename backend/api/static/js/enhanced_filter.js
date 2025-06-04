@@ -291,7 +291,9 @@
           if (!cb) return;
 
           const groupName = cb.dataset.display;
-          const optionLabel = cb.dataset.label;
+          let optionLabel = cb.dataset.label;
+
+          optionLabel = optionLabel.replace(/\\u002D/g, '-');
 
           // Build the badge
           const badge = document.createElement('span');
