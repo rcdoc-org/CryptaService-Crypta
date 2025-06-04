@@ -287,8 +287,12 @@ class Person(models.Model):
     def name(self):
         """ To keep names simplier and cleaner used a function parameter that can be called
         as a property by detailed classes later in models.py """
-        parts = [self.prefix, self.name_first, self.name_middle, self.name_last]
-        return " ".join([p for p in parts if p != 'nan'])
+        parts = [
+            self.prefix.title(), 
+            self.name_first.title(), 
+            self.name_middle.title(), 
+            self.name_last.title()]
+        return " ".join([p for p in parts if p and  p != 'Nan'])
 
 
     class Meta:
