@@ -453,6 +453,16 @@ def get_filtered_data(base, raw_filters, raw_stats=None):
     for rf in raw_filters:
         if ":" in rf:
             field, val = rf.split(":", 1)
+
+            # if date no in YYYY-mm-dd
+            if 'date' in field:
+                try:
+                    # parse strings like July 8,2025
+                    parsed_date = datetime.strptime(val, "%B %d, %Y").date().isoformat()
+                    val = parsed_date
+                except ValueError:
+                    pass
+                
             applied.setdefault(field, []).append(val)
 
     # 3) Apply each as __in filter
