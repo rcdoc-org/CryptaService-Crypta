@@ -40,8 +40,19 @@ def login_view(request):
     #         return redirect('home')
     #     return render(request, 'login.html', {'error': 'Invalid username or password'})
     # Demo Logins
+    User = get_user_model()
+
     if request.method == 'POST':
-        User = get_user_model()
+        # OAuth Style
+        oauth_provider = request.POST.get('oauth_provider')
+        if oauth_provider:
+            username = oauth_provider
+            demo_user, created = User.objects.get_or_create(username=username)
+            if created:
+                demo_user.set_unusable_password()
+                demo_user.save()
+            login(request, demo_user)
+            return redirect('api:home')
         username = request.POST.get('username')
         password = request.POST.get('password')
         demo_user, created = User.objects.get_or_create(username=username)

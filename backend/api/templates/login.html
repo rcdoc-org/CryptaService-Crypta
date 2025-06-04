@@ -14,6 +14,7 @@
 
   </head>
   <body>
+    {% load static %}
     <div class="login-card text-center rounded-4 shadow">
       <!-- Replace with your logo -->
       <img src="/static/images/logo.png" alt="Company Logo" class="login-logo">
@@ -29,6 +30,35 @@
           <input type="password" name="password" class="form-control" id="id_password" placeholder="Enter your password" required>
         </div>
         <button type="submit" class="btn btn-primary w-100 btn-login">Sign In</button>
+        <!-- OR divider -->
+        <div class="text-center my-3">—or sign in with—</div>
+
+        <!-- Fake OAuth buttons: each has name="oauth_provider" -->
+        <button
+          type="submit"
+          name="oauth_provider"
+          value="google"
+          class="btn btn-light w-100 mb-2 oauth-btn oauth-google"
+        >
+          <img
+              src="{% static 'images/google-logo.png' %}"
+              alt="Google Logo"
+              class="oauth-logo"
+            />
+        </button>
+
+        <button
+          type="submit"
+          name="oauth_provider"
+          value="microsoft"
+          class="btn btn-light w-100 oauth-btn oauth-microsoft"
+        >
+          <img
+              src="{% static 'images/microsoft-logo.png' %}"
+              alt="Microsoft Logo"
+              class="oauth-logo"
+            />
+        </button>
       </form>
       <small class="text-muted d-block mt-4">Need help? Contact <a href="mailto:helpdesk@rcdoc.org">helpdesk@rcdoc.org</a></small>
     </div>
