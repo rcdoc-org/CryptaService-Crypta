@@ -491,6 +491,9 @@
             // render stats for any visible
             renderStatsFilters(lastStatsInfo, currentStats);
 
+            // render the 'Statistics Summary' card (min / max / average)
+            renderStatsSummary(lastStatsInfo);
+
 
             // Result determining and updating of the header for results
             const rowCount = payload.grid.data.length;
@@ -498,6 +501,110 @@
             headerEl.textContent = `Results (${rowCount})`; 
         });
     }
+
+        /**
+         * renderStatsSummary:
+         *   - Uses lastStatsInfo (array of { field, display, type, min, max }).
+         *   - Filters to only numeric fields whose column is currently visible.
+         *   - Grabs table.getData(), computes median & mean (average) for each.
+         *   - Injects a Bootstrap card with columns: Metric | Min | Median | Average | Max.
+         *   - Clears #statsSummaryContainer if no numeric stats are visible.
+         */
+        function renderStatsSummary(statsInfo) {
+        const container = document.getElementById('statsSummaryContainer');
+        if (!statsInfo || !statsInfo.length) {
+            container.innerHTML = '';
+            return;
+        }
+
+        // 1) Filter to numeric stats that are currently visible
+        const visibleNumericStats = statsInfo.filter(s => {
+            if (s.type !== 'number') return false;
+            const col = table.getColumn(s.field);
+            return col && col.isVisible();
+        });
+
+        if (visibleNumericStats.length === 0) {
+            container.innerHTML = '';
+            return;
+        }
+
+        // 2) Grab all visible rows' data and compute mean & median for each field
+        const allRows = table.getData(); // array of row-objects
+
+        // Build array of { display, min, median, avg, max }
+        const summaries = visibleNumericStats.map(stat => {
+            const { field, display, min, max } = stat;
+
+            // Collect all non-null numeric values
+            const nums = allRows
+            .map(r => r[field])
+            .filter(v => v !== null && v !== undefined && v !== '')
+            .map(v => parseFloat(v))
+            .filter(n => !isNaN(n));
+
+            let avg = 0;
+            let median = 0;
+
+            if (nums.length) {
+            // Mean (average)
+            const sum = nums.reduce((a, b) => a + b, 0);
+            avg = (sum / nums.length).toFixed(2);
+
+            // Median
+            nums.sort((a, b) => a - b);
+            const mid = Math.floor(nums.length / 2);
+            if (nums.length % 2 === 0) {
+                median = ((nums[mid - 1] + nums[mid]) / 2).toFixed(2);
+            } else {
+                median = nums[mid].toFixed(2);
+            }
+            } else {
+            avg = '0.00';
+            median = '0.00';
+            }
+
+            return { display, min, median, avg, max };
+        });
+
+        // 3) Build the Bootstrap card HTML
+        const html = `
+            <div class="card border-0 rounded-4 shadow-sm">
+            <div class="card-header bg-light">
+                <strong>Statistics Summary</strong>
+            </div>
+            <div class="card-body p-3">
+                <div class="table-responsive">
+                <table class="table table-sm mb-0">
+                    <thead>
+                    <tr>
+                        <th>Metric</th>
+                        <th>Min</th>
+                        <th>Median</th>
+                        <th>Average</th>
+                        <th>Max</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    ${summaries.map(s => `
+                        <tr>
+                        <td>${s.display}</td>
+                        <td>${s.min}</td>
+                        <td>${s.median}</td>
+                        <td>${s.avg}</td>
+                        <td>${s.max}</td>
+                        </tr>
+                    `).join('')}
+                    </tbody>
+                </table>
+                </div>
+            </div>
+            </div>
+        `;
+
+        container.innerHTML = html;
+        }
+
 
     function showDetailModal(data) {
         const body = JSON.stringify(data, null, 2);
@@ -732,6 +839,7 @@
 
             // after showing/hiding columns, re-render stats for newly-visible ones
             renderStatsFilters(lastStatsInfo, currentStats);
+            renderStatsSummary(lastStatsInfo);
             // bootstrap modal hide
             const modalEl = document.getElementById('columnModal');
             bootstrap.Modal.getInstance(modalEl).hide();
