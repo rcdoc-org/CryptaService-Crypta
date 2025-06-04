@@ -104,7 +104,8 @@ html, body {
   height: calc(100vh - 56px); /* leave room for a sticky header */
   display: flex;
   padding: 0;
-  overflow: hidden;
+  overflow-x: hidden;
+  overflow-y: auto;
   }
   
   /* only the .row inside .filter-page */
