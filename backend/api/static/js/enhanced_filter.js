@@ -125,16 +125,6 @@
             )`;
     }
 
-    // function setToggleAccessible(toEl) {
-    //     // when at absolute minimum, bump its z-index
-    //     const toSlider = document.querySelector('#toSlider');
-    //     if (Number(currentTarget.value) <= 0 ) {
-    //         toSlider.style.zIndex = 2;
-    //     } else {
-    //         toSlider.style.zIndex = 0;
-    //     }
-    // }
-
     function renderStatsFilters(info, savedStats) {
         const ctr = document.getElementById('statsFilters');
         ctr.innerHTML = '';
