@@ -1,4 +1,8 @@
+from django import forms
 from django.contrib import admin
+from django.db import models
+from django_flatpickr.widgets import DatePickerInput, DateTimePickerInput
+from django_flatpickr.schemas import FlatpickrOptions
 from .models import (
     Address, DioceseOrder, EasternChurch, Language, LanguageProficiency,
     PhoneType, EmailType, RelationshipType, Status, SubjectMatter,
@@ -37,6 +41,29 @@ from .models import (
     FilterOption,
 )
 
+
+# ─────────────────────────────────────────────────────────────────────────────
+# 1) Base ModelAdmin that forces every DateField/DateTimeField to use flatpickr
+# ─────────────────────────────────────────────────────────────────────────────
+class FlatpickrModelAdmin(admin.ModelAdmin):
+    formfield_overrides = {
+        # All DateField → use DatePickerInput (date‐only) with our preferred options:
+        models.DateField: {
+            'widget': DatePickerInput(
+                options=FlatpickrOptions(
+                    allowInput=True,      # allow manual typing as well as calendar pick
+                )
+            )
+        },
+        # All DateTimeField → use DateTimePickerInput (date+time) with our options:
+        models.DateTimeField: {
+            'widget': DateTimePickerInput(
+                options=FlatpickrOptions(
+                    allowInput=True,
+                )
+            )
+        },
+    }
 
 # ─────────────────────────────────────────────────────────────────────────────
 # INLINE CLASSES FOR "PERSON" RELATED TABLES
@@ -149,7 +176,7 @@ class AssignmentInlineForPerson(admin.TabularInline):
 # ─────────────────────────────────────────────────────────────────────────────
 
 @admin.register(Person)
-class PersonAdmin(admin.ModelAdmin):
+class PersonAdmin(FlatpickrModelAdmin):
     list_display = ("name", "personType", "name_last", "name_first", "date_birth")
     search_fields = ("name_first", "name_last")
     list_filter = ("personType",)
@@ -337,7 +364,7 @@ class OctoberMassCountInline(admin.TabularInline):
 # ─────────────────────────────────────────────────────────────────────────────
 
 @admin.register(Location)
-class LocationAdmin(admin.ModelAdmin):
+class LocationAdmin(FlatpickrModelAdmin):
     list_display = ("name", "type", "lkp_county_id", "lkp_vicariate_id")
     search_fields = ("name",)
     list_filter = ("type",)
@@ -368,14 +395,14 @@ class LocationAdmin(admin.ModelAdmin):
 # ─────────────────────────────────────────────────────────────────────────────
 
 @admin.register(Address)
-class AddressAdmin(admin.ModelAdmin):
+class AddressAdmin(FlatpickrModelAdmin):
     list_display = ("friendlyName", "address1", "city", "state", "zip_code", "country")
     search_fields = ("friendlyName", "city", "state", "zip_code")
     ordering = ("friendlyName",)
 
 
 @admin.register(DioceseOrder)
-class DioceseOrderAdmin(admin.ModelAdmin):
+class DioceseOrderAdmin(FlatpickrModelAdmin):
     list_display = ("name", "is_order")
     search_fields = ("name",)
     list_filter = ("is_order",)
@@ -383,49 +410,49 @@ class DioceseOrderAdmin(admin.ModelAdmin):
 
 
 @admin.register(EasternChurch)
-class EasternChurchAdmin(admin.ModelAdmin):
+class EasternChurchAdmin(FlatpickrModelAdmin):
     list_display = ("name",)
     search_fields = ("name",)
     ordering = ("name",)
 
 
 @admin.register(Language)
-class LanguageAdmin(admin.ModelAdmin):
+class LanguageAdmin(FlatpickrModelAdmin):
     list_display = ("name",)
     search_fields = ("name",)
     ordering = ("name",)
 
 
 @admin.register(LanguageProficiency)
-class LanguageProficiencyAdmin(admin.ModelAdmin):
+class LanguageProficiencyAdmin(FlatpickrModelAdmin):
     list_display = ("name",)
     search_fields = ("name",)
     ordering = ("name",)
 
 
 @admin.register(PhoneType)
-class PhoneTypeAdmin(admin.ModelAdmin):
+class PhoneTypeAdmin(FlatpickrModelAdmin):
     list_display = ("name",)
     search_fields = ("name",)
     ordering = ("name",)
 
 
 @admin.register(EmailType)
-class EmailTypeAdmin(admin.ModelAdmin):
+class EmailTypeAdmin(FlatpickrModelAdmin):
     list_display = ("name",)
     search_fields = ("name",)
     ordering = ("name",)
 
 
 @admin.register(RelationshipType)
-class RelationshipTypeAdmin(admin.ModelAdmin):
+class RelationshipTypeAdmin(FlatpickrModelAdmin):
     list_display = ("name",)
     search_fields = ("name",)
     ordering = ("name",)
 
 
 @admin.register(Status)
-class StatusAdmin(admin.ModelAdmin):
+class StatusAdmin(FlatpickrModelAdmin):
     list_display = ("name", "type")
     search_fields = ("name", "type")
     list_filter = ("type",)
@@ -433,21 +460,21 @@ class StatusAdmin(admin.ModelAdmin):
 
 
 @admin.register(SubjectMatter)
-class SubjectMatterAdmin(admin.ModelAdmin):
+class SubjectMatterAdmin(FlatpickrModelAdmin):
     list_display = ("name",)
     search_fields = ("name",)
     ordering = ("name",)
 
 
 @admin.register(TypeOfDegree)
-class TypeOfDegreeAdmin(admin.ModelAdmin):
+class TypeOfDegreeAdmin(FlatpickrModelAdmin):
     list_display = ("name",)
     search_fields = ("name",)
     ordering = ("name",)
 
 
 @admin.register(DegreeCertificate)
-class DegreeCertificateAdmin(admin.ModelAdmin):
+class DegreeCertificateAdmin(FlatpickrModelAdmin):
     list_display = ("institute", "lkp_subjectMatter_id", "lkp_typeOfDegree_id")
     search_fields = ("institute",)
     list_filter = ("lkp_subjectMatter_id", "lkp_typeOfDegree_id")
@@ -455,21 +482,21 @@ class DegreeCertificateAdmin(admin.ModelAdmin):
 
 
 @admin.register(Vicariate)
-class VicariateAdmin(admin.ModelAdmin):
+class VicariateAdmin(FlatpickrModelAdmin):
     list_display = ("name", "lkp_vicarForane_id")
     search_fields = ("name",)
     ordering = ("name",)
 
 
 @admin.register(County)
-class CountyAdmin(admin.ModelAdmin):
+class CountyAdmin(FlatpickrModelAdmin):
     list_display = ("name",)
     search_fields = ("name",)
     ordering = ("name",)
 
 
 @admin.register(AssignmentType)
-class AssignmentTypeAdmin(admin.ModelAdmin):
+class AssignmentTypeAdmin(FlatpickrModelAdmin):
     list_display = ("title", "personType")
     search_fields = ("title",)
     list_filter = ("personType",)
@@ -477,7 +504,7 @@ class AssignmentTypeAdmin(admin.ModelAdmin):
 
 
 @admin.register(BuildingOnSite)
-class BuildingOnSiteAdmin(admin.ModelAdmin):
+class BuildingOnSiteAdmin(FlatpickrModelAdmin):
     list_display = ("name",)
     search_fields = ("name",)
     ordering = ("name",)
@@ -485,7 +512,7 @@ class BuildingOnSiteAdmin(admin.ModelAdmin):
 
 
 @admin.register(SocialOutreachProgram)
-class SocialOutreachProgramAdmin(admin.ModelAdmin):
+class SocialOutreachProgramAdmin(FlatpickrModelAdmin):
     list_display = ("name",)
     search_fields = ("name",)
     ordering = ("name",)
@@ -493,7 +520,7 @@ class SocialOutreachProgramAdmin(admin.ModelAdmin):
 
 
 @admin.register(FilterOption)
-class FilterOptionAdmin(admin.ModelAdmin):
+class FilterOptionAdmin(FlatpickrModelAdmin):
     list_display = ("name", "parent")
     search_fields = ("name",)
     ordering = ("name",)
