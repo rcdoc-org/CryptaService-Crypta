@@ -28,6 +28,7 @@ DYNAMIC_FILTER_FIELDS = {
         'assignment__lkp_assignmentType_id__title',   # Assignment type title
         'assignment__lkp_location_id__name',          # Location name from assignments
         'assignment__lkp_location_id__lkp_vicariate_id__name', # Vicariate Assignment
+        'assignment__date_assigned',                    # Date Assigned
 
         # Reverse rel’n from Person_Status
         'person_status__lkp_status_id__name',         # Status name
