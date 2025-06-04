@@ -1053,10 +1053,11 @@ def send_email(request):
                   smtp_pass=settings.EMAIL_HOST_PASSWORD)
 
         # 6. Clean up temp file
-        try:
-            os.remove(attachment_path)
-        except OSError:
-            pass
+        if attachment_path:
+            try:
+                os.remove(attachment_path)
+            except OSError:
+                pass
 
         return redirect('api:enhanced_filter')
 
