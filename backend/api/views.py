@@ -303,6 +303,7 @@ def get_filtered_data(base, raw_filters, raw_stats=None):
         "Is Priest?":         "Standing in Diocese",
         "Is Deacon?":         "Standing in Diocese",
         "Is Lay?":            "Standing in Diocese",
+        'Ecclesiastical Offices': "Standing in Diocese",
         
         
         # - Degrees/Skills/Lang -

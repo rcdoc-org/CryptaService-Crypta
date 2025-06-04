@@ -221,6 +221,24 @@
   document.addEventListener("DOMContentLoaded", function() {
     const trigger = document.getElementById("menuTrigger");
     const menu    = document.getElementById("menuNav");
+    const alertsToggle = document.getElementById('alertsDropdown');
+    if (!alertsToggle) return;
+
+    // ① On every page load, immediately hide the badge if the user already dismissed it:
+    if (sessionStorage.getItem("alertDismissed") === "true") {
+      const existingBadge = alertsToggle.querySelector(".bell-badge");
+      if (existingBadge) existingBadge.style.display = "none";
+      return; // no need to re‐attach click handler
+    }
+
+    // ② Otherwise (first time this session), attach a click handler:
+    alertsToggle.addEventListener('click', function() {
+      const badge = this.querySelector(".bell-badge");
+      if (badge) {
+        badge.style.display = "none";
+        sessionStorage.setItem("alertDismissed", "true");
+      }
+    });
 
     trigger.addEventListener("click", () => {
       menu.classList.toggle("active");
