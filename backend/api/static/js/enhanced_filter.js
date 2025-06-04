@@ -35,11 +35,13 @@
         // number ranges
         document.querySelectorAll('.stats-range').forEach(r => {
             const f = r.dataset.field;
+            const originalMin = Number(r.dataset.min);
+            const originalMax = Number(r.dataset.max);
             const minIn = document.getElementById(`stat_min_${f}`);
             const maxIn = document.getElementById(`stat_max_${f}`);
 
             // Only send if the user has changed value
-            if (+minIn.value > +r.min || +maxIn.value < +r.max) {
+            if (Number(minIn.value) > originalMin || Number(maxIn.value) < originalMax) {
                 stats[`${f}_min`] = minIn.value;
                 stats[`${f}_max`] = maxIn.value;
             }
@@ -66,7 +68,6 @@
     function controlToInput(toSlider, fromInput, toInput, controlSlider) {
         const [from, to] = getParsed(fromInput, toInput);
         fillSlider(fromInput, toInput, '#C6C6C6', '#25daa5', controlSlider);
-        setToggleAccessible(toInput);
         if (from <= to) {
             toSlider.value = to;
             toInput.value = to;
@@ -89,7 +90,6 @@
     function controlToSlider(fromSlider, toSlider, toInput) {
         const [from, to] = getParsed(fromSlider, toSlider);
         fillSlider(fromSlider, toSlider, '#C6C6C6', '#25daa5', toSlider);
-        setToggleAccessible(toSlider);
         if (from <= to) {
             toSlider.value = to;
             toInput.value = to;
@@ -125,15 +125,15 @@
             )`;
     }
 
-    function setToggleAccessible(toEl) {
-        // when at absolute minimum, bump its z-index
-        const toSlider = document.querySelector('#toSlider');
-        if (Number(currentTarget.value) <= 0 ) {
-            toSlider.style.zIndex = 2;
-        } else {
-            toSlider.style.zIndex = 0;
-        }
-    }
+    // function setToggleAccessible(toEl) {
+    //     // when at absolute minimum, bump its z-index
+    //     const toSlider = document.querySelector('#toSlider');
+    //     if (Number(currentTarget.value) <= 0 ) {
+    //         toSlider.style.zIndex = 2;
+    //     } else {
+    //         toSlider.style.zIndex = 0;
+    //     }
+    // }
 
     function renderStatsFilters(info, savedStats) {
         const ctr = document.getElementById('statsFilters');
@@ -180,6 +180,7 @@
                     div.appendChild(rd);
                     inp.checked = (savedStats[field] || 'all') === val
                     ctr.appendChild(div)
+                    inp.addEventListener('change', updateView);
                 });
             } else { // number
                 const currentMin = savedStats[`${field}_min`] ?? min;
@@ -187,12 +188,15 @@
 
                 // 1) container
                 const statDiv = document.createElement('div');
-                statDiv.className = 'mb-3';
+                statDiv.className = 'stats-range mb-3';
+                statDiv.dataset.field = field;
+                statDiv.dataset.min = min;
+                statDiv.dataset.max = max;
 
                 // 2) label
                 const lbl = document.createElement('label');
                 lbl.textContent = `${display}:`;
-                lbl.className = "mb-2"
+                lbl.className = "mb-2";
                 statDiv.appendChild(lbl);
 
                 const rangeContainer = document.createElement('div');
@@ -207,6 +211,7 @@
                 fromSliderEl.min = min;
                 fromSliderEl.max = max;
                 fromSliderEl.value = currentMin;
+                fromSliderEl.classList.add('range-from');
 
                 const toSliderEl = document.createElement('input');
                 toSliderEl.type= 'range'
@@ -214,10 +219,9 @@
                 toSliderEl.min = min;
                 toSliderEl.max = max;
                 toSliderEl.value = currentMax;
+                toSliderEl.classList.add('range-to');
 
                 slidersControl.append(fromSliderEl, toSliderEl);
-                fromSliderEl.classList.add('range-from');
-                toSliderEl.classList.add('range-to');
 
                 const formControl = document.createElement('div');
                 formControl.className = 'form_control';
@@ -225,7 +229,7 @@
                 const minBox = document.createElement('input');
                 minBox.type = 'number';
                 minBox.className = 'stats-val-box';
-                minBox.id = `fromInput_${field}`;
+                minBox.id = `stat_min_${field}`;
                 minBox.value = currentMin;
                 minBox.min = min;
                 minBox.max = max;
@@ -233,7 +237,7 @@
                 const maxBox = document.createElement('input');
                 maxBox.type = 'number';
                 maxBox.className = 'stats-val-box';
-                maxBox.id = `toInput_${field}`;
+                maxBox.id = `stat_max_${field}`;
                 maxBox.value = currentMax;
                 maxBox.min = min;
                 maxBox.max = max;
@@ -242,18 +246,22 @@
 
                 rangeContainer.append(slidersControl, formControl);
                 statDiv.appendChild(rangeContainer);
-                ctr.appendChild(statDiv)
+                ctr.appendChild(statDiv);
 
                 // initial paint + stacking
                 fillSlider(fromSliderEl, toSliderEl, '#C6C6C6', '#4a5568');
-                setToggleAccessible(toSliderEl);
 
                 // enforce min ≤ max and sync inputs
                 fromSliderEl.oninput = () => controlFromSlider(fromSliderEl, toSliderEl, minBox);
                 toSliderEl.oninput = () => controlToSlider(fromSliderEl, toSliderEl, maxBox);
-                // mirror changes from number inputs
                 minBox.oninput = () => controlFromInput(fromSliderEl, minBox, maxBox, toSliderEl);
                 maxBox.oninput = () => controlToInput(toSliderEl, minBox, maxBox, toSliderEl);    
+
+                fromSliderEl.addEventListener('change', () => updateView());
+                toSliderEl.addEventListener('change', () => updateView());
+                minBox.addEventListener('change', () => updateView());
+                maxBox.addEventListener('change', () => updateView());
+                
             }
         });
     }
