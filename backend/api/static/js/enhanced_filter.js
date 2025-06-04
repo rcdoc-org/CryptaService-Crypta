@@ -162,9 +162,12 @@
                 const breakline = document.createElement('br');
                 div.appendChild(title_lbl);
                 div.appendChild(breakline);
+
+                // Create three radio buttons inside a single div
                 ['true', 'false', 'all'].forEach(val => {
                     const rd = document.createElement('div');
                     rd.className = 'form-check form-check-inline';
+
                     const inp = document.createElement('input');
                     inp.className = 'form-check-input stats-boolean';
                     inp.type = 'radio';
@@ -172,13 +175,16 @@
                     inp.dataset.field = field;
                     inp.value = val;
                     
-                    if (val === 'all') inp.checked = true;
+                    // if (val === 'all') inp.checked = true;
                     const lbl = document.createElement('label');
                     lbl.className = 'form-check-label';
                     lbl.textContent = val.charAt(0).toUpperCase() + val.slice(1);
+
+                    // restore checked state based on saved stats
+                    inp.checked = (savedStats[field] || 'all') === val;
+
                     rd.append(inp, lbl);
                     div.appendChild(rd);
-                    inp.checked = (savedStats[field] || 'all') === val
                     ctr.appendChild(div)
                     inp.addEventListener('change', updateView);
                 });
