@@ -226,7 +226,7 @@ def get_filtered_data(base, raw_filters, raw_stats=None):
         "# Sisters":  'statusAnimarum_church__fullTime_sisters',
         "# Lay":  'statusAnimarum_church__fullTime_other',
         "# Staff":  'statusAnimarum_church__partTime_staff',
-        "% Volunteers":  'statusAnimarum_church__percent_volunteers',
+        "% Volunteers":  'statusAnimarum_church__volunteers',
         "Registered Households":  'statusAnimarum_church__registeredHouseholds',
         "Max Mass Size":  'statusAnimarum_church__maxMass',
         "Seating Capacity":  'statusAnimarum_church__seatingCapacity',
@@ -559,7 +559,7 @@ def get_filtered_data(base, raw_filters, raw_stats=None):
             )
 
     # Apply raw_stats filters
-    if raw_stats:
+    if raw_stats and base == 'location':
         # collect all numeric bounds by field
         ranges = {}
         for key, val in raw_stats.items():
