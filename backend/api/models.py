@@ -4,9 +4,10 @@ It's also used for validating data in the columns and managing constraints. """
 from django.db import models
 from django.core.validators import ( 
                                     RegexValidator, 
-                                    MinLengthValidator, 
+                                    MinValueValidator, 
+                                    MaxValueValidator,
+                                    MinLengthValidator,
                                     MaxLengthValidator,
-                                    MinValueValidator
 )
 
 class Status(models.Model):
@@ -110,10 +111,10 @@ class DegreeCertificate(models.Model):
     institute = models.CharField(max_length=255, null=False)
     lkp_subjectMatter_id = models.ForeignKey(SubjectMatter,
                                         on_delete=models.CASCADE,
-                                        null=True)
+                                        null=True, blank=True,)
     lkp_typeOfDegree_id = models.ForeignKey(TypeOfDegree,
                                         on_delete=models.CASCADE,
-                                        null=True)
+                                        null=True, blank=True,)
 
     class Meta:
         ordering = ['institute']
@@ -175,7 +176,7 @@ class Address(models.Model):
     follow normalization rules and avoid duplicate data."""
     friendlyName = models.CharField(max_length=255, null=False)
     address1 = models.CharField(max_length=191, null=False)
-    address2 = models.CharField(max_length=255, null=True)
+    address2 = models.CharField(max_length=255, null=True, blank=True,)
     city = models.CharField(max_length=100, null=False)
     state = models.CharField(max_length=150, null=False)
     zip_code = models.CharField(max_length=10, null=False)
@@ -258,28 +259,28 @@ class Person(models.Model):
     ]
 
     personType = models.CharField(max_length=255, choices=choice_personType, null=False)
-    prefix = models.CharField(max_length=255, choices=choice_prefix, null=True)
-    residencyType = models.CharField(max_length=255, choices=choice_residencyType, null=True)
-    activeOutsideDOC = models.CharField(max_length=255, choices=choice_activeOutsideDOC, null=True)
-    legalStatus = models.CharField(max_length=255, choices=choice_legalStatus, null=True)
+    prefix = models.CharField(max_length=255, choices=choice_prefix, null=True, blank=True,)
+    residencyType = models.CharField(max_length=255, choices=choice_residencyType, null=True, blank=True,)
+    activeOutsideDOC = models.CharField(max_length=255, choices=choice_activeOutsideDOC, null=True, blank=True,)
+    legalStatus = models.CharField(max_length=255, choices=choice_legalStatus, null=True, blank=True,)
     name_first = models.CharField(max_length=255, null=False)
-    name_middle = models.CharField(max_length=255, null=True)
+    name_middle = models.CharField(max_length=255, null=True, blank=True,)
     name_last = models.CharField(max_length=255, null=False)
-    suffix = models.CharField(max_length=255, null=True)
+    suffix = models.CharField(max_length=255, null=True, blank=True,)
     photo = models.ImageField(upload_to='photos/', blank=True, null=True)
-    date_birth = models.DateField(null=True)
-    date_retired = models.DateField(null=True)
-    date_deceased = models.DateField(null=True)
-    date_baptism = models.DateField(null=True)
-    is_safeEnvironmentTraining = models.BooleanField(null=True)
+    date_birth = models.DateField(null=True, blank=True,)
+    date_retired = models.DateField(null=True, blank=True,)
+    date_deceased = models.DateField(null=True, blank=True,)
+    date_baptism = models.DateField(null=True, blank=True,)
+    is_safeEnvironmentTraining = models.BooleanField(null=True, blank=True,)
     is_paidEmployee = models.BooleanField(null=False, default=True)
     lkp_residence_id = models.ForeignKey(Address,
                                         on_delete=models.CASCADE,
-                                        null=True,
+                                        null=True, blank=True,
                                         related_name='person_residence')
     lkp_mailing_id = models.ForeignKey(Address,
                                         on_delete=models.CASCADE,
-                                        null=True,
+                                        null=True, blank=True,
                                         related_name='person_mailing')
 
     @property
@@ -313,8 +314,8 @@ class Person_FacultiesGrant(models.Model):
                                         null=False,
                                         )
     date_granted = models.DateField(null=False)
-    date_modified = models.DateField(null=True)
-    date_removed = models.DateField(null=True)
+    date_modified = models.DateField(null=True, blank=True,)
+    date_removed = models.DateField(null=True, blank=True,)
 
     class Meta:
         ordering = ['lkp_person_id__name_last']
@@ -361,8 +362,8 @@ class Person_DegreeCertificate(models.Model):
     lkp_degreeCertificate_id = models.ForeignKey(DegreeCertificate,
                                         on_delete=models.CASCADE,
                                         null=False)
-    date_acquired = models.DateField(null=True)
-    date_expiration = models.DateField(null=True)
+    date_acquired = models.DateField(null=True, blank=True,)
+    date_expiration = models.DateField(null=True, blank=True,)
 
     class Meta:
         ordering = ['lkp_person_id__name_last']
@@ -473,8 +474,8 @@ class Person_Status(models.Model):
                                         on_delete=models.CASCADE,
                                         null=False)
     date_assigned = models.DateField(null=False)
-    date_released = models.DateField(null=True)
-    details = models.TextField(null=True)
+    date_released = models.DateField(null=True, blank=True,)
+    details = models.TextField(null=True, blank=True,)
 
     class Meta:
         ordering = ['lkp_person_id__name_last']
@@ -491,10 +492,10 @@ class Vicariate(models.Model):
     It also ties maps to each vicariate. For the demo it stores it locally on the 
     demo machine but will use a long term storage in production."""
     name = models.CharField(max_length=255, null=False)
-    map = models.FileField(upload_to='../media/maps/', null=True)
+    map = models.FileField(upload_to='../media/maps/', null=True, blank=True,)
     lkp_vicarForane_id = models.ForeignKey(Person,
                                         on_delete=models.CASCADE,
-                                        null=True,
+                                        null=True, blank=True,
                                         )
 
     class Meta:
@@ -512,11 +513,11 @@ class Person_Title(models.Model):
                                     on_delete=models.CASCADE,
                                     null=False)
     date_assigned = models.DateField(null=False)
-    date_expiration = models.DateField(null=True)
+    date_expiration = models.DateField(null=True, blank=True,)
     # Only used for special titles
     lkp_vicariate_id = models.ForeignKey(Vicariate,
                                         on_delete=models.CASCADE,
-                                        null=True)
+                                        null=True, blank=True,)
 
     class Meta:
         ordering = ['lkp_person_id__name_last']
@@ -549,23 +550,23 @@ class Location(models.Model):
 
     name = models.CharField(max_length=255, null=False)
     type = models.CharField(max_length=255, choices=choice_type, null=False)
-    latitude = models.DecimalField(max_digits=9, decimal_places=6, null=True)
-    longitude = models.DecimalField(max_digits=9, decimal_places=6, null=True)
-    website = models.URLField(max_length=255, null=True)
+    latitude = models.DecimalField(max_digits=9, decimal_places=6, null=True, blank=True,)
+    longitude = models.DecimalField(max_digits=9, decimal_places=6, null=True, blank=True,)
+    website = models.URLField(max_length=255, null=True, blank=True,)
     lkp_physicalAddress_id = models.ForeignKey(Address,
                                                on_delete=models.CASCADE,
-                                               null=True,
+                                               null=True, blank=True,
                                                related_name='location_physicalAddress')
     lkp_mailingAddress_id = models.ForeignKey(Address,
                                                on_delete=models.CASCADE,
-                                               null=True,
+                                               null=True, blank=True,
                                                related_name='location_mailingAddress')
     lkp_vicariate_id = models.ForeignKey(Vicariate,
                                         on_delete=models.CASCADE,
-                                        null=True)
+                                        null=True, blank=True,)
     lkp_county_id = models.ForeignKey(County,
                                         on_delete=models.CASCADE,
-                                        null=True)
+                                        null=True, blank=True,)
 
     class Meta:
         ordering = ['name']
@@ -582,8 +583,8 @@ class Location_Status(models.Model):
                                         on_delete=models.CASCADE,
                                         null=False)
     date_assigned = models.DateField(null=False)
-    date_released = models.DateField(null=True)
-    details = models.TextField(null=True)
+    date_released = models.DateField(null=True, blank=True,)
+    details = models.TextField(null=True, blank=True,)
 
     class Meta:
         ordering = ['lkp_location_id__name']
@@ -695,71 +696,71 @@ class Priest_Detail(models.Model):
                                     null=False)
     lkp_dioceseOrder_id = models.ForeignKey(DioceseOrder,
                                         on_delete=models.CASCADE,
-                                        null=True,
+                                        null=True, blank=True,
                                         related_name='priest_dioceseOrder')
     lkp_residenceDiocese_id = models.ForeignKey(DioceseOrder,
                                         on_delete=models.CASCADE,
-                                        null=True,
+                                        null=True, blank=True,
                                         related_name='priest_residenceDiocese')
     lkp_dioceseOrderOrdination_id = models.ForeignKey(DioceseOrder,
                                         on_delete=models.CASCADE,
-                                        null=True,
+                                        null=True, blank=True,
                                         related_name='priest_dioceseOrderOrdination')
     lkp_dioceseOrderIncardination_id = models.ForeignKey(DioceseOrder,
                                         on_delete=models.CASCADE,
-                                        null=True,
+                                        null=True, blank=True,
                                         related_name='priest_dioceseOrderIncardination')
     lkp_easternChurch_id = models.ForeignKey(EasternChurch,
                                                 on_delete=models.CASCADE,
-                                                null=True)
+                                                null=True, blank=True,)
     lkp_placeOfBaptism_id = models.ForeignKey(Location,
                                         on_delete=models.CASCADE,
-                                        null=True)
-    religiousInstituteType = models.CharField(max_length=255, choices=choice_religiousInstituteType, null=True)
-    religiousOrderProvince = models.CharField(max_length=255, choices=choice_religiousOrderProvince, null=True)
-    officialCatholicDirectoryStatus = models.CharField(max_length=255, choices=choice_officialCatholicDirectoryStatus, null=True)
-    religiousSuffix = models.CharField(max_length=255, choices=choice_religiousSuffix, null=True)
-    diocesanSuffix = models.CharField(max_length=255, choices=choice_religiousSuffix, null=True)
-    incardinationHistory = models.TextField(null=True)
-    diocesanReligious = models.CharField(max_length=255, choices=choice_diocesanReligious, null=True)
-    is_shareCellPhone = models.BooleanField(null=True)
-    is_easternCatholicChurchMember = models.BooleanField(null=True)
-    is_massEnglish = models.BooleanField(null=True)
-    is_massSpanish = models.BooleanField(null=True)
-    is_sacramentsEnglish = models.BooleanField(null=True)
-    is_sacramentsSpanish = models.BooleanField(null=True)
-    is_incardinationRequested = models.BooleanField(null=True)
-    is_incardinationAccepted = models.BooleanField(null=True)
-    is_facultiesGranted = models.BooleanField(null=True)
-    is_externPriestDurationRenewable = models.BooleanField(null=True)
-    is_approvedLetterOfGoodStanding = models.BooleanField(null=True)
-    is_includeOfficialCatholicDirectory = models.BooleanField(null=True)
-    is_optedOut_ss_medicare = models.BooleanField(null=True)
-    is_legalWillComplete = models.BooleanField(null=True)
-    is_legalWillChanceryFile = models.BooleanField(null=True)
-    is_powerAttorney = models.BooleanField(null=True)
-    is_powerAttorneyChanceryFile = models.BooleanField(null=True)
-    is_backgroundComplete = models.BooleanField(null=True)
-    date_ordination = models.DateField(null=True)
-    date_transitionalDiaconateOrdination = models.DateField(null=True)
-    date_priestOrdination = models.DateField(null=True)
-    date_episcopalOrdination = models.DateField(null=True)
-    date_incardination = models.DateField(null=True)
-    date_incardinationRequested = models.DateField(null=True)
-    date_facultiesRequested = models.DateField(null=True)
-    date_facultiesGranted = models.DateField(null=True)
-    date_externPriestAssignmentStart = models.DateField(null=True)
-    date_externPriestAssignmentEnd = models.DateField(null=True)
-    date_onboard = models.DateField(null=True)
-    date_baptism = models.DateField(null=True)
-    externPriestExpectedDurationMonths = models.IntegerField(null=True)
-    priestCode = models.IntegerField(null=True)
-    misconduct = models.TextField(null=True)
-    birth_city = models.CharField(max_length=255, null=True)
-    birth_state = models.CharField(max_length=255, null=True)
-    birth_country = models.CharField(max_length=255, null=True)
-    notes = models.TextField(null=True)
-    otherSkillsCompentencies = models.TextField(null=True)
+                                        null=True, blank=True,)
+    religiousInstituteType = models.CharField(max_length=255, choices=choice_religiousInstituteType, null=True, blank=True,)
+    religiousOrderProvince = models.CharField(max_length=255, choices=choice_religiousOrderProvince, null=True, blank=True,)
+    officialCatholicDirectoryStatus = models.CharField(max_length=255, choices=choice_officialCatholicDirectoryStatus, null=True, blank=True,)
+    religiousSuffix = models.CharField(max_length=255, choices=choice_religiousSuffix, null=True, blank=True,)
+    diocesanSuffix = models.CharField(max_length=255, choices=choice_religiousSuffix, null=True, blank=True,)
+    incardinationHistory = models.TextField(null=True, blank=True,)
+    diocesanReligious = models.CharField(max_length=255, choices=choice_diocesanReligious, null=True, blank=True,)
+    is_shareCellPhone = models.BooleanField(null=True, blank=True,)
+    is_easternCatholicChurchMember = models.BooleanField(null=True, blank=True,)
+    is_massEnglish = models.BooleanField(null=True, blank=True,)
+    is_massSpanish = models.BooleanField(null=True, blank=True,)
+    is_sacramentsEnglish = models.BooleanField(null=True, blank=True,)
+    is_sacramentsSpanish = models.BooleanField(null=True, blank=True,)
+    is_incardinationRequested = models.BooleanField(null=True, blank=True,)
+    is_incardinationAccepted = models.BooleanField(null=True, blank=True,)
+    is_facultiesGranted = models.BooleanField(null=True, blank=True,)
+    is_externPriestDurationRenewable = models.BooleanField(null=True, blank=True,)
+    is_approvedLetterOfGoodStanding = models.BooleanField(null=True, blank=True,)
+    is_includeOfficialCatholicDirectory = models.BooleanField(null=True, blank=True,)
+    is_optedOut_ss_medicare = models.BooleanField(null=True, blank=True,)
+    is_legalWillComplete = models.BooleanField(null=True, blank=True,)
+    is_legalWillChanceryFile = models.BooleanField(null=True, blank=True,)
+    is_powerAttorney = models.BooleanField(null=True, blank=True,)
+    is_powerAttorneyChanceryFile = models.BooleanField(null=True, blank=True,)
+    is_backgroundComplete = models.BooleanField(null=True, blank=True,)
+    date_ordination = models.DateField(null=True, blank=True,)
+    date_transitionalDiaconateOrdination = models.DateField(null=True, blank=True,)
+    date_priestOrdination = models.DateField(null=True, blank=True,)
+    date_episcopalOrdination = models.DateField(null=True, blank=True,)
+    date_incardination = models.DateField(null=True, blank=True,)
+    date_incardinationRequested = models.DateField(null=True, blank=True,)
+    date_facultiesRequested = models.DateField(null=True, blank=True,)
+    date_facultiesGranted = models.DateField(null=True, blank=True,)
+    date_externPriestAssignmentStart = models.DateField(null=True, blank=True,)
+    date_externPriestAssignmentEnd = models.DateField(null=True, blank=True,)
+    date_onboard = models.DateField(null=True, blank=True,)
+    date_baptism = models.DateField(null=True, blank=True,)
+    externPriestExpectedDurationMonths = models.IntegerField(null=True, blank=True,)
+    priestCode = models.IntegerField(null=True, blank=True,)
+    misconduct = models.TextField(null=True, blank=True,)
+    birth_city = models.CharField(max_length=255, null=True, blank=True,)
+    birth_state = models.CharField(max_length=255, null=True, blank=True,)
+    birth_country = models.CharField(max_length=255, null=True, blank=True,)
+    notes = models.TextField(null=True, blank=True,)
+    otherSkillsCompentencies = models.TextField(null=True, blank=True,)
 
     class Meta:
         ordering = ['lkp_person_id__name_last']
@@ -775,21 +776,21 @@ class Church_Detail(models.Model):
                                     related_name='churchDetail_location')
     lkp_missionOf_id = models.ForeignKey(Location,
                                       on_delete=models.CASCADE,
-                                      null=True,
+                                      null=True, blank=True,
                                       related_name='churchDetail_mission')
     parishUniqueName = models.CharField(max_length=255, null=False)
-    boundary = models.FileField(upload_to='../media/boundaries/', null=True)
+    boundary = models.FileField(upload_to='../media/boundaries/', null=True, blank=True,)
     is_mission = models.BooleanField(null=False)
     is_doc = models.BooleanField(null=False)
-    tax_id = models.CharField(max_length=255, null=True)
-    cityServed = models.CharField(max_length=255, null=True)
-    geo_id = models.BigIntegerField(null=True)
+    tax_id = models.CharField(max_length=255, null=True, blank=True,)
+    cityServed = models.CharField(max_length=255, null=True, blank=True,)
+    geo_id = models.BigIntegerField(null=True, blank=True,)
     parish_id = models.BigIntegerField(null=False)
-    type_id = models.BigIntegerField(null=True)
-    date_established = models.DateField(null=True)
-    date_firstDedication = models.DateField(null=True)
-    date_secondDedication = models.DateField(null=True)
-    notes = models.TextField(null=True)
+    type_id = models.BigIntegerField(null=True, blank=True,)
+    date_established = models.DateField(null=True, blank=True,)
+    date_firstDedication = models.DateField(null=True, blank=True,)
+    date_secondDedication = models.DateField(null=True, blank=True,)
+    notes = models.TextField(null=True, blank=True,)
 
     class Meta:
         ordering = ['lkp_location_id__name']
@@ -822,11 +823,11 @@ class CampusMinistry_Detail(models.Model):
     is_massAtParish = models.BooleanField(null=False)
     lkp_church_id = models.ForeignKey(Location,
                                     on_delete=models.CASCADE,
-                                    null=True,
+                                    null=True, blank=True,
                                     related_name='campusMinistry_church')
-    universityServed = models.CharField(max_length=255, null=True)
-    sundayMassSchedule = models.TextField(null=True)
-    campusMinistryHours = models.TextField(null=True)
+    universityServed = models.CharField(max_length=255, null=True, blank=True,)
+    sundayMassSchedule = models.TextField(null=True, blank=True,)
+    campusMinistryHours = models.TextField(null=True, blank=True,)
 
     class Meta:
         ordering = ['lkp_location_id__name']
@@ -853,7 +854,7 @@ class Hospital_Detail(models.Model):
     diocese = models.CharField(max_length=255, choices=choice_diocese, null=False)
     lkp_parishBoundary_id = models.ForeignKey(Location,
                                     on_delete=models.CASCADE,
-                                    null=True,
+                                    null=True, blank=True,
                                     related_name='hospital_boundary')
 
     class Meta:
@@ -931,67 +932,67 @@ class SchoolDetail(models.Model):
     gradeLevels = models.CharField(max_length=255, choices=choices_gradeLevels, null=False)
     lkp_affiliatedParishParish_id = models.ForeignKey(Location,
                                     on_delete=models.CASCADE,
-                                    null=True,
+                                    null=True, blank=True,
                                     related_name='school_affiliatedParish')
     lkp_parishProperty_id = models.ForeignKey(Location,
                                     on_delete=models.CASCADE,
-                                    null=True,
+                                    null=True, blank=True,
                                     related_name='school_parishProperty')
     lkp_president_id = models.ForeignKey(Person,
                                     on_delete=models.CASCADE,
-                                    null=True,
+                                    null=True, blank=True,
                                     related_name='school_president') 
     lkp_principal_id = models.ForeignKey(Person,
                                     on_delete=models.CASCADE,
-                                    null=True,
+                                    null=True, blank=True,
                                     related_name='school_principal')
     lkp_vicePrincipal_id = models.ForeignKey(Person,
                                     on_delete=models.CASCADE,
-                                    null=True,
+                                    null=True, blank=True,
                                     related_name='school_vicePrincipal')
     lkp_campusMinister_id = models.ForeignKey(Person,
                                     on_delete=models.CASCADE,
-                                    null=True,
+                                    null=True, blank=True,
                                     related_name='school_campusMinister')
     lkp_assistantPrincipal1_id = models.ForeignKey(Person,
                                     on_delete=models.CASCADE,
-                                    null=True,
+                                    null=True, blank=True,
                                     related_name='school_assistantPrincipal1')
     lkp_assistantPrincipal2_id = models.ForeignKey(Person,
                                     on_delete=models.CASCADE,
-                                    null=True,
+                                    null=True, blank=True,
                                     related_name='school_assistantPrincipal2')
     lkp_assistantPrinciapl3_id = models.ForeignKey(Person,
                                     on_delete=models.CASCADE,
-                                    null=True,
+                                    null=True, blank=True,
                                     related_name='school_assistantPrincipal3')
     lkp_deanOfStudents1_id = models.ForeignKey(Person,
                                     on_delete=models.CASCADE,
-                                    null=True,
+                                    null=True, blank=True,
                                     related_name='school_deanOfStudents1')
     lkp_deanOfStudents2_id = models.ForeignKey(Person,
                                     on_delete=models.CASCADE,
-                                    null=True,
+                                    null=True, blank=True,
                                     related_name='school_deanOfStudents2')
     locationType = models.CharField(max_length=255, choices=choices_locationType, null=False)
     sponsorship = models.CharField(max_length=255, choices=choices_sponsorship, null=False)
     schoolGender = models.CharField(max_length=255, choices=choice_schoolGender, null=False)
     is_MACS = models.BooleanField(null=False)
-    highSchoolReligiousEd = models.BigIntegerField(null=True)
-    prek_8religiousEd = models.BigIntegerField(null=True)
+    highSchoolReligiousEd = models.BigIntegerField(null=True, blank=True,)
+    prek_8religiousEd = models.BigIntegerField(null=True, blank=True,)
     lkp_chaplain_id = models.ForeignKey(Person,
                                     on_delete=models.CASCADE,
-                                    null=True,
+                                    null=True, blank=True,
                                     limit_choices_to={
                                         'priest_detail__lkp_person_id__isnull': False
                                         },
                                     related_name='school_chaplain')
-    academicPriest = models.BigIntegerField(null=True)
-    academicBrother = models.BigIntegerField(null=True)
-    academicSister = models.BigIntegerField(null=True)
-    academicLay = models.BigIntegerField(null=True)
-    canonicalStatus = models.CharField(max_length=255, null=True)
-    is_schoolChapel = models.BooleanField(null=True)
+    academicPriest = models.BigIntegerField(null=True, blank=True,)
+    academicBrother = models.BigIntegerField(null=True, blank=True,)
+    academicSister = models.BigIntegerField(null=True, blank=True,)
+    academicLay = models.BigIntegerField(null=True, blank=True,)
+    canonicalStatus = models.CharField(max_length=255, null=True, blank=True,)
+    is_schoolChapel = models.BooleanField(null=True, blank=True,)
 
     class Meta:
         ordering = ['lkp_location_id__name']
@@ -1012,21 +1013,21 @@ class Enrollment(models.Model):
                                       on_delete=models.CASCADE,
                                       null=False)
     year = models.CharField(max_length=255,choices=choice_year, null=False)
-    prek = models.BigIntegerField(null=True)
-    transitionalKindergarden = models.BigIntegerField(null=True)
-    kindergarden = models.BigIntegerField(null=True)
-    grade_1 = models.BigIntegerField(null=True)
-    grade_2 = models.BigIntegerField(null=True)
-    grade_3 = models.BigIntegerField(null=True)
-    grade_4 = models.BigIntegerField(null=True)
-    grade_5 = models.BigIntegerField(null=True)
-    grade_6 = models.BigIntegerField(null=True)
-    grade_7 = models.BigIntegerField(null=True)
-    grade_8 = models.BigIntegerField(null=True)
-    grade_9 = models.BigIntegerField(null=True)
-    grade_10 = models.BigIntegerField(null=True)
-    grade_11 = models.BigIntegerField(null=True)
-    grade_12 = models.BigIntegerField(null=True)
+    prek = models.BigIntegerField(null=True, blank=True,)
+    transitionalKindergarden = models.BigIntegerField(null=True, blank=True,)
+    kindergarden = models.BigIntegerField(null=True, blank=True,)
+    grade_1 = models.BigIntegerField(null=True, blank=True,)
+    grade_2 = models.BigIntegerField(null=True, blank=True,)
+    grade_3 = models.BigIntegerField(null=True, blank=True,)
+    grade_4 = models.BigIntegerField(null=True, blank=True,)
+    grade_5 = models.BigIntegerField(null=True, blank=True,)
+    grade_6 = models.BigIntegerField(null=True, blank=True,)
+    grade_7 = models.BigIntegerField(null=True, blank=True,)
+    grade_8 = models.BigIntegerField(null=True, blank=True,)
+    grade_9 = models.BigIntegerField(null=True, blank=True,)
+    grade_10 = models.BigIntegerField(null=True, blank=True,)
+    grade_11 = models.BigIntegerField(null=True, blank=True,)
+    grade_12 = models.BigIntegerField(null=True, blank=True,)
 
     class Meta:
         ordering = ['lkp_school_id__name']
@@ -1062,7 +1063,7 @@ class Assignment(models.Model):
                                       on_delete=models.CASCADE,
                                       null=False)
     date_assigned = models.DateField(null=False)
-    date_released = models.DateField(null=True)
+    date_released = models.DateField(null=True, blank=True,)
     term = models.BigIntegerField(null=False)
 
     class Meta:
@@ -1095,200 +1096,201 @@ class StatusAnimarum(models.Model):
     fullTime_deacons = models.BigIntegerField(default=0,
                                                 null=False,
                                                 validators=[
-                                                    MinLengthValidator(0)
+                                                    MinValueValidator(0)
                                                 ])
     fullTime_brothers = models.BigIntegerField(default=0,
                                                 null=False,
                                                 validators=[
-                                                    MinLengthValidator(0)
+                                                    MinValueValidator(0)
                                                 ])
     fullTime_sisters = models.BigIntegerField(default=0,
                                                 null=False,
                                                 validators=[
-                                                    MinLengthValidator(0)
+                                                    MinValueValidator(0)
                                                 ]) 
     fullTime_other = models.BigIntegerField(default=0,
                                                 null=False,
                                                 validators=[
-                                                    MinLengthValidator(0)
+                                                    MinValueValidator(0)
                                                 ])
     partTime_staff = models.BigIntegerField(default=0,
                                                 null=False,
                                                 validators=[
-                                                    MinLengthValidator(0)
+                                                    MinValueValidator(0)
                                                 ])
     volunteers = models.BigIntegerField(default=0,
                                                 null=False,
                                                 validators=[
-                                                    MinLengthValidator(0)
+                                                    MinValueValidator(0)
                                                 ])
     registeredHouseholds = models.BigIntegerField(default=0,
                                                     null=False,
                                                     validators=[
-                                                        MinLengthValidator(0)
+                                                        MinValueValidator(0)
                                                         ])
     maxMass = models.BigIntegerField(default=0,
                                     null=False,
                                     validators=[
-                                        MinLengthValidator(0)
+                                        MinValueValidator(0)
                                         ])
     seatingCapacity = models.BigIntegerField(default=0,
                                             null=False,
                                             validators=[
-                                                MinLengthValidator(0)
+                                                MinValueValidator(0)
                                                 ])
     baptismAge_1_7 = models.BigIntegerField(default=0,
                                             null=False,
                                             validators=[
-                                                MinLengthValidator(0)
+                                                MinValueValidator(0)
                                                 ])
     baptismAge_8_17 = models.BigIntegerField(default=0,
                                             null=False,
                                             validators=[
-                                                MinLengthValidator(0)
+                                                MinValueValidator(0)
                                                 ])
     baptismAge_18 = models.BigIntegerField(default=0,
                                             null=False,
                                             validators=[
-                                                MinLengthValidator(0)
+                                                MinValueValidator(0)
                                                 ])
     fullCommunionRCIA = models.BigIntegerField(default=0,
                                             null=False,
                                             validators=[
-                                                MinLengthValidator(0)
+                                                MinValueValidator(0)
                                                 ])
     firstCommunion = models.BigIntegerField(default=0,
                                             null=False,
                                             validators=[
-                                                MinLengthValidator(0)
+                                                MinValueValidator(0)
                                                 ])
     confirmation = models.BigIntegerField(default=0,
                                         null=False,
                                         validators=[
-                                            MinLengthValidator(0)
+                                            MinValueValidator(0)
                                             ])
     marriage_catholic = models.BigIntegerField(default=0,
                                                 null=False,
                                                 validators=[
-                                                    MinLengthValidator(0)
+                                                    MinValueValidator(0)
                                                     ])
     marriage_interfaith = models.BigIntegerField(default=0,
                                                 null=False,
                                                 validators=[
-                                                    MinLengthValidator(0)
+                                                    MinValueValidator(0)
                                                     ])
     deaths = models.BigIntegerField(default=0,
                                     null=False,
                                     validators=[
-                                        MinLengthValidator(0)
+                                        MinValueValidator(0)
                                         ])
     childrenInFaithFormation = models.BigIntegerField(default=0,
                                                     null=False,
                                                     validators=[
-                                                        MinLengthValidator(0)
+                                                        MinValueValidator(0)
                                                         ])
     school_prek_5 = models.BigIntegerField(default=0,
                                             null=False,
                                             validators=[
-                                                MinLengthValidator(0)
+                                                MinValueValidator(0)
                                                 ])
     school_grade6_8 = models.BigIntegerField(default=0,
                                             null=False,
                                             validators=[
-                                                MinLengthValidator(0)
+                                                MinValueValidator(0)
                                                 ])
     school_grade9_12 = models.BigIntegerField(default=0,
                                             null=False,
                                             validators=[
-                                                MinLengthValidator(0)
+                                                MinValueValidator(0)
                                                 ])
     youthMinistry = models.BigIntegerField(default=0,
                                             null=False,
                                             validators=[
-                                                MinLengthValidator(0)
+                                                MinValueValidator(0)
                                                 ])
     adult_education = models.BigIntegerField(default=0,
                                             null=False,
                                             validators=[
-                                                MinLengthValidator(0)
+                                                MinValueValidator(0)
                                                 ])
     adult_sacramentPrep = models.BigIntegerField(default=0,
                                                 null=False,
                                                 validators=[
-                                                    MinLengthValidator(0)
+                                                    MinValueValidator(0)
                                                     ])
     catechist_paid = models.BigIntegerField(default=0,
                                             null=False,
                                             validators=[
-                                                MinLengthValidator(0)
+                                                MinValueValidator(0)
                                                 ])
     catechist_vol = models.BigIntegerField(default=0,
                                             null=False,
                                             validators=[
-                                                MinLengthValidator(0)
+                                                MinValueValidator(0)
                                                 ])
     rcia_rcic = models.BigIntegerField(default=0,
                                         null=False,
                                         validators=[
-                                            MinLengthValidator(0)
+                                            MinValueValidator(0)
                                             ])
     volunteersWorkingYouth = models.BigIntegerField(default=0,
                                                     null=False,
                                                     validators=[
-                                                        MinLengthValidator(0)
+                                                        MinValueValidator(0)
                                                         ])
     percent_african = models.DecimalField(max_digits = 5,
                                         decimal_places = 2,
                                         default = 0.0,
                                         null = False,
                                         validators = [
-                                            MinLengthValidator(0.0),
-                                            MaxLengthValidator(100.0)
+                                            MinValueValidator(0.0),
+                                            MaxValueValidator(100.0)
                                         ])
     percent_africanAmerican = models.DecimalField(max_digits = 5,
                                                    decimal_places = 2,
                                                    default = 0.0,
                                                    null = False,
                                                    validators = [
-                                                       MinLengthValidator(0.0),
-                                                       MaxLengthValidator(100.0)
+                                                       MinValueValidator(0.0),
+                                                       MaxValueValidator(100.0)
                                                    ])
     percent_asian = models.DecimalField(max_digits = 5,
                                         decimal_places = 2,
                                         default = 0.0,
                                         null = False,
                                         validators = [
-                                            MinLengthValidator(0.0),
-                                            MaxLengthValidator(100.0)
+                                            MinValueValidator(0.0),
+                                            MaxValueValidator(100.0)
                                         ])
     percent_hispanic = models.DecimalField(max_digits = 5,
                                             decimal_places = 2,
                                             default = 0.0,
                                             null = False,
                                             validators = [
-                                                MinLengthValidator(0.0),
-                                                MaxLengthValidator(100.0)
+                                                MinValueValidator(0.0),
+                                                MaxValueValidator(100.0)
                                             ])
     percent_americanIndian = models.DecimalField(max_digits = 5,
                                                 decimal_places = 2,
                                                 default = 0.0,
                                                 null = False,
                                                 validators = [
-                                                    MinLengthValidator(0.0),
-                                                    MaxLengthValidator(100.0)
+                                                    MinValueValidator(0.0),
+                                                    MaxValueValidator(100.0)
                                                 ])
     percent_other = models.DecimalField(max_digits = 5,
                                         decimal_places = 2,
                                         default = 0.0,
                                         null = False,
                                         validators = [
-                                            MinLengthValidator(0.0),
-                                            MaxLengthValidator(100.0)
+                                            MinValueValidator(0.0),
+                                            MaxValueValidator(100.0)
                                         ])
     is_censusEstimate = models.BooleanField(default=False, null=False)
     referrals_catholicCharities = models.BigIntegerField(null = True,
+                                                         blank = True,
                                                          validators = [
-                                                             MinLengthValidator(0)
+                                                             MinValueValidator(0)
                                                          ])
     has_homeschoolProgram = models.BooleanField(default=False, null=False)
     has_chileCareDayCare = models.BooleanField(default=False, null=False)
@@ -1298,7 +1300,7 @@ class StatusAnimarum(models.Model):
     has_columbarium = models.BooleanField(default=False, null=False)
     has_cemetary = models.BooleanField(default=False, null=False)
     has_schoolOnSite = models.BooleanField(default=False, null=False)
-    schoolType = models.CharField(max_length=255,choices=choice_schoolType, null=True)
+    schoolType = models.CharField(max_length=255,choices=choice_schoolType, null=True, blank=True,)
     is_nonParochialSchoolUsingFacilities = models.BooleanField(default=False, null=False)
 
     class Meta:
@@ -1315,29 +1317,27 @@ class OctoberMassCount(models.Model):
                                       related_name='octoberCount_church')
     year = models.PositiveIntegerField(null = False,
                                        validators = [
-                                           MinLengthValidator(4), 
-                                           MaxLengthValidator(4),
                                             MinValueValidator(2000)
                                            ])
     week1 = models.BigIntegerField(default=0,
                                    null=False,
                                    validators= [
-                                       MinLengthValidator(0)
+                                       MinValueValidator(0)
                                    ])
     week2 = models.BigIntegerField(default=0,
                                    null=False,
                                    validators= [
-                                       MinLengthValidator(0)
+                                       MinValueValidator(0)
                                    ])
     week3 = models.BigIntegerField(default=0,
                                    null=False,
                                    validators= [
-                                       MinLengthValidator(0)
+                                       MinValueValidator(0)
                                    ])
     week4 = models.BigIntegerField(default=0,
                                    null=False,
                                    validators= [
-                                       MinLengthValidator(0)
+                                       MinValueValidator(0)
                                    ])
 
     class Meta:
