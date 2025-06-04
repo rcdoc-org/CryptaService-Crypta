@@ -311,9 +311,6 @@ class Person_FacultiesGrant(models.Model):
     lkp_faultiesGrantType_id = models.ForeignKey(FacultiesGrantType,
                                         on_delete=models.CASCADE,
                                         null=False,
-                                        limit_choices_to={
-                                            'priest_detail__lkp_person_id__isnull':False
-                                            }
                                         )
     date_granted = models.DateField(null=False)
     date_modified = models.DateField(null=True)
@@ -498,9 +495,6 @@ class Vicariate(models.Model):
     lkp_vicarForane_id = models.ForeignKey(Person,
                                         on_delete=models.CASCADE,
                                         null=True,
-                                        limit_choices_to={
-                                            'priest_detail__lkp_person_id__isnull': False
-                                            }
                                         )
 
     class Meta:
@@ -782,9 +776,6 @@ class Church_Detail(models.Model):
     lkp_missionOf_id = models.ForeignKey(Location,
                                       on_delete=models.CASCADE,
                                       null=True,
-                                      limit_choices_to={
-                                          'church_detail__lkp_location_id__isnull': False
-                                          },
                                       related_name='churchDetail_mission')
     parishUniqueName = models.CharField(max_length=255, null=False)
     boundary = models.FileField(upload_to='../media/boundaries/', null=True)
@@ -832,9 +823,6 @@ class CampusMinistry_Detail(models.Model):
     lkp_church_id = models.ForeignKey(Location,
                                     on_delete=models.CASCADE,
                                     null=True,
-                                    limit_choices_to={
-                                        'church_detail__lkp_location_id__isnull': False
-                                        },
                                     related_name='campusMinistry_church')
     universityServed = models.CharField(max_length=255, null=True)
     sundayMassSchedule = models.TextField(null=True)
@@ -944,16 +932,10 @@ class SchoolDetail(models.Model):
     lkp_affiliatedParishParish_id = models.ForeignKey(Location,
                                     on_delete=models.CASCADE,
                                     null=True,
-                                    limit_choices_to={
-                                        'church_detail__lkp_location_id__isnull': False
-                                        },
                                     related_name='school_affiliatedParish')
     lkp_parishProperty_id = models.ForeignKey(Location,
                                     on_delete=models.CASCADE,
                                     null=True,
-                                    limit_choices_to={
-                                        'church_detail__lkp_location_id__isnull': False
-                                        },
                                     related_name='school_parishProperty')
     lkp_president_id = models.ForeignKey(Person,
                                     on_delete=models.CASCADE,
@@ -1028,9 +1010,6 @@ class Enrollment(models.Model):
 
     lkp_school_id = models.ForeignKey(Location,
                                       on_delete=models.CASCADE,
-                                      limit_choices_to={
-                                          'school_detail__lkp_location_id__isnull': False
-                                          },
                                       null=False)
     year = models.CharField(max_length=255,choices=choice_year, null=False)
     prek = models.BigIntegerField(null=True)
@@ -1092,7 +1071,7 @@ class Assignment(models.Model):
 
     def __str__(self):
         return (
-            f'{self.lkp_assignmentType_id.name}:{self.lkp_person_id.name} '
+            f'{self.lkp_assignmentType_id.title}:{self.lkp_person_id.name} '
             f'at {self.lkp_location_id.name}'
             )
 
@@ -1111,9 +1090,6 @@ class StatusAnimarum(models.Model):
     lkp_church_id = models.ForeignKey(Location,
                                       on_delete=models.CASCADE,
                                       null=False,
-                                      limit_choices_to={
-                                          'church_detail__lkp_location_id__isnull': False
-                                          },
                                       related_name='statusAnimarum_church')
     year = models.CharField(max_length=255, default=choice_year[-1],choices=choice_year, null=False)
     fullTime_deacons = models.BigIntegerField(default=0,
@@ -1336,9 +1312,6 @@ class OctoberMassCount(models.Model):
     lkp_church_id = models.ForeignKey(Location,
                                       on_delete=models.CASCADE,
                                       null=False,
-                                      limit_choices_to={
-                                          'church_detail__lkp_location_id__isnull': False
-                                          },
                                       related_name='octoberCount_church')
     year = models.PositiveIntegerField(null = False,
                                        validators = [
