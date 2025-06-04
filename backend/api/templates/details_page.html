@@ -20,7 +20,13 @@
         <button type="button" class="btn actions-btn" onclick="history.back()">
           <i class="fas fa-arrow-left"></i> Back to Results
         </button>
-        <button class="btn actions-btn">Actions</button>
+        <button 
+          type='button'
+          class="btn actions-btn"
+          data-bs-toggle='modal'
+          data-bs-target='#actionModal'
+          id='actiontogglebtn'
+          >Actions</button>
       </div>
 
       <!-- Picture -->
@@ -815,6 +821,46 @@
         </div>
       </main>
     {% endif %}
+  </div>
+</div>
+
+
+<!-- Modals below -->
+ <!-- Actions Modal -->
+<div class="modal fade" id="actionModal" tabindex="-1" aria-labelledby="actionmodallabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="actionmodallabel">Actions</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="close"></button>
+      </div>
+      <div class="modal-body">
+        <div class="d-grid gap-2">
+          {% if base == 'person' %}
+            <button 
+              type="button" 
+              class="btn result-btn btn-sm"
+            >Report: Assignment History</button>
+          {% else %}
+            <button 
+              type="button" 
+              class="btn result-btn btn-sm">
+              Report: P3 Report
+            </button>
+            <button 
+              type="button" 
+              class="btn result-btn btn-sm">
+              Report: Status Animarum
+            </button>
+            <button
+              type="button"
+              class="btn result-btn btn-sm">
+              Report: Offetories
+          </button>
+          {% endif %}
+          </div>
+      </div>
+    </div>
   </div>
 </div>
 

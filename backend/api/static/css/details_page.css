@@ -111,3 +111,15 @@ html, body {
 dt {
   font-weight: normal;
 }
+.result-btn {
+ /* background: linear-gradient(to right, rgb(5, 83, 175),rgb(19, 116, 226)); */
+ background: white;
+ color: black;
+ border: 1px solid #000000;
+}
+.result-btn:hover{
+  /* background: linear-gradient(to right, grey, black); */
+  background: linear-gradient(to right, rgb( 5,83,175), rgb(19,116,226));
+  color: white;
+  border: 1px solid black;
+}
