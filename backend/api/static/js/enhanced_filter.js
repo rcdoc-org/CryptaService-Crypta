@@ -570,10 +570,8 @@
         // 3) Build the Bootstrap card HTML
         const html = `
             <div class="card border-0 rounded-4 shadow-sm">
-            <div class="card-header bg-light">
-                <strong>Statistics Summary</strong>
-            </div>
             <div class="card-body p-3">
+                <small class="text-muted">Statistics Summary</small>
                 <div class="table-responsive">
                 <table class="table table-sm mb-0">
                     <thead>
