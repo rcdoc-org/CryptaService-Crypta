@@ -139,7 +139,7 @@ def details_page(request, base, pk):
     # Common assignments
     assignments = obj.assignment_set.select_related(
         'lkp_location_id', 'lkp_assignmentType_id'
-    ).all()
+    ).order_by('date_assigned')
     obj.assignments = assignments
 
     if ctx_base == 'person':
