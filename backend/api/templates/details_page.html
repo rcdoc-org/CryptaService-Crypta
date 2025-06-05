@@ -791,7 +791,30 @@
             <div class="col">
               <div class="card mb-4 border-0 rounded-4 shadow-sm">
                 <div class="card-body d-flex align-items-center">
-                  <i class="fas fa-map-marker-alt me-2"></i>
+                  {% if object.lkp_physicalAddress_id %}
+                    {# Build a Google Maps “search” URL piece by piece #}
+                    <a
+                      href="
+                        https://www.google.com/maps/search/?api=1&query=
+                        {{ object.lkp_physicalAddress_id.address1|urlencode }},
+                        {% if object.lkp_physicalAddress_id.address2 and object.lkp_physicalAddress_id.address2 != 'nan' %}
+                          {{ object.lkp_physicalAddress_id.address2|urlencode }},
+                        {% endif %}
+                        {{ object.lkp_physicalAddress_id.city|urlencode }},
+                        {{ object.lkp_physicalAddress_id.state|urlencode }}
+                        {{ object.lkp_physicalAddress_id.zip_code|urlencode }}
+                      "
+                      target="_blank"
+                      class="me-2"
+                      style="text-decoration: none; color: inherit;"
+                    >
+                      <i class="fas fa-map-marker-alt"></i>
+                    </a>
+                  {% else %}
+                    {# If there is no residence, still show a dimmed icon (optional) #}
+                    <i class="fas fa-map-marker-alt me-2 text-muted"></i>
+                  {% endif %}
+
                   {% if object.lkp_physicalAddress_id %}
                     <div>
                       <small class="text-muted">Physical Address</small><br>
@@ -814,12 +837,35 @@
             <div class="col">
               <div class="card mb-4 border-0 rounded-4 shadow-sm">
                 <div class="card-body d-flex align-items-center">
-                  <i class="fas fa-map-marker-alt me-2"></i>
+                  {% if object.lkp_mailingAddress_id %}
+                    {# Build a Google Maps “search” URL piece by piece #}
+                    <a
+                      href="
+                        https://www.google.com/maps/search/?api=1&query=
+                        {{ object.lkp_mailingAddress_id.address1|urlencode }},
+                        {% if object.lkp_mailingAddress_id.address2 and object.lkp_mailingAddress_id.address2 != 'nan' %}
+                          {{ object.lkp_mailingAddress_id.address2|urlencode }},
+                        {% endif %}
+                        {{ object.lkp_mailingAddress_id.city|urlencode }},
+                        {{ object.lkp_mailingAddress_id.state|urlencode }}
+                        {{ object.lkp_mailingAddress_id.zip_code|urlencode }}
+                      "
+                      target="_blank"
+                      class="me-2"
+                      style="text-decoration: none; color: inherit;"
+                    >
+                      <i class="fas fa-map-marker-alt"></i>
+                    </a>
+                  {% else %}
+                    {# If there is no residence, still show a dimmed icon (optional) #}
+                    <i class="fas fa-map-marker-alt me-2 text-muted"></i>
+                  {% endif %}
+
                   {% if object.lkp_mailingAddress_id %}
                     <div>
                       <small class="text-muted">Mailing Address</small><br>
                       <address class="mt-2">{{ object.lkp_mailingAddress_id.address1 }}<br>
-                      {% if object.lkp_mailingAddress_id.address2 and object.lkp_physicalAddress_id.address2 != 'nan' %}{{ object.lkp_mailingAddress_id.address2 }}<br>{% endif %}
+                      {% if object.lkp_mailingAddress_id.address2 and object.lkp_mailingAddress_id.address2 != 'nan' %}{{ object.lkp_mailingAddress_id.address2 }}<br>{% endif %}
                       {{ object.lkp_mailingAddress_id.city }}, {{ object.lkp_mailingAddress_id.state }} {{ object.lkp_mailingAddress_id.zip_code }}<br>
                       {{ object.lkp_mailingAddress_id.country }}
                       </address>
@@ -838,17 +884,41 @@
           <div class="row mb-3">
             <div class="col">
               <div class="card mb-4 border-0 rounded-4 shadow-sm">
-                <div class="card-body">
-                  <small class="text-muted">Rectory Address</small>
+                <div class="card-body d-flex align-items-center">
                   {% if object.location_details.lkp_rectoryAddress %}
-                  <address class="mt-2">{{ object.location_details.lkp_rectoryAddress_id.address1 }}<br>
-                   {% if object.location_details.lkp_rectoryAddress.address2 and object.lkp_physicalAddress_id.address2 != 'nan' %}{{ object.location_details.lkp_rectoryAddress.address2 }}<br>{% endif %}
-                      {{ object.location_details.lkp_rectoryAddress.city }}, {{ object.location_details.lkp_rectoryAddress.state }} {{ object.location_details.lkp_rectoryAddress.zip_code }}<br>
-                      {{ object.location_details.lkp_rectoryAddress.country }} 
-                  </address>
+                    <a
+                      href="
+                        https://www.google.com/maps/search/?api=1&query=
+                        {{ object.location_details.lkp_rectoryAddress.address1|urlencode }},
+                        {% if object.location_details.lkp_rectoryAddress.address2 and object.location_details.lkp_rectoryAddress.address2 != 'nan' %}
+                          {{ object.location_details.lkp_rectoryAddress.address2|urlencode }},
+                        {% endif %}
+                        {{ object.location_details.lkp_rectoryAddress.city|urlencode }},
+                        {{ object.location_details.lkp_rectoryAddress.state|urlencode }}
+                        {{ object.location_details.lkp_rectoryAddress.zip_code|urlencode }}
+                      "
+                      target="_blank"
+                      class="me-2"
+                      style="text-decoration: none; color: inherit;"
+                    >
+                      <i class="fas fa-map-marker-alt"></i>
+                    </a>
                   {% else %}
-                  <dd>Not Recorded</dd>
+                    {# If there is no residence, still show a dimmed icon (optional) #}
+                    <i class="fas fa-map-marker-alt me-2 text-muted"></i>
                   {% endif %}
+                  <div>
+                    <small class="text-muted">Rectory Address</small>
+                    {% if object.location_details.lkp_rectoryAddress %}
+                    <address class="mt-2">{{ object.location_details.lkp_rectoryAddress_id.address1 }}<br>
+                    {% if object.location_details.lkp_rectoryAddress.address2 and object.lkp_physicalAddress_id.address2 != 'nan' %}{{ object.location_details.lkp_rectoryAddress.address2 }}<br>{% endif %}
+                        {{ object.location_details.lkp_rectoryAddress.city }}, {{ object.location_details.lkp_rectoryAddress.state }} {{ object.location_details.lkp_rectoryAddress.zip_code }}<br>
+                        {{ object.location_details.lkp_rectoryAddress.country }} 
+                    </address>
+                    {% else %}
+                    <dd>Not Recorded</dd>
+                    {% endif %}
+                  </div>
                 </div>
               </div>
             </div>
