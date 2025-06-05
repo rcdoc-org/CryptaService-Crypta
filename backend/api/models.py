@@ -686,7 +686,9 @@ class Priest_Detail(models.Model):
         ('__blank__', 'Select an option'),
     ]
     choice_religiousSuffix = [
-        ('__blank__', 'Select an option'),
+        ('v.g.', 'V.G.'),
+        ('v.f.', 'V.F.'),
+        ('j.v.', 'J.V.'),
     ]
     choice_religiousSuffix = [
         ('__blank__', 'Select an option'),
