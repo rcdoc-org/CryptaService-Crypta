@@ -53,6 +53,9 @@ FIELD_LABLES = {
         'residencyType':                                'Residency Type',
         'activeOutsideDOC':                             'Active Outside DOC',
         'legalStatus':                                  'Legal Status',
+        'priest_detail__diocesanReligious':             'Diocesan/Religious',
+        'priest_detail__is_massEnglish':                'Mass in English',
+        'priest_detail__is_massSpanish':                'Mass in Spanish',
 
         # Boolean
         'is_safeEnvironmentTraining':                   'Completed Safe Environment Training',
