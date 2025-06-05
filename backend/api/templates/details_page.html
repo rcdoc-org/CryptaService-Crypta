@@ -851,13 +851,13 @@
                     <dt>Saturday Masses</dt>
                   {% for lang in object.languages %}
                   {% if lang.massDay == 'sat' %}
-                    <dd class="indent">{{ lang.massTime|time:"H:i" }} - {{ lang.lkp_language_id.name }}</dd>
+                    <dd class="indent">{{ lang.massTime|time:"g:i A" }} - {{ lang.lkp_language_id.name }}</dd>
                   {% endif %}
                   {% endfor %}
                   <dt>Sunday Masses</dt>
                   {% for lang in object.languages %}
                   {% if lang.massDay == 'sun' %}
-                    <dd class="indent">{{ lang.massTime|time:"H:i" }} - {{ lang.lkp_language_id.name }}</dd>
+                    <dd class="indent">{{ lang.massTime|time:"g:i A" }} - {{ lang.lkp_language_id.name }}</dd>
                   {% endif %}
                   {% endfor %}
                 {% else %}
