@@ -1068,24 +1068,19 @@
 
           <!-- CLERGY INFO -->
           <div id="clergy-info" class="detail-section d-none">
-            <div class="row">
-              <div class="col">
+            <div class="col">
                 <div class="card mb-4 border-0 rounded-4 shadow-sm">
                   <div class="card-body">
-                    <small class="text-muted">Sunday Masses</small>
-                  </div>
-                </div>  
-              </div>
-
-              <div class="col">
-                <div class="card mb-4 border-0 rounded-4 shadow-sm">
-                  <div class="card-body">
-                    <small class="text-muted">Notes</small>
-                    <p class="indent">{{ object.location_details.notes|default:"No notes" }}</p>
+                    <small class="text-muted">Assigned Personnel</small>
+                    {% for assign in object.assignments %}
+                      <p>{{ assign.lkp_assignmentType_id.title }}: {{ assign.lkp_person_id.name }}</p>
+                    {% endfor %}
+                    {% if not object.assignments %}
+                      <p class="mt-2">No staff assigned</p>
+                    {% endif %}
                   </div>
                 </div>
               </div>
-            </div>
           </div>
 
           <!-- MASS & MINISTRY INFO -->
@@ -1116,19 +1111,7 @@
           <!-- STAFF INFO -->
           <div id="staff-info" class="detail-section d-none">
             <div class="row mb-3">
-              <div class="col">
-                <div class="card mb-4 border-0 rounded-4 shadow-sm">
-                  <div class="card-body">
-                    <small class="text-muted">Assigned Personnel</small>
-                    {% for assign in object.assignments %}
-                      <p>{{ assign.lkp_assignmentType_id.title }}: {{ assign.lkp_person_id.name }}</p>
-                    {% endfor %}
-                    {% if not object.assignments %}
-                      <p class="mt-2">No staff assigned</p>
-                    {% endif %}
-                  </div>
-                </div>
-              </div>
+              
             </div>
           </div>
 
