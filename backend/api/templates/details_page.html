@@ -243,7 +243,13 @@
                     {% for phone in object.phones %}
                     <div class="mt-2">
                       <dt>{{ phone.lkp_phoneType_id.name|title }}</dt>
-                      <dd class="indent">{{ phone.phoneNumber }}</dd>
+                      {% with p=phone.phoneNumber %}
+                        <dd class="indent">
+                          <a href="tel:{{ p }}">
+                            ({{ p|slice:"0:3" }}) {{ p|slice:"3:6" }}-{{ p|slice:"6:" }}
+                          </a>
+                        </dd>
+                      {% endwith %}
                     </div>
                     {% endfor %}
                   {% else %}
