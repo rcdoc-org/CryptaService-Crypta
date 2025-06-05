@@ -207,7 +207,8 @@ def details_page(request, base, pk):
         obj.enrollments = obj.enrollment_set.all()
         # Statistical records
         obj.october_counts = obj.octoberCount_church.all()
-        obj.statusAnimarum = obj.statusAnimarum_church.all() obj.buildings_on_site = BuildingOnSite.objects.filter(
+        obj.statusAnimarum = obj.statusAnimarum_church.all() 
+        obj.buildings_on_site = BuildingOnSite.objects.filter(
             statusAnimarum__in = obj.statusAnimarum
         ).distinct()
         obj.boundary = getattr(location_details, 'boundary', None)
