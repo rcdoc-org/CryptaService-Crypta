@@ -792,6 +792,31 @@ class Church_Detail(models.Model):
                                               null=True,
                                               blank=True,
                                               )
+    lkp_dre_id = models.ForeignKey(Person,
+                                   on_delete=models.CASCADE,
+                                   null=True,
+                                   blank=True,
+                                   related_name='church_dre')
+    lkp_youthMinister_id = models.ForeignKey(Person,
+                                   on_delete=models.CASCADE,
+                                   null=True,
+                                   blank=True,
+                                   related_name='church_youthMinister')
+    lkp_officeManager_id = models.ForeignKey(Person,
+                                   on_delete=models.CASCADE,
+                                   null=True,
+                                   blank=True,
+                                   related_name='church_officeManager')
+    lkp_financial_id = models.ForeignKey(Person,
+                                   on_delete=models.CASCADE,
+                                   null=True,
+                                   blank=True,
+                                   related_name='church_financial')
+    lkp_pastoral_id = models.ForeignKey(Person,
+                                   on_delete=models.CASCADE,
+                                   null=True,
+                                   blank=True,
+                                   related_name='church_pastoral')
     parishUniqueName = models.CharField(max_length=255, null=False)
     boundary = models.FileField(upload_to='../media/boundaries/', null=True, blank=True,)
     pastoralPlan = models.FileField(upload_to='../media/pastoralPlans/', null=True, blank=True)
