@@ -786,6 +786,8 @@ class Church_Detail(models.Model):
                                       related_name='churchDetail_mission')
     parishUniqueName = models.CharField(max_length=255, null=False)
     boundary = models.FileField(upload_to='../media/boundaries/', null=True, blank=True,)
+    pastoralPlan = models.FileField(upload_to='../media/pastoralPlans/', null=True, blank=True)
+    sitePlan = models.FileField(upload_to='../media/sitePlans/', null=True, blank=True)
     is_mission = models.BooleanField(null=False)
     is_doc = models.BooleanField(null=False)
     tax_id = models.CharField(max_length=255, null=True, blank=True,)
