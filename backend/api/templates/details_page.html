@@ -135,9 +135,9 @@
                   <small class="text-muted">Status Info</small>
                   <div class="mt-2">
                   {% if object.statuses %}
-                    {% with latest=object.statuses|last %}
-                      <p>Status: {{ latest.lkp_status_id.name }}</p>
-                      <p>As of: {{ latest.date_assigned|date:"m/d/Y" }}</p>
+                    {% with latest=object.statuses.last %}
+                      <dt>Status: {{ latest.lkp_status_id.name }}</dt>
+                      <dd class="indent">As of: {{ latest.date_assigned|date:"m/d/Y" }}</dd>
                     {% endwith %}
                   {% else %}
                     <p>No status recorded</p>
@@ -246,7 +246,8 @@
                   {% if object.phones %}
                     {% for phone in object.phones %}
                     <div class="mt-2">
-                      <p>{{ phone.lkp_phoneType_id.name }}: {{ phone.phoneNumber }}</p>
+                      <dt>{{ phone.lkp_phoneType_id.name|title }}</dt>
+                      <dd class="indent">{{ phone.phoneNumber }}</dd>
                     </div>
                     {% endfor %}
                   {% else %}
@@ -481,7 +482,7 @@
                   <div class="mt-2">
                     <div class="row">
                       <dt class="col-auto">Prefix:</dt>
-                      <dd class="col">{{ object.prefix|default:"None" }}</dd>
+                      <dd class="col">{{ object.prefix|default:"None"|title }}</dd>
                     </div>
                     <div class="row">
                       <dt class="col-auto">First Name:</dt>
@@ -525,7 +526,7 @@
                   {% if object.relationships %}
                       {% for rel in object.relationships %}
                         {% if rel.lkp_relationshipType_id.name == 'emergency' %}
-                          <dt>{{ rel.lkp_relationshipType_id.name }}<dt>
+                          <dt>Name</dt>
                           <dd class="indent">{{ rel.lkp_secondPerson_id.name }}</dd>
                         {% endif %}
                       {% endfor %}
