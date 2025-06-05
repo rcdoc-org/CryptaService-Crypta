@@ -315,7 +315,7 @@
                       class="me-2"
                       style="text-decoration: none; color: inherit;"
                     >
-                      <i class="fas fa-map-marker-alt"></i>
+                      <i class="fas fa-map-marker-alt fa-lg text-primary"></i>
                     </a>
                   {% else %}
                     {# If there is no residence, still show a dimmed icon (optional) #}
@@ -367,7 +367,7 @@
                       class="me-2"
                       style="text-decoration: none; color: inherit;"
                     >
-                      <i class="fas fa-map-marker-alt"></i>
+                      <i class="fas fa-map-marker-alt fa-lg text-primary"></i>
                     </a>
                   {% else %}
                     {# If there is no residence, still show a dimmed icon (optional) #}
@@ -585,112 +585,128 @@
 
         <!-- EMERGENCY INFO -->
         <div id="emergency-info" class="detail-section d-none">
-          <div class="row mb-3">
-            <div class="col">
-              <div class="card mb-4 border-0 rounded-4 shadow-sm">
-                <div class="card-body">
-                  <small class="text-muted">Emergency Contacts</small>
-                  <div class="mt-2">
-                  {% if object.relationships %}
-                      {% for rel in object.relationships %}
-                        {% if rel.is_emergencyContact  %}
-                          <dt>Name</dt>
-                          <dd class="indent">{{ rel.lkp_secondPerson_id.name }} ({{ rel.lkp_relationshipType_id.name|title }})</dd>
-                          <dt>Address</dt>
-                          <div class="d-flex align-items-center">
+          {% if object.relationships %}
+            {% for rel in object.relationships %}
+              {% if rel.is_emergencyContact %}
+                {# ── Wrap each contact in its own card ── #}
+                <div class="card mb-4 border-0 rounded-4 shadow-sm">
+                  <div class="card-body">
+                    <small class="text-muted">Emergency Contact</small>
+
+                    {# ── Create one Bootstrap row per contact ── #}
+                    <div class="row mt-3 gx-4">
+
+                      {# ── COLUMN 1: Name & Relationship ── #}
+                      <div class="col-md-3 col-sm-6">
+                        <strong>Name</strong><br>
+                        {{ rel.lkp_secondPerson_id.name }}
+                        ({{ rel.lkp_relationshipType_id.name|title }})
+                      </div>
+
+                      {# ── COLUMN 2: Address (with Google‐Maps pin) ── #}
+                      <div class="col-md-4 col-sm-6">
+                        <strong>Address</strong><br>
+                        <div class="d-flex align-items-start">
+                          {% if rel.lkp_secondPerson_id.lkp_residence_id %}
+                            <a
+                              href="https://www.google.com/maps/search/?api=1&amp;query={{ rel.lkp_secondPerson_id.lkp_residence_id.address1|urlencode }}
+                                {% if rel.lkp_secondPerson_id.lkp_residence_id.address2 and rel.lkp_secondPerson_id.lkp_residence_id.address2 != 'nan' %},+{{ rel.lkp_secondPerson_id.lkp_residence_id.address2|urlencode }}{% endif %},
+                                +{{ rel.lkp_secondPerson_id.lkp_residence_id.city|urlencode }},
+                                +{{ rel.lkp_secondPerson_id.lkp_residence_id.state|urlencode }}
+                                +{{ rel.lkp_secondPerson_id.lkp_residence_id.zip_code|urlencode }}"
+                              target="_blank"
+                              class="me-2"
+                              style="text-decoration: none; color: inherit;"
+                            >
+                              <i class="fas fa-map-marker-alt fa-lg text-primary"></i>
+                            </a>
+                          {% else %}
+                            <i class="fas fa-map-marker-alt fa-lg text-muted me-2"></i>
+                          {% endif %}
+
+                          <address class="mb-0">
                             {% if rel.lkp_secondPerson_id.lkp_residence_id %}
-                              {# Build a Google Maps “search” URL piece by piece #}
-                              <a
-                                href="
-                                  https://www.google.com/maps/search/?api=1&query=
-                                  {{ rel.lkp_secondPerson_id.lkp_residence_id.address1|urlencode }},
-                                  {% if rel.lkp_secondPerson_id.lkp_residence_id.address2 and rel.lkp_secondPerson_id.lkp_residence_id.address2 != 'nan' %}
-                                    {{ rel.lkp_secondPerson_id.lkp_residence_id.address2|urlencode }},
-                                  {% endif %}
-                                  {{ rel.lkp_secondPerson_id.lkp_residence_id.city|urlencode }},
-                                  {{ rel.lkp_secondPerson_id.lkp_residence_id.state|urlencode }}
-                                  {{ rel.lkp_secondPerson_id.lkp_residence_id.zip_code|urlencode }}
-                                "
-                                target="_blank"
-                                class="me-2"
-                                style="text-decoration: none; color: inherit;"
-                              >
-                                <i class="fas fa-map-marker-alt"></i>
-                              </a>
-                            {% else %}
-                              {# If there is no residence, still show a dimmed icon (optional) #}
-                              <i class="fas fa-map-marker-alt me-2 text-muted"></i>
-                            {% endif %}
-                            <address>{{ rel.lkp_secondPerson_id.lkp_residence_id.address1 }}<br>
-                              {% if rel.lkp_secondPerson_id.lkp_residence_id.address2 and rel.lkp_secondPerson_id.lkp_residence_id.address2 != 'nan' %}{{ rel.lkp_secondPerson_id.lkp_residence_id.address2 }}<br>{% endif %}
-                              {{ rel.lkp_secondPerson_id.lkp_residence_id.city }}, {{ rel.lkp_secondPerson_id.lkp_residence_id.state }} {{ rel.lkp_secondPerson_id.lkp_residence_id.zip_code }}<br>
+                              {{ rel.lkp_secondPerson_id.lkp_residence_id.address1 }}<br>
+                              {% if rel.lkp_secondPerson_id.lkp_residence_id.address2 and rel.lkp_secondPerson_id.lkp_residence_id.address2 != 'nan' %}
+                                {{ rel.lkp_secondPerson_id.lkp_residence_id.address2 }}<br>
+                              {% endif %}
+                              {{ rel.lkp_secondPerson_id.lkp_residence_id.city }},
+                              {{ rel.lkp_secondPerson_id.lkp_residence_id.state }}
+                              {{ rel.lkp_secondPerson_id.lkp_residence_id.zip_code }}<br>
                               {{ rel.lkp_secondPerson_id.lkp_residence_id.country }}
-                            </address>
-                          </div>
-                          
-                          {% with sorted_phones=rel.lkp_secondPerson_id.person_phone_set.all|dictsortreversed:"is_primary" %}
-                            <dt>Phone 1</dt>
-                            <dd class="indent">
-                              {% if sorted_phones|length >= 1 %}
-                              {% with p=sorted_phones.0.phoneNumber %}
-                              <a href="tel:{{ sorted_phones.0.phoneNumber}}">
+                            {% else %}
+                              <span class="text-muted">None</span>
+                            {% endif %}
+                          </address>
+                        </div>
+                      </div>
+
+                      {# ── COLUMN 3: Phone 1 & Phone 2 ── #}
+                      {% with sorted_phones=rel.lkp_secondPerson_id.person_phone_set.all|dictsortreversed:"is_primary" %}
+                        <div class="col-md-2 col-sm-6">
+                          <strong>Phone 1</strong><br>
+                          {% if sorted_phones|length >= 1 %}
+                            {% with p=sorted_phones.0.phoneNumber %}
+                              <a href="tel:{{ p }}">
                                 ({{ p|slice:"0:3" }}) {{ p|slice:"3:6" }}-{{ p|slice:"6:" }}
                               </a>
-                              {% endwith %}
-                              {% else %}
-                                Not Recorded
-                              {% endif %}
-                            </dd>
+                            {% endwith %}
+                          {% else %}
+                            <span class="text-muted">Not Recorded</span>
+                          {% endif %}
+                        </div>
 
-                            <dt>Phone 2</dt>
-                            <dd class="indent">
-                              {% if sorted_phones|length >= 2 %}
-                              {% with p=sorted_phones.1.phoneNumber %}
-                              <a href="tel:{{ sorted_phones.1.phoneNumber}}">
+                        <div class="col-md-2 col-sm-6">
+                          <strong>Phone 2</strong><br>
+                          {% if sorted_phones|length >= 2 %}
+                            {% with p=sorted_phones.1.phoneNumber %}
+                              <a href="tel:{{ p }}">
                                 ({{ p|slice:"0:3" }}) {{ p|slice:"3:6" }}-{{ p|slice:"6:" }}
                               </a>
-                              {% endwith %}
-                              {% else %}
-                                Not Recorded
-                              {% endif %}
-                            </dd>
-                          {% endwith %}
-                          
-                          {% with sorted_emails=rel.lkp_secondPerson_id.person_email_set.all|dictsortreversed:"is_primary" %}
-                            <dt>Email 1</dt>
-                            <dd class="indent">
-                              {% if sorted_emails|length >= 1 %}
-                              <a href="mailto:{{sorted_emails.0.email }}">
-                                {{ sorted_emails.0.email }}
-                              </a>
-                              {% else %}
-                                Not Recorded
-                              {% endif %}
-                            </dd>
+                            {% endwith %}
+                          {% else %}
+                            <span class="text-muted">Not Recorded</span>
+                          {% endif %}
+                        </div>
+                      {% endwith %} {# closes sorted_phones “with” #}
 
-                            <dt>Email 2</dt>
-                            <dd class="indent">
-                              {% if sorted_emails|length >= 2 %}
-                              <a href="mailto:{{sorted_emails.1.email}}">
-                                {{ sorted_emails.1.email }}
-                              </a>
-                              {% else %}
-                                Not Recorded
-                              {% endif %}
-                            </dd>
-                          {% endwith %}
+                      {# ── COLUMN 4: Email 1 & Email 2 ── #}
+                      {% with sorted_emails=rel.lkp_secondPerson_id.person_email_set.all|dictsortreversed:"is_primary" %}
+                        <div class="col-md-3 col-sm-6">
+                          <strong>Email 1</strong><br>
+                          {% if sorted_emails|length >= 1 %}
+                            <a href="mailto:{{ sorted_emails.0.email }}">
+                              {{ sorted_emails.0.email }}
+                            </a>
+                          {% else %}
+                            <span class="text-muted">Not Recorded</span>
+                          {% endif %}
+                        </div>
 
-                        {% endif %}
-                      {% endfor %}
-                    {% else %}
-                      <p>None recorded</p>
-                    {% endif %}
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+                        <div class="col-md-3 col-sm-6">
+                          <strong>Email 2</strong><br>
+                          {% if sorted_emails|length >= 2 %}
+                            <a href="mailto:{{ sorted_emails.1.email }}">
+                              {{ sorted_emails.1.email }}
+                            </a>
+                          {% else %}
+                            <span class="text-muted">Not Recorded</span>
+                          {% endif %}
+                        </div>
+                      {% endwith %} {# closes sorted_emails “with” #}
+
+                    </div> {# /.row ─ end of this contact’s columns #}
+
+                  </div> {# /.card-body #}
+                </div> {# /.card #}
+              {% endif %} {# closes “if rel.is_emergencyContact” #}
+            {% endfor %} {# closes for rel in object.relationships #}
+          {% else %}
+            <p>None recorded</p>
+          {% endif %} {# closes “if object.relationships” #}
+        </div> {# /#emergency-info #}
+
+
       </main>
 
     {% else %}
@@ -703,7 +719,7 @@
             <div class="col">
               <div class="card mb-4 border-0 rounded-4 shadow-sm">
                 <div class="card-body d-flex align-items-center">
-                  <i class="fas fa-map-marker-alt me-2"></i>
+                  <i class="fas fa-map-marker-alt fa-lg me-2 text-muted"></i>
                   <div>
                     <small class="text-muted">Church/Mission</small>
                     <div class="mt-2">
@@ -892,7 +908,7 @@
                       class="me-2"
                       style="text-decoration: none; color: inherit;"
                     >
-                      <i class="fas fa-map-marker-alt"></i>
+                      <i class="fas fa-map-marker-alt fa-lg text-primary"></i>
                     </a>
                   {% else %}
                     {# If there is no residence, still show a dimmed icon (optional) #}
@@ -938,7 +954,7 @@
                       class="me-2"
                       style="text-decoration: none; color: inherit;"
                     >
-                      <i class="fas fa-map-marker-alt"></i>
+                      <i class="fas fa-map-marker-alt fa-lg text-primary"></i>
                     </a>
                   {% else %}
                     {# If there is no residence, still show a dimmed icon (optional) #}
@@ -985,7 +1001,7 @@
                       class="me-2"
                       style="text-decoration: none; color: inherit;"
                     >
-                      <i class="fas fa-map-marker-alt"></i>
+                      <i class="fas fa-map-marker-alt fa-lg text-primary"></i>
                     </a>
                   {% else %}
                     {# If there is no residence, still show a dimmed icon (optional) #}
