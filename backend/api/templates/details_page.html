@@ -542,6 +542,177 @@
       <main class="col-md-8 p-4 bg-light">
         <!-- PRIMARY INFO -->
         <div id="primary-info" class="detail-section">
+          <!-- Church/Mission and Parish ID-->
+          <div class="row mb-3">
+            <div class="col">
+              <div class="card mb-4 border-0 rounded-4 shadow-sm">
+                <div class="card-body d-flex align-items-center">
+                  <i class="fas fa-map-marker-alt me-2"></i>
+                  <div>
+                    <small class="text-muted">Church/Mission</small>
+                    <div class="mt-2">
+                    {% if object.location_details.is_mission %}
+                      <p>Mission</p>
+                    {% else %}
+                      <p>Church</p>
+                    {% endif %}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="col">
+              <div class="card mb-4 border-0 rounded-4 shadow-sm">
+                <div class="card-body d-flex align-items-center">
+                  <div>
+                    <small class="text-muted">Parish ID</small>
+                    <div class="mt-2">
+                      <p>{{ object.location_details.parish_id }}</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- Church Details-->
+          <div class="row mb-3">
+            <div class="card mb-4 border-0 rounded-4 shadow-sm">
+              <div class="card-body">
+                <small class="text-muted">Church Details</small>
+                <div class="row mt-2">
+                  <dt class="col-auto">Parish Unique Name:</dt>
+                  <dd class="col">{{ object.location_details.parishUniqueName }}</dd>
+                </div>
+
+                <div class="row">
+                  <dt class="col-auto">Diocese of Charlotte Entity:</dt>
+                  <dd class="col">{{ object.location_details.is_doc|yesno:"Yes,No" }}</dd>
+                </div>
+
+                <div class="row">
+                  <dt class="col-auto">Status:</dt>
+                  {% if object.statuses %}
+                    {% for status in object.statuses %}
+                      {% if not status.date_released %}
+                        <dd class="col">{{ status }}</dd>
+                      {% endif %}
+                    {% endfor %}
+                  {% else %}
+                    <dd class="col">Not Recorded</dd>
+                  {% endif %}
+                </div>
+
+                <div class="row">
+                  <dt class="col-auto">Tax ID:</dt>
+                  <dd class="col">{{ object.location_details.tax_id|default:"None" }}</dd>
+                </div>
+
+                <div class="row">
+                  <dt class="col-auto">Geo ID:</dt>
+                  <dd class="col">{{ object.location_details.geo_id|default:"None" }}</dd>
+                </div>
+
+                <div class="row">
+                {% if object.location_details.type_id %}
+                  <dt class="col-auto">Type ID:</dt>
+                  <dd class="col">{{ object.location_details.type_id }}</dd>
+                {% endif %}
+                </div>
+
+                <div class="row">
+                  <dt class="col-auto">Date Established:</dt>
+                  <dd class="col">{{ object.location_details.date_established|date:"m/d/Y"|default:"Unknown" }}</dd>
+                </div>
+
+                <div class="row">
+                  <dt class="col-auto">First Church Dedication:</dt>
+                  <dd class="col">{{ object.location_details.date_firstDedication|date:"m/d/Y"|default:"Unknown" }}</dd>
+                </div>
+
+                <div class="row">
+                  <dt class="col-auto">Second Church Dedication:</dt>
+                  <dd class="col">{{ object.location_details.date_secondDedication|date:"m/d/Y"|default:"Unknown" }}</dd>
+                </div>
+
+                <div class="row">
+                {% if object.location_details.cityServed %}
+                  <dt class="col-auto">City Served:</dt>
+                  <dd class="col">{{ object.location_details.cityServed }}</dd>
+                {% endif %}
+                </div>
+
+                <div class="row">
+                  <dt class="col-auto">Website:</dt>
+                  <dd class="col">
+                    {% if object.website %}
+                      <a href="{{ object.website }}" target="_blank">{{ object.website }}</a>
+                    {% else %}
+                      None
+                    {% endif %}
+                  </dd>
+                </div>
+
+                <div class="row">
+                  <dt class="col-auto">Vicariate:</dt>
+                  <dd class="col">{{ object.lkp_vicariate_id.name }}</dd>
+                </div>
+
+                <div class="row">
+                  <dt class="col-auto">County:</dt>
+                  <dd class="col">{{ object.lkp_county_id.name }}</dd>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- Pastoral Plan and Site Plan -->
+          <div class="row mb-3">
+            <div class="col">
+              <div class="card mb-4 border-0 rounded-4 shadow-sm">
+                <div class="card-body">
+                  <small class="text-muted">Pastoral Plan</small>
+                  <div class="mt-2">
+                    {% if  object.location_details.pastoralPlan %}
+                    <p><a href="{{ object.location_details.pastoralPlan }}" target="_blank">View Pastoral Plan</a></p>
+                    {% else %}
+                    <p>Not Recorded</p>
+                    {% endif %}
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="col">
+              <div class="card mb-4 border-0 rounded-4 shadow-sm">
+                <div class="card-body">
+                  <small class="text-muted">Site Plan</small>
+                  <div class="mt-2">
+                    {% if  object.location_details.sitePlan %}
+                    <p><a href="{{ object.location_details.sitePlan }}" target="_blank">View Pastoral Plan</a></p>
+                    {% else %}
+                    <p>Not Recorded</p>
+                    {% endif %}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- Buildings on Site -->
+          <div class="row mb-3">
+            <div class="col">
+              <div class="card mb-4 border-0 rounded-4 shadow-sm">
+                <div class="card-body">
+                  <small class="text-muted">Buildings on Site</small>
+                  <div class="mt-2">
+                    <dd class="indent">placeholder</dd>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+          <!-- Location Details -->
+        <div id="location-info" class="detail-section">
+          <!-- Address Info -->
           <div class="row mb-3">
             <!-- Physical Address -->
             <div class="col">
@@ -551,8 +722,8 @@
                   {% if object.lkp_physicalAddress_id %}
                     <div>
                       <small class="text-muted">Physical Address</small><br>
-                      <address>{{ object.lkp_physicalAddress_id.address1 }}<br>
-                      {% if object.lkp_physicalAddress_id.address2 %}{{ object.lkp_physicalAddress_id.address2 }}<br>{% endif %}
+                      <address class="mt-2">{{ object.lkp_physicalAddress_id.address1 }}<br>
+                      {% if object.lkp_physicalAddress_id.address2 and object.lkp_physicalAddress_id.address2 != 'nan' %}{{ object.lkp_physicalAddress_id.address2 }}<br>{% endif %}
                       {{ object.lkp_physicalAddress_id.city }}, {{ object.lkp_physicalAddress_id.state }} {{ object.lkp_physicalAddress_id.zip_code }}<br>
                       {{ object.lkp_physicalAddress_id.country }}
                       </address>
@@ -574,8 +745,8 @@
                   {% if object.lkp_mailingAddress_id %}
                     <div>
                       <small class="text-muted">Mailing Address</small><br>
-                      <address>{{ object.lkp_mailingAddress_id.address1 }}<br>
-                      {% if object.lkp_mailingAddress_id.address2 %}{{ object.lkp_mailingAddress_id.address2 }}<br>{% endif %}
+                      <address class="mt-2">{{ object.lkp_mailingAddress_id.address1 }}<br>
+                      {% if object.lkp_mailingAddress_id.address2 and object.lkp_physicalAddress_id.address2 != 'nan' %}{{ object.lkp_mailingAddress_id.address2 }}<br>{% endif %}
                       {{ object.lkp_mailingAddress_id.city }}, {{ object.lkp_mailingAddress_id.state }} {{ object.lkp_mailingAddress_id.zip_code }}<br>
                       {{ object.lkp_mailingAddress_id.country }}
                       </address>
@@ -590,14 +761,10 @@
               </div>
             </div>
           </div>
-        </div>
-
-          <!-- Location Details -->
-        <div id="location-info" class="detail-section">
           <div class="card mb-4 border-0 rounded-4 shadow-sm">
             <div class="card-body">
               <small class="text-muted">Location Details</small>
-              <div>
+              <div class="mt-2">
                 <div class="row">
                   <dt class="col-auto">Latitude:</dt>
                   <dd class="col">{{ object.latitude }}</dd>
@@ -606,23 +773,23 @@
                   <dt class="col-auto">Longitude:</dt>
                   <dd class="col">{{ object.longitude }}</dd>
                 </div>
-                <div class="row">
-                  <dt class="col-auto">Website:</dt>
-                  <dd class="col">
-                    {% if object.website %}
-                      <a href="{{ object.website }}" target="_blank">{{ object.website }}</a>
-                    {% else %}
-                      None
-                    {% endif %}
-                  </dd>
-                </div>
-                <div class="row">
-                  <dt class="col-auto">Vicariate:</dt>
-                  <dd class="col">{{ object.lkp_vicariate_id.name }}</dd>
-                </div>
-                <div class="row">
-                  <dt class="col-auto">County:</dt>
-                  <dd class="col">{{ object.lkp_county_id.name }}</dd>
+
+                
+              </div>
+            </div>
+          </div>
+          <div class="row mb-3">
+            <div class="col">
+              <div class="card mb-4 border-0 rounded-4 shadow-sm">
+                <div class="card-body">
+                  <small class="text-muted">Boundary</small>
+                  <div class="mt-2">
+                  {% if object.boundary %}
+                    <p><a href="{{ object.boundary.url }}" target="_blank">View Boundary File</a></p>
+                  {% else %}
+                    <p>No boundary data</p>
+                  {% endif %}
+                  </div>
                 </div>
               </div>
             </div>
@@ -631,66 +798,6 @@
 
           <!-- CLERGY INFO -->
           <div id="clergy-info" class="detail-section d-none">
-            <div class="row mb-3">
-              <div class="col">
-                <div class="card mb-4 border-0 rounded-4 shadow-sm">
-                  <div class="card-body d-flex align-items-center">
-                    <i class="fas fa-map-marker-alt me-2"></i>
-                    <div>
-                      <small class="text-muted">Church/Mission</small><br>
-                      {% if object.location_details.is_mission %}
-                        <p>Mission</p>
-                      {% else %}
-                        <p>Church</p>
-                      {% endif %}
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div class="col">
-                <div class="card mb-4 border-0 rounded-4 shadow-sm">
-                  <div class="card-body d-flex align-items-center">
-                    <div>
-                      <small class="text-muted">Parish ID</small><br>
-                      <p>{{ object.location_details.parish_id }}</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div class="card mb-4 border-0 rounded-4 shadow-sm">
-              <div class="card-body">
-                <small class="text-muted">Church Details</small>
-                <dl class="row">
-                  <dt class="col-sm-4">Parish Unique Name</dt>
-                  <dd class="col-sm-8">{{ object.location_details.parishUniqueName }}</dd>
-
-                  <dt class="col-sm-4">Diocese of Charlotte Entity</dt>
-                  <dd class="col-sm-8">{{ object.location_details.is_doc|yesno:"Yes,No" }}</dd>
-
-                  <dt class="col-sm-4">Tax ID</dt>
-                  <dd class="col-sm-8">{{ object.location_details.tax_id|default:"None" }}</dd>
-
-                  <dt class="col-sm-4">Geo ID</dt>
-                  <dd class="col-sm-8">{{ object.location_details.geo_id|default:"None" }}</dd>
-
-                  {% if object.location_details.type_id %}
-                    <dt class="col-sm-4">Type ID</dt>
-                    <dd class="col-sm-8">{{ object.location_details.type_id }}</dd>
-                  {% endif %}
-
-                  <dt class="col-sm-4">Date Established</dt>
-                  <dd class="col-sm-8">{{ object.location_details.date_established|date:"m/d/Y"|default:"Unknown" }}</dd>
-
-                  {% if object.location_details.cityServed %}
-                    <dt class="col-sm-4">City Served</dt>
-                    <dd class="col-sm-8">{{ object.location_details.cityServed }}</dd>
-                  {% endif %}
-                </dl>
-              </div>
-            </div>
-
             <div class="row">
               <div class="col">
                 <div class="card mb-4 border-0 rounded-4 shadow-sm">
@@ -702,17 +809,7 @@
                       <dt>Second Dedication</dt>
                       <dd class="indent">{{ object.location_details.date_secondDedication|date:"m/d/Y"|default:"None" }}</dd>
                   </div>
-                </div>
-                <div class="card mb-4 border-0 rounded-4 shadow-sm">
-                  <div class="card-body">
-                    <small class="text-muted">Boundary</small>
-                    {% if object.boundary %}
-                      <p><a href="{{ object.boundary.url }}" target="_blank">View Boundary File</a></p>
-                    {% else %}
-                      <p>No boundary data</p>
-                    {% endif %}
-                  </div>
-                </div>
+                </div>  
               </div>
 
               <div class="col">
