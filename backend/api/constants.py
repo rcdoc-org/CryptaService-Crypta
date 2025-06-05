@@ -5,6 +5,7 @@ DYNAMIC_FILTER_FIELDS = {
     'person': [
         # Direct CharFields / choices on Person
         'personType',                # e.g. Priest / Deacon / Lay Person
+        'assignment__lkp_location_id__lkp_county_id__name', # Assignment County
         'assignment__lkp_location_id__name',          # Location name from assignments
         'assignment__lkp_assignmentType_id__title',   # Assignment type title
         'date_baptism',              # Baptism date
@@ -73,6 +74,7 @@ FIELD_LABLES = {
         'assignment__lkp_location_id__name':            'Assignment Location',
         'assignment__date_assigned':                    'Status Assigned',
         'assignment__lkp_location_id__lkp_vicariate_id__name':  'Vicariate',
+        'assignment__lkp_location_id__lkp_county_id__name': 'Assignment County',
         
         # Reverse rel’n from Person_Status
         'person_status__lkp_status_id__name':           'Status',
