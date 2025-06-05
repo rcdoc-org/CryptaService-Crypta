@@ -157,7 +157,7 @@ class PersonRelationshipInline(admin.TabularInline):
     model = Person_Relationship
     extra = 1
     fk_name = "lkp_firstPerson_id"                   # ← must specify which FK points to Person
-    fields = ("lkp_relationshipType_id", "lkp_secondPerson_id")
+    fields = ("lkp_relationshipType_id", "lkp_secondPerson_id", "is_emergencyContact")
     verbose_name = "Relationship"
     verbose_name_plural = "Relationships"
 
