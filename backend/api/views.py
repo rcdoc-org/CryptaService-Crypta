@@ -18,7 +18,7 @@ from django.contrib.auth.decorators import login_required
 from .models import (
     Person, Location,
     Person_Email, Location_Email,
-    EmailType,
+    EmailType, BuildingOnSite
 )
 from .constants import DYNAMIC_FILTER_FIELDS, FIELD_LABLES
 from .utilities.emailingSys import message_creator, send_mail
@@ -207,8 +207,11 @@ def details_page(request, base, pk):
         obj.enrollments = obj.enrollment_set.all()
         # Statistical records
         obj.october_counts = obj.octoberCount_church.all()
-        obj.statusAnimarum = obj.statusAnimarum_church.all()
+        obj.statusAnimarum = obj.statusAnimarum_church.all() obj.buildings_on_site = BuildingOnSite.objects.filter(
+            statusAnimarum__in = obj.statusAnimarum
+        ).distinct()
         obj.boundary = getattr(location_details, 'boundary', None)
+       
 
     return render(request, 'details_page.html', {'object': obj, 'base': ctx_base})
 
