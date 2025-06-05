@@ -152,10 +152,10 @@
                   <small class="text-muted">Person Details</small>
                   <dl class="mb-0">
                     <dt class="mt-2">Assigned Vicariate</dt>
-                    <dd class="indent">{{ object.assignment_set.first.lkp_location_id.lkp_vicariate_id.name }}</dd>
+                    <dd class="indent">{{ object.assignment_set.last.lkp_location_id.lkp_vicariate_id.name }}</dd>
 
                     <dt>Assigned County</dt>
-                    <dd class="indent">{{ object.assignment_set.first.lkp_location_id.lkp_county_id.name }}</dd>
+                    <dd class="indent">{{ object.assignment_set.last.lkp_location_id.lkp_county_id.name }}</dd>
 
                     <dt>Eastern Catholic Member?</dt>
                     <dd class="indent">{{ object.person_details.is_easternCatholicChurchMember|yesno:"Yes,No" }}</dd>
