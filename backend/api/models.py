@@ -813,6 +813,10 @@ class Church_Detail(models.Model):
         return f"{self.lkp_location_id.name}"
 
 class Church_Language(models.Model):
+    choice_massDay = [
+        ('sat', 'Saturday'),
+        ('sun', 'Sunday'),
+    ]
     lkp_church_id = models.ForeignKey(Location,
                                     on_delete=models.CASCADE,
                                     null=False)
@@ -820,6 +824,8 @@ class Church_Language(models.Model):
                                         on_delete=models.CASCADE,
                                         null=False)
     massTime = models.TimeField(null=False)
+    massDay = models.CharField(max_length=255, choices=choice_massDay, null=False, default='sun')
+
 
     class Meta:
         ordering = ['lkp_church_id__name']
