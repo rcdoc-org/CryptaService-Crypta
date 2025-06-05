@@ -343,6 +343,9 @@ class Person_Relationship(models.Model):
                                         on_delete=models.CASCADE,
                                         null=False,
                                         related_name='second_person')
+    is_emergencyContact = models.BooleanField(null=False,
+                                              default=False,
+                                                )
 
     class Meta:
         ordering = ['lkp_firstPerson_id__name_last']
