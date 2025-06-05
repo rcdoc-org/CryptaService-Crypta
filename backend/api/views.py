@@ -205,6 +205,8 @@ def details_page(request, base, pk):
         obj.parishes = obj.parish.all() if hasattr(obj, 'parish') else []
         # Schools: enrollment and relationships
         obj.enrollments = obj.enrollment_set.all()
+        # hospital connection
+        obj.hospitals = obj.hospital_boundary.select_related('lkp_location_id').all()
         # Statistical records
         obj.october_counts = obj.octoberCount_church.all()
         obj.statusAnimarum = obj.statusAnimarum_church.all() 
