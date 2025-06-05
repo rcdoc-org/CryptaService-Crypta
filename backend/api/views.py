@@ -886,6 +886,18 @@ def get_filtered_data(base, raw_filters, raw_stats=None):
 
         records.append(rec)
 
+    # ── Title-case every string in each record ──
+    titled_records = []
+    for rec in records:
+        new_rec = {}
+        for key, val in rec.items():
+            if isinstance(val, str):
+                new_rec[key] = val.title()
+            else:
+                new_rec[key] = val
+        titled_records.append(new_rec)
+    records = titled_records
+
     all_fields = []
     for r in records:
         for key in r.keys():
