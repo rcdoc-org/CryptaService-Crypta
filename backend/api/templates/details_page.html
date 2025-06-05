@@ -593,14 +593,98 @@
                   <div class="mt-2">
                   {% if object.relationships %}
                       {% for rel in object.relationships %}
-                        {% if rel.lkp_relationshipType_id.name == 'emergency' %}
+                        {% if rel.is_emergencyContact  %}
                           <dt>Name</dt>
-                          <dd class="indent">{{ rel.lkp_secondPerson_id.name }}</dd>
+                          <dd class="indent">{{ rel.lkp_secondPerson_id.name }} ({{ rel.lkp_relationshipType_id.name|title }})</dd>
+                          <dt>Address</dt>
+                          <div class="d-flex align-items-center">
+                            {% if rel.lkp_secondPerson_id.lkp_residence_id %}
+                              {# Build a Google Maps “search” URL piece by piece #}
+                              <a
+                                href="
+                                  https://www.google.com/maps/search/?api=1&query=
+                                  {{ rel.lkp_secondPerson_id.lkp_residence_id.address1|urlencode }},
+                                  {% if rel.lkp_secondPerson_id.lkp_residence_id.address2 and rel.lkp_secondPerson_id.lkp_residence_id.address2 != 'nan' %}
+                                    {{ rel.lkp_secondPerson_id.lkp_residence_id.address2|urlencode }},
+                                  {% endif %}
+                                  {{ rel.lkp_secondPerson_id.lkp_residence_id.city|urlencode }},
+                                  {{ rel.lkp_secondPerson_id.lkp_residence_id.state|urlencode }}
+                                  {{ rel.lkp_secondPerson_id.lkp_residence_id.zip_code|urlencode }}
+                                "
+                                target="_blank"
+                                class="me-2"
+                                style="text-decoration: none; color: inherit;"
+                              >
+                                <i class="fas fa-map-marker-alt"></i>
+                              </a>
+                            {% else %}
+                              {# If there is no residence, still show a dimmed icon (optional) #}
+                              <i class="fas fa-map-marker-alt me-2 text-muted"></i>
+                            {% endif %}
+                            <address>{{ rel.lkp_secondPerson_id.lkp_residence_id.address1 }}<br>
+                              {% if rel.lkp_secondPerson_id.lkp_residence_id.address2 and rel.lkp_secondPerson_id.lkp_residence_id.address2 != 'nan' %}{{ rel.lkp_secondPerson_id.lkp_residence_id.address2 }}<br>{% endif %}
+                              {{ rel.lkp_secondPerson_id.lkp_residence_id.city }}, {{ rel.lkp_secondPerson_id.lkp_residence_id.state }} {{ rel.lkp_secondPerson_id.lkp_residence_id.zip_code }}<br>
+                              {{ rel.lkp_secondPerson_id.lkp_residence_id.country }}
+                            </address>
+                          </div>
+                          
+                          {% with sorted_phones=rel.lkp_secondPerson_id.person_phone_set.all|dictsortreversed:"is_primary" %}
+                            <dt>Phone 1</dt>
+                            <dd class="indent">
+                              {% if sorted_phones|length >= 1 %}
+                              {% with p=sorted_phones.0.phoneNumber %}
+                              <a href="tel:{{ sorted_phones.0.phoneNumber}}">
+                                ({{ p|slice:"0:3" }}) {{ p|slice:"3:6" }}-{{ p|slice:"6:" }}
+                              </a>
+                              {% endwith %}
+                              {% else %}
+                                Not Recorded
+                              {% endif %}
+                            </dd>
+
+                            <dt>Phone 2</dt>
+                            <dd class="indent">
+                              {% if sorted_phones|length >= 2 %}
+                              {% with p=sorted_phones.1.phoneNumber %}
+                              <a href="tel:{{ sorted_phones.1.phoneNumber}}">
+                                ({{ p|slice:"0:3" }}) {{ p|slice:"3:6" }}-{{ p|slice:"6:" }}
+                              </a>
+                              {% endwith %}
+                              {% else %}
+                                Not Recorded
+                              {% endif %}
+                            </dd>
+                          {% endwith %}
+                          
+                          {% with sorted_emails=rel.lkp_secondPerson_id.person_email_set.all|dictsortreversed:"is_primary" %}
+                            <dt>Email 1</dt>
+                            <dd class="indent">
+                              {% if sorted_emails|length >= 1 %}
+                              <a href="mailto:{{sorted_emails.0.email }}">
+                                {{ sorted_emails.0.email }}
+                              </a>
+                              {% else %}
+                                Not Recorded
+                              {% endif %}
+                            </dd>
+
+                            <dt>Email 2</dt>
+                            <dd class="indent">
+                              {% if sorted_emails|length >= 2 %}
+                              <a href="mailto:{{sorted_emails.1.email}}">
+                                {{ sorted_emails.1.email }}
+                              </a>
+                              {% else %}
+                                Not Recorded
+                              {% endif %}
+                            </dd>
+                          {% endwith %}
+
                         {% endif %}
                       {% endfor %}
-                  {% else %}
-                    <p>None recorded</p>
-                  {% endif %}
+                    {% else %}
+                      <p>None recorded</p>
+                    {% endif %}
                   </div>
                 </div>
               </div>
