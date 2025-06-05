@@ -438,10 +438,6 @@
                   <small class="text-muted">Formation Dates</small>
                   <div class="mt-2">
                     {% if object.person_details %}
-                      {% if object.person_details.date_ordination %}
-                        <dt>Ordination</dt>
-                        <dd class="indent">{{ object.person_details.date_ordination|date:"m/d/Y" }}</dd>
-                      {% endif %}
                       {% if object.person_details.date_transitionalDiaconateOrdination %}
                         <dt>Transitional Diaconate Ordination</dt>
                         <dd class="indent">{{ object.person_details.date_transitionalDiaconateOrdination|date:"m/d/Y" }}</dd>
