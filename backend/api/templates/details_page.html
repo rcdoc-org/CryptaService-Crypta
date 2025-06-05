@@ -702,7 +702,13 @@
                 <div class="card-body">
                   <small class="text-muted">Buildings on Site</small>
                   <div class="mt-2">
-                    <dd class="indent">placeholder</dd>
+                    {% if object.buildings_on_site %}
+                    {% for building in object.buildings_on_site %}
+                      <dd class="indent">{{ building.name|title }}</dd>
+                    {% endfor %}
+                    {% else %}
+                      <dd class="indent">No buildings recorded.</dd>
+                    {% endif %}
                   </div>
                 </div>
               </div>
