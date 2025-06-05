@@ -273,7 +273,12 @@
                   {% if object.emails %}
                     {% for email in object.emails %}
                     <div class="mt-2">
-                      <dt>{{ email.lkp_emailType_id.name }}</dt>
+                      <dt>
+                        {{ email.lkp_emailType_id.name|title }} 
+                        {% if email.is_primary %}
+                          (Primary)
+                        {% endif %}
+                      </dt>
                       <dd class="indent"><a href="mailto:{{ email.email }}">{{ email.email }}</a></dd>
                     </div>
                     {% endfor %}
