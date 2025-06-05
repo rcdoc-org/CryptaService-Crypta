@@ -29,6 +29,7 @@ DYNAMIC_FILTER_FIELDS = {
     ],
     'location': [
         'type',                                   # Location type (Church / School / etc.)
+        'assignment__lkp_assignmentType_id__title', # Assignments
         'churchDetail_location__cityServed',      # City Served
         'lkp_county_id__name',                    # Country 
         'churchDetail_location__is_doc',           # Diocesan Entity
@@ -93,5 +94,6 @@ FIELD_LABLES = {
         'lkp_physicalAddress_id__state':           'Physical State',
         'lkp_mailingAddress_id__state':            'Mailing State', 
         'church_language__lkp_language_id__name': 'Language Options',
+        'assignment__lkp_assignmentType_id__title': 'Assignments',
         
 }
