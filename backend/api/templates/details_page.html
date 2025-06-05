@@ -605,12 +605,7 @@
                 <div class="row">
                   <dt class="col-auto">Tax ID:</dt>
                   <dd class="col">{{ object.location_details.tax_id|default:"None" }}</dd>
-                </div>
-
-                <div class="row">
-                  <dt class="col-auto">Geo ID:</dt>
-                  <dd class="col">{{ object.location_details.geo_id|default:"None" }}</dd>
-                </div>
+                </div>  
 
                 <div class="row">
                 {% if object.location_details.type_id %}
@@ -717,7 +712,7 @@
         </div>
 
           <!-- Location Details -->
-        <div id="location-info" class="detail-section">
+        <div id="location-info" class="detail-section d-none">
           <!-- Address Info -->
           <div class="row mb-3">
             <!-- Physical Address -->
@@ -767,14 +762,41 @@
               </div>
             </div>
           </div>
+          <!-- Rectory Address -->
+          <div class="row mb-3">
+            <div class="col">
+              <div class="card mb-4 border-0 rounded-4 shadow-sm">
+                <div class="card-body">
+                  <small class="text-muted">Rectory Address</small>
+                  {% if object.location_details.lkp_rectoryAddress %}
+                  <address class="mt-2">{{ object.location_details.lkp_rectoryAddress_id.address1 }}<br>
+                   {% if object.location_details.lkp_rectoryAddress.address2 and object.lkp_physicalAddress_id.address2 != 'nan' %}{{ object.location_details.lkp_rectoryAddress.address2 }}<br>{% endif %}
+                      {{ object.location_details.lkp_rectoryAddress.city }}, {{ object.location_details.lkp_rectoryAddress.state }} {{ object.location_details.lkp_rectoryAddress.zip_code }}<br>
+                      {{ object.location_details.lkp_rectoryAddress.country }} 
+                  </address>
+                  {% else %}
+                  <dd>Not Recorded</dd>
+                  {% endif %}
+                </div>
+              </div>
+            </div>
+            <div class="col">
+            </div>
+          </div>
           <div class="card mb-4 border-0 rounded-4 shadow-sm">
             <div class="card-body">
               <small class="text-muted">Location Details</small>
               <div class="mt-2">
                 <div class="row">
+                  <dt class="col-auto">Geo ID:</dt>
+                  <dd class="col">{{ object.location_details.geo_id|default:"None" }}</dd>
+                </div>
+
+                <div class="row">
                   <dt class="col-auto">Latitude:</dt>
                   <dd class="col">{{ object.latitude }}</dd>
                 </div>
+
                 <div class="row">
                   <dt class="col-auto">Longitude:</dt>
                   <dd class="col">{{ object.longitude }}</dd>
@@ -808,12 +830,7 @@
               <div class="col">
                 <div class="card mb-4 border-0 rounded-4 shadow-sm">
                   <div class="card-body">
-                    <small class="text-muted">Dedications</small>
-                      <dt>First Dedication</dt>
-                      <dd class="indent">{{ object.location_details.date_firstDedication|date:"m/d/Y"|default:"None" }}</dd>
-
-                      <dt>Second Dedication</dt>
-                      <dd class="indent">{{ object.location_details.date_secondDedication|date:"m/d/Y"|default:"None" }}</dd>
+                    <small class="text-muted">Sunday Masses</small>
                   </div>
                 </div>  
               </div>
@@ -835,10 +852,18 @@
               <div class="card-body">
                 <small class="text-muted">Mass Languages & Times</small>
                 {% if object.languages %}
-                    {% for lang in object.languages %}
-                      <dt>{{ lang.lkp_language_id.name }}</dt>
-                      <dd class="indent">{{ lang.massTime|time:"H:i" }}</dd>
-                    {% endfor %}
+                    <dt>Saturday Masses</dt>
+                  {% for lang in object.languages %}
+                  {% if lang.massDay == 'sat' %}
+                    <dd class="indent">{{ lang.massTime|time:"H:i" }} - {{ lang.lkp_language_id.name }}</dd>
+                  {% endif %}
+                  {% endfor %}
+                  <dt>Sunday Masses</dt>
+                  {% for lang in object.languages %}
+                  {% if lang.massDay == 'sun' %}
+                    <dd class="indent">{{ lang.massTime|time:"H:i" }} - {{ lang.lkp_language_id.name }}</dd>
+                  {% endif %}
+                  {% endfor %}
                 {% else %}
                   <p class="mt-2">No mass schedule recorded</p>
                 {% endif %}
