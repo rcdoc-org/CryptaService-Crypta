@@ -784,6 +784,11 @@ class Church_Detail(models.Model):
                                       on_delete=models.CASCADE,
                                       null=True, blank=True,
                                       related_name='churchDetail_mission')
+    lkp_rectoryAddress_id = models.ForeignKey(Address,
+                                              on_delete=models.CASCADE,
+                                              null=True,
+                                              blank=True,
+                                              )
     parishUniqueName = models.CharField(max_length=255, null=False)
     boundary = models.FileField(upload_to='../media/boundaries/', null=True, blank=True,)
     pastoralPlan = models.FileField(upload_to='../media/pastoralPlans/', null=True, blank=True)
