@@ -106,17 +106,13 @@
                   <small class="text-muted">Current Assignment</small>
                   {% if object.assignments %}
                     {% for assignment in object.assignments %}
-                      {% if assignment.date_released != 'None' %}
+                      {% if not assignment.date_released %}
                       <div class="mt-2">
                         <span>
                           {{ assignment.lkp_assignmentType_id.title }}<br>
                           {{ assignment.lkp_location_id.name }}
                           - As of: {{ assignment.date_assigned|date:"m/d/Y" }}
                         </span>
-                      </div>
-                      {% else %}
-                      <div class="mt-2">
-                        <dd>No active assignments</dd>
                       </div>
                       {% endif %}
                     {% endfor %}
