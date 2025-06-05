@@ -297,36 +297,96 @@
             <!-- Residence Address -->
             <div class="col">
               <div class="card mb-4 border-0 rounded-4 shadow-sm">
-                <div class="card-body">
-                  <small class="text-muted">Residence Address</small>
+                <div class="card-body d-flex align-items-center">
                   {% if object.residence %}
-                    <address class="mt-2">
-                      {{ object.residence.address1 }}<br>
-                      {% if object.residence.address2 != 'nan' %}{{ object.residence.address2 }}<br>{% endif %}
-                      {{ object.residence.city }}, {{ object.residence.state }} {{ object.residence.zip_code }}<br>
-                      {% if object.residence.country != 'nan' %}{{ object.residence.country }}{% else %}USA{% endif %}
-                    </address>
+                    {# Build a Google Maps “search” URL piece by piece #}
+                    <a
+                      href="
+                        https://www.google.com/maps/search/?api=1&query=
+                        {{ object.residence.address1|urlencode }},
+                        {% if object.residence.address2 and object.residence.address2 != 'nan' %}
+                          {{ object.residence.address2|urlencode }},
+                        {% endif %}
+                        {{ object.residence.city|urlencode }},
+                        {{ object.residence.state|urlencode }}
+                        {{ object.residence.zip_code|urlencode }}
+                      "
+                      target="_blank"
+                      class="me-2"
+                      style="text-decoration: none; color: inherit;"
+                    >
+                      <i class="fas fa-map-marker-alt"></i>
+                    </a>
                   {% else %}
-                    <p class="mt-2">None</p>
+                    {# If there is no residence, still show a dimmed icon (optional) #}
+                    <i class="fas fa-map-marker-alt me-2 text-muted"></i>
                   {% endif %}
+
+                  <div>
+                    <small class="text-muted">Residence Address</small>
+                    {% if object.residence %}
+                      <address class="mt-2">
+                        {{ object.residence.address1 }}<br>
+                        {% if object.residence.address2 and object.residence.address2 != 'nan' %}
+                          {{ object.residence.address2 }}<br>
+                        {% endif %}
+                        {{ object.residence.city }}, {{ object.residence.state }}
+                        {{ object.residence.zip_code }}<br>
+                        {% if object.residence.country and object.residence.country != 'nan' %}
+                          {{ object.residence.country }}
+                        {% else %}
+                          USA
+                        {% endif %}
+                      </address>
+                    {% else %}
+                      <p class="mt-2">None</p>
+                    {% endif %}
+                  </div>
                 </div>
               </div>
             </div>
+
             <!-- Mailing Address -->
             <div class="col">
               <div class="card mb-4 border-0 rounded-4 shadow-sm">
-                <div class="card-body">
-                  <small class="text-muted">Mailing Address</small>
+                <div class="card-body d-flex align-items-center">
                   {% if object.mailing %}
-                    <address class="mt-2">
-                      {{ object.mailing.address1 }}<br>
-                      {% if object.mailing.address2 != 'nan' %}{{ object.mailing.address2 }}<br>{% endif %}
-                      {{ object.mailing.city }}, {{ object.mailing.state }} {{ object.mailing.zip_code }}<br>
-                      {% if object.mailing.country != 'nan' %}{{ object.mailing.country }}{% else %}USA{% endif %}
-                    </address>
+                    {# Build a Google Maps “search” URL piece by piece #}
+                    <a
+                      href="
+                        https://www.google.com/maps/search/?api=1&query=
+                        {{ object.mailing.address1|urlencode }},
+                        {% if object.mailing.address2 and object.mailing.address2 != 'nan' %}
+                          {{ object.mailing.address2|urlencode }},
+                        {% endif %}
+                        {{ object.mailing.city|urlencode }},
+                        {{ object.mailing.state|urlencode }}
+                        {{ object.mailing.zip_code|urlencode }}
+                      "
+                      target="_blank"
+                      class="me-2"
+                      style="text-decoration: none; color: inherit;"
+                    >
+                      <i class="fas fa-map-marker-alt"></i>
+                    </a>
                   {% else %}
-                    <p class="mt-2">None</p>
+                    {# If there is no residence, still show a dimmed icon (optional) #}
+                    <i class="fas fa-map-marker-alt me-2 text-muted"></i>
                   {% endif %}
+
+                  <div>
+                    <small class="text-muted">Mailing Address</small>
+                    {% if object.mailing %}
+                      <address class="mt-2">
+                        {{ object.mailing.address1 }}<br>
+                        {% if object.mailing.address2 != 'nan' %}{{ object.mailing.address2 }}<br>{% endif %}
+                        {{ object.mailing.city }}, {{ object.mailing.state }} {{ object.mailing.zip_code }}<br>
+                        {% if object.mailing.country != 'nan' %}{{ object.mailing.country }}{% else %}USA{% endif %}
+                      </address>
+                    {% else %}
+                      <p class="mt-2">None</p>
+                    {% endif %}
+                  </div>
                 </div>
               </div>
             </div>
