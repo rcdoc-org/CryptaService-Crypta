@@ -1073,7 +1073,8 @@
                   <div class="card-body">
                     <small class="text-muted">Assigned Personnel</small>
                     {% for assign in object.assignments %}
-                      <p>{{ assign.lkp_assignmentType_id.title }}: {{ assign.lkp_person_id.name }}</p>
+                      <dt>{{ assign.lkp_assignmentType_id.title }}</dt>
+                      <dd class="indent">{{ assign.lkp_person_id.name }}</dd>
                     {% endfor %}
                     {% if not object.assignments %}
                       <p class="mt-2">No staff assigned</p>
@@ -1106,6 +1107,183 @@
                 {% endif %}
               </div>
             </div>
+             <!-- ── 2) Ministry & School Services (latest StatusAnimarum) ── -->
+            {% if object.statusAnimarum %}
+              {% with sa=object.statusAnimarum.last %}
+                <div class="card mb-4 border-0 rounded-4 shadow-sm">
+                  <div class="card-body">
+                    <small class="text-muted">Ministry &amp; School Services</small>
+                    <div class="mt-2">
+
+                      <!-- Social Outreach Services -->
+                      <div class="row mb-2">
+                        <dt class="col-auto">Social Outreach Services:</dt>
+                        <dd class="col">
+                          {% if sa.social_outreach_program.all %}
+                            {% for sop in sa.social_outreach_program.all %}
+                              {{ sop.name }}{% if not forloop.last %}, {% endif %}
+                            {% endfor %}
+                          {% else %}
+                            None
+                          {% endif %}
+                        </dd>
+                      </div>
+
+                      <!-- Referrals to Catholic Charities -->
+                      <div class="row mb-2">
+                        <dt class="col-auto">Referrals to Catholic Charities:</dt>
+                        <dd class="col">
+                          {{ sa.referrals_catholicCharities|default:"0" }}
+                        </dd>
+                      </div>
+
+                      <!-- Homeschool Program -->
+                      <div class="row mb-2">
+                        <dt class="col-auto">Homeschool Program:</dt>
+                        <dd class="col">
+                          {{ sa.has_homeschoolProgram|yesno:"Yes,No" }}
+                        </dd>
+                      </div>
+
+                      <!-- Child care / Day care -->
+                      <div class="row mb-2">
+                        <dt class="col-auto">Child care / Day care:</dt>
+                        <dd class="col">
+                          {{ sa.has_chileCareDayCare|yesno:"Yes,No" }}
+                        </dd>
+                      </div>
+
+                      <!-- Scouting Program -->
+                      <div class="row mb-2">
+                        <dt class="col-auto">Scouting Program:</dt>
+                        <dd class="col">
+                          {{ sa.has_scoutingProgram|yesno:"Yes,No" }}
+                        </dd>
+                      </div>
+
+                      <!-- Chapel on Campus -->
+                      <div class="row mb-2">
+                        <dt class="col-auto">Chapel on Campus:</dt>
+                        <dd class="col">
+                          {{ sa.has_chapelOnCampus|yesno:"Yes,No" }}
+                        </dd>
+                      </div>
+
+                      <!-- Adoration Chapel on Campus -->
+                      <div class="row mb-2">
+                        <dt class="col-auto">Adoration Chapel on Campus:</dt>
+                        <dd class="col">
+                          {{ sa.has_adorationChapelOnCampus|yesno:"Yes,No" }}
+                        </dd>
+                      </div>
+
+                      <!-- Columbarium -->
+                      <div class="row mb-2">
+                        <dt class="col-auto">Columbarium:</dt>
+                        <dd class="col">
+                          {{ sa.has_columbarium|yesno:"Yes,No" }}
+                        </dd>
+                      </div>
+
+                      <!-- Cemetery -->
+                      <div class="row mb-2">
+                        <dt class="col-auto">Cemetery:</dt>
+                        <dd class="col">
+                          {{ sa.has_cemetary|yesno:"Yes,No" }}
+                        </dd>
+                      </div>
+
+                      <!-- School on Site -->
+                      <div class="row mb-2">
+                        <dt class="col-auto">School On Site:</dt>
+                        <dd class="col">
+                          {{ sa.has_schoolOnSite|yesno:"Yes,No" }}
+                        </dd>
+                      </div>
+
+                      <!-- School Type -->
+                      {% if sa.has_schoolOnSite %}
+                        <div class="row mb-2">
+                          <dt class="col-auto">School Type:</dt>
+                          <dd class="col">
+                            {{ sa.get_schoolType_display|default:"None" }}
+                          </dd>
+                        </div>
+
+                        <!-- Non-parochial School Using Facilities -->
+                        <div class="row mb-2">
+                          <dt class="col-auto">Non-parochial School Using Facilities:</dt>
+                          <dd class="col">
+                            {{ sa.is_nonParochialSchoolUsingFacilities|yesno:"Yes,No" }}
+                          </dd>
+                        </div>
+                      {% endif %}
+
+                    </div>
+                  </div>
+                </div>
+              {% endwith %}
+              {% else %}
+                <div class="card mb-4 border-0 rounded-4 shadow-sm">
+                  <div class="card-body">
+                    <small class="text-muted">Ministry &amp; School Services</small>
+                    <p class="mt-2">No ministry/school data recorded</p>
+                  </div>
+                </div>
+            {% endif %}
+
+
+            <!-- ── 3) Hospital / Hospice ── -->
+            {% if object.hospitals %}
+              {% with hd=object.hospitals.first %}
+                <div class="card mb-4 border-0 rounded-4 shadow-sm">
+                  <div class="card-body">
+                    <small class="text-muted">Hospitals / Hospices</small>
+                    <div class="mt-2">
+
+                      <!-- Facility Type -->
+                      <div class="row mb-2">
+                        <dt class="col-auto">Facility Type</dt>
+                        <dd class="col">{{ hd.facilityType|title }}</dd>
+                      </div>
+
+                      <!-- Diocese -->
+                      <div class="row mb-2">
+                        <dt class="col-auto">Diocese</dt>
+                        <dd class="col">
+                          {% if hd.diocese == 'diocese_of_charlotte' %}
+                            Diocese of Charlotte
+                          {% elif hd.diocese == 'diocese_of_raleigh' %}
+                            Diocese of Raleigh
+                          {% else %}
+                            {{ hd.diocese }}
+                          {% endif %}
+                        </dd>
+                      </div>
+
+                      <!-- Parish Boundary (if any) -->
+                      {% if hd.lkp_parishBoundary_id %}
+                        <div class="row mb-2">
+                          <dt class="col-auto">Parish Boundary</dt>
+                          <dd class="col">{{ hd.lkp_parishBoundary_id.name }}</dd>
+                        </div>
+                      {% endif %}
+
+                    </div>
+                  </div>
+                </div>
+              {% endwith %}
+              {% else %}
+                <div class="card mb-4 border-0 rounded-4 shadow-sm">
+                  <div class="card-body">
+                    <small class="text-muted">Hospitals / Hospices</small>
+                    <p class="mt-2">No hospital/hospice data recorded</p>
+                  </div>
+                </div>
+            {% endif %}
+
+          </div>
+
           </div>
 
           <!-- STAFF INFO -->
