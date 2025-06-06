@@ -885,6 +885,9 @@ def get_filtered_data(base, raw_filters, raw_stats=None):
                     "School on Site?":  sa.has_schoolOnSite,
                     "NonParochial School Using Facilities?":  sa.is_nonParochialSchoolUsingFacilities,
                 })
+                rec["Social Outreach Programs"] = ", ".join(
+                    sop.name for sop in obj.social_outreach_program.all()
+                )
 
 
         records.append(rec)

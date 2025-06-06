@@ -201,6 +201,10 @@ class PersonAdmin(FlatpickrModelAdmin):
 # ─────────────────────────────────────────────────────────────────────────────
 # INLINE CLASSES FOR "LOCATION" RELATED TABLES
 # ─────────────────────────────────────────────────────────────────────────────
+class SocialOutreachProgramInline(admin.TabularInline):
+    # point at the automatically generated “through” model
+    model = SocialOutreachProgram.church.through
+    extra = 0
 
 class LocationPhoneInline(admin.TabularInline):
     model = Location_Phone
@@ -385,6 +389,7 @@ class LocationAdmin(FlatpickrModelAdmin):
         AssignmentInlineForLocation,
         StatusAnimarumInline,
         OctoberMassCountInline,
+        SocialOutreachProgramInline
         # (Removed BuildingOnSiteInline and SocialOutreachProgramInline here,
         #  since those through‐tables do not FK directly to Location.)
     ]

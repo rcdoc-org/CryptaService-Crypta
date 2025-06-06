@@ -40,6 +40,7 @@ DYNAMIC_FILTER_FIELDS = {
         'lkp_mailingAddress_id__city',            # Mailing city 
         'lkp_mailingAddress_id__state',            # Mailing city 
         'churchDetail_location__lkp_rectoryAddress_id__city', #Rectory City
+        'social_outreach_program__name',            # Social Outreach Programs
         'lkp_vicariate_id__name',                 # Vicariate
     ],
 }
@@ -94,6 +95,6 @@ FIELD_LABLES = {
         'lkp_physicalAddress_id__state':           'Physical State',
         'lkp_mailingAddress_id__state':            'Mailing State', 
         'church_language__lkp_language_id__name': 'Language Options',
-        'assignment__lkp_assignmentType_id__title': 'Assignments',
+        'social_outreach_program__name':            'Social Outreach Programs',
         
 }
