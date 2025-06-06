@@ -1126,7 +1126,9 @@ class Assignment(models.Model):
 class StatusAnimarum(models.Model):
     choice_year = [
         ('2020-21', '2020-21'),
-        ('2023', '2023'),
+        ('2021-22', '2021-22'),
+        ('2022-23', '2022-23'),
+        ('2023-24', '2023-24'),
         ('2024-25', '2024-25')
     ]
     choice_schoolType = [
