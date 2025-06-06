@@ -391,6 +391,7 @@ def get_filtered_data(base, raw_filters, raw_stats=None):
         "Diocese":                 "Masses/Ministries",
         "Parish Boundary":         "Masses/Ministries",
         "Is Other Entity":         "Masses/Ministries",
+        "Social Outreach Programs": "Masses/Ministries",
         
         
         # - Staff -
@@ -448,6 +449,7 @@ def get_filtered_data(base, raw_filters, raw_stats=None):
         "Cemetery on Site?":            "Statistics",
         "School on Site?":              "Statistics",
         "NonParochial School Using Facilities?":        "Statistics",
+        "Priest Count":     "Statistics",
         
     }
     
@@ -474,6 +476,7 @@ def get_filtered_data(base, raw_filters, raw_stats=None):
     # 3) Apply each as __in filter
     for field, vals in applied.items():
         qs = qs.filter(**{f"{field}__in": vals})
+
     qs = qs.distinct()
 
     # 4) Build Dynamic Filter Tree exactly as before
@@ -523,6 +526,24 @@ def get_filtered_data(base, raw_filters, raw_stats=None):
                 "second_person",
             )
     else:
+        qs = qs.annotate(
+            priest_count = Count(
+                'assignment',
+                filter=Q(assignment__lkp_person_id__priest_detail__isnull=False)
+            )
+        )
+        
+        # Get Location with a certain number of priests assigned no matter the assigned title.
+        if raw_stats:
+            min_pc = raw_stats.get('priest_count_min')
+            max_pc = raw_stats.get('priest_count_max')
+            
+            if min_pc is not None:
+                qs = qs.filter(priest_count__gte=int(min_pc))
+            if max_pc is not None:
+                qs = qs.filter(priest_count__lte=int(max_pc))
+
+        
         qs = qs.select_related(
                 "lkp_physicalAddress_id", "lkp_mailingAddress_id",
                 "lkp_vicariate_id", "lkp_county_id"
@@ -777,6 +798,7 @@ def get_filtered_data(base, raw_filters, raw_stats=None):
                                         for m in obj.mission.all()),
                 "Parishes":         ", ".join(p.lkp_mission_id.name
                                         for p in obj.parish.all()),
+                "Priest Count":     obj.priest_count,
             }
 
             # — Church‐specific details (if any) —
@@ -954,6 +976,7 @@ def get_filtered_data(base, raw_filters, raw_stats=None):
     # return also the `columns` list
     return records, applied, filter_tree, columns, stats_info
 
+# Not used but considered if used in more place in the future.
 def filter_locations_by_priests(request):
     
     # Grab min_priests" from request (default to 0 if not provided)
