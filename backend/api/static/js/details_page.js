@@ -198,6 +198,33 @@
                 });
             }
         });
+        // ── NEW: Offertory bar chart ──
+        const offCanvas = document.getElementById('offertoryChart');
+        if (offCanvas && typeof offertoryYears !== 'undefined' && typeof offertoryIncomes !== 'undefined') {
+          const offCtx = offCanvas.getContext('2d');
+          new Chart(offCtx, {
+            type: 'bar',
+            data: {
+              labels: offertoryYears,
+              datasets: [{
+                label: 'Offertory Income',
+                data: offertoryIncomes,
+                backgroundColor: 'rgba(44, 181, 60, 0.6)',
+                borderColor: 'rgba(75, 192, 192, 1)',
+                borderWidth: 1
+              }]
+            },
+            options: {
+              responsive: true,
+              maintainAspectRatio: false,
+              scales: {
+                y: {
+                  beginAtZero: true
+                }
+              }
+            }
+          });
+        }
     }
 
     function init() {

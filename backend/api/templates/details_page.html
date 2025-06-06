@@ -1653,6 +1653,28 @@
               </ul>
 
               <div class="tab-content" id="statYearTabsContent">
+                {% if object.offertories %}
+                  <div class="card mb-4 border-0 rounded-4 shadow-sm">
+                    <div class="card-body">
+                      <small class="text-muted">Offertory Income Over Years</small>
+                      <div class="chart-wrapper">
+                        <canvas id="offertoryChart" class="mt-3" style="height: 300px;"></canvas>
+                      </div>
+                    </div>
+                  </div>
+                  <script>
+                    const offertoryYears = [
+                      {% for off in object.offertories %}
+                        "{{ off.year }}"{% if not forloop.last %},{% endif %}
+                      {% endfor %}
+                    ];
+                    const offertoryIncomes = [
+                      {% for off in object.offertories %}
+                        {{ off.income }}{% if not forloop.last %},{% endif %}
+                      {% endfor %}
+                    ];
+                  </script>
+                {% endif %}
                 {% for sa in object.statusAnimarum %}
                   <div
                     class="tab-pane fade {% if forloop.first %}show active{% endif %}"
@@ -1809,6 +1831,7 @@
             {% else %}
               <p>No statistical data recorded for this location.</p>
             {% endif %}
+
           </div>
 
           
