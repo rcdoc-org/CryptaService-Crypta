@@ -545,12 +545,14 @@
 
             let avg = 0;
             let median = 0;
+            let total = 0;
 
             if (nums.length) {
             // Mean (average)
             const sum = nums.reduce((a, b) => a + b, 0);
             avg = (sum / nums.length).toFixed(2);
-
+            total = sum;
+            
             // Median
             nums.sort((a, b) => a - b);
             const mid = Math.floor(nums.length / 2);
@@ -564,7 +566,7 @@
             median = '0.00';
             }
 
-            return { display, min, median, avg, max };
+            return { display, min, median, avg, max, total };
         });
 
         // 3) Build the Bootstrap card HTML
@@ -581,6 +583,7 @@
                         <th>Median</th>
                         <th>Average</th>
                         <th>Max</th>
+                        <th>Total</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -591,6 +594,7 @@
                         <td>${s.median}</td>
                         <td>${s.avg}</td>
                         <td>${s.max}</td>
+                        <td>${s.total}</td>
                         </tr>
                     `).join('')}
                     </tbody>
