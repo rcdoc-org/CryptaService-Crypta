@@ -204,7 +204,7 @@ class PersonAdmin(FlatpickrModelAdmin):
 
 class LocationPhoneInline(admin.TabularInline):
     model = Location_Phone
-    extra = 1
+    extra = 0
     fields = ("lkp_phoneType_id", "phoneNumber", "is_primary")
     verbose_name = "Phone"
     verbose_name_plural = "Phones"
@@ -212,7 +212,7 @@ class LocationPhoneInline(admin.TabularInline):
 
 class LocationEmailInline(admin.TabularInline):
     model = Location_Email
-    extra = 1
+    extra = 0
     fields = ("lkp_emailType_id", "email", "is_primary")
     verbose_name = "Email"
     verbose_name_plural = "Emails"
@@ -220,7 +220,7 @@ class LocationEmailInline(admin.TabularInline):
 
 class LocationStatusInline(admin.TabularInline):
     model = Location_Status
-    extra = 1
+    extra = 0
     fields = ("lkp_status_id", "date_assigned", "date_released", "details")
     verbose_name = "Status"
     verbose_name_plural = "Statuses"
@@ -243,7 +243,7 @@ class ChurchDetailInline(admin.StackedInline):
 
 class ChurchLanguageInline(admin.TabularInline):
     model = Church_Language
-    extra = 1
+    extra = 0
     fk_name = "lkp_church_id"
     fields = ("lkp_language_id", "massTime")
     verbose_name = "Mass Language"
@@ -281,7 +281,7 @@ class OtherEntityDetailInline(admin.StackedInline):
 
 class MissionConnectionInline(admin.TabularInline):
     model = MissionConnection
-    extra = 1
+    extra = 0
     fk_name = "lkp_parish_id"                      # ← must specify which FK points to Location
     fields = ("lkp_mission_id", "lkp_parish_id")
     verbose_name = "Mission Connection"
@@ -309,7 +309,7 @@ class SchoolDetailInline(admin.StackedInline):
 
 class EnrollmentInline(admin.TabularInline):
     model = Enrollment
-    extra = 1
+    extra = 0
     fk_name = "lkp_school_id"
     fields = (
         "year", "prek", "transitionalKindergarden", "kindergarden", "grade_1", "grade_2",
@@ -323,7 +323,7 @@ class EnrollmentInline(admin.TabularInline):
 class AssignmentInlineForLocation(admin.TabularInline):
     model = Assignment
     fk_name = "lkp_location_id"
-    extra = 1
+    extra = 0
     fields = ("lkp_assignmentType_id", "lkp_person_id", "date_assigned", "date_released", "term")
     verbose_name = "Assignment"
     verbose_name_plural = "Assignments"
@@ -332,7 +332,7 @@ class AssignmentInlineForLocation(admin.TabularInline):
 class StatusAnimarumInline(admin.TabularInline):
     model = StatusAnimarum
     fk_name = "lkp_church_id"
-    extra = 1
+    extra = 0
     fields = (
         "year", "fullTime_deacons", "fullTime_brothers", "fullTime_sisters", "fullTime_other",
         "partTime_staff", "volunteers", "registeredHouseholds", "maxMass", "seatingCapacity",
@@ -353,7 +353,7 @@ class StatusAnimarumInline(admin.TabularInline):
 class OctoberMassCountInline(admin.TabularInline):
     model = OctoberMassCount
     fk_name = "lkp_church_id"
-    extra = 1
+    extra = 0
     fields = ("year", "week1", "week2", "week3", "week4")
     verbose_name = "October Mass Count"
     verbose_name_plural = "October Mass Counts"
