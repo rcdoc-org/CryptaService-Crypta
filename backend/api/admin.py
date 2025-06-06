@@ -36,6 +36,7 @@ from .models import (
     Assignment,
     StatusAnimarum,
     OctoberMassCount,
+    Offertory,
     BuildingOnSite,
     SocialOutreachProgram,
     FilterOption,
@@ -362,6 +363,15 @@ class OctoberMassCountInline(admin.TabularInline):
     verbose_name = "October Mass Count"
     verbose_name_plural = "October Mass Counts"
 
+class OffertoryInline(admin.TabularInline):
+    model = Offertory
+    fk_name = 'lkp_church_id'
+    extra = 0
+    fields = ('year','income')
+    verbose_name = 'Offertory'
+    verbose_name_plural = 'Offertories'
+    
+
 
 # ─────────────────────────────────────────────────────────────────────────────
 # LOCATION ADMIN REGISTRATION
@@ -389,6 +399,7 @@ class LocationAdmin(FlatpickrModelAdmin):
         AssignmentInlineForLocation,
         StatusAnimarumInline,
         OctoberMassCountInline,
+        OffertoryInline,
         SocialOutreachProgramInline
         # (Removed BuildingOnSiteInline and SocialOutreachProgramInline here,
         #  since those through‐tables do not FK directly to Location.)

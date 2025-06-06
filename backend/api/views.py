@@ -273,6 +273,8 @@ def get_filtered_data(base, raw_filters, raw_stats=None):
         "Cemetery on Site?":  'statusAnimarum_church__has_cemetary',
         "School on Site?":  'statusAnimarum_church__has_schoolOnSite',
         "NonParochial School Using Facilities?":  'statusAnimarum_church__is_nonParochialSchoolUsingFacilities',
+        'Offertory':            'offertory_church__income',
+        'October Mass Count':   'octoberCount_church__week1'
     }
     
     FIELD_CATEGORIES = {
@@ -451,6 +453,7 @@ def get_filtered_data(base, raw_filters, raw_stats=None):
         "NonParochial School Using Facilities?":        "Statistics",
         "Priest Count":     "Statistics",
         "Offertory":        "Statistics",
+        'October Mass Count': 'Statistics',
         
     }
     
@@ -861,6 +864,15 @@ def get_filtered_data(base, raw_filters, raw_stats=None):
             if offertory:
                 rec.update({
                     'Offertory': offertory.income,
+                })
+            
+            octMass_qs = obj.octoberCount_church.order_by('-year')
+            octMass = octMass_qs.first()
+            if octMass:
+                total = octMass.week1 + octMass.week2 + octMass.week3 + octMass.week4
+                rec.update({
+                'October Mass Count': total,
+                    
                 })
             
             """ Found an issue where this was pulling the oldest data and not the newest. """
