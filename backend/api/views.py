@@ -1,7 +1,7 @@
 import json
 import os
 import requests
-from datetime import datetime
+from datetime import datetime, date
 import logging
 from itertools import groupby
 import pandas as pd
@@ -136,11 +136,19 @@ def details_page(request, base, pk):
 
     obj = get_object_or_404(Model, pk=pk)
 
+    # Get today's date
+    today = date.today()
+
     # Common assignments
     assignments = obj.assignment_set.select_related(
         'lkp_location_id', 'lkp_assignmentType_id'
     ).order_by('date_assigned')
     obj.assignments = assignments
+    
+    active_assignments = obj.assignments.filter(
+        Q(date_released__isnull=True) |
+        Q(date_released__gte=today)
+    ).order_by('lkp_assignmentType_id__title', 'lkp_person_id__name')
 
     if ctx_base == 'person':
         # Person-specific details
@@ -219,7 +227,11 @@ def details_page(request, base, pk):
         obj.offertories = obj.offertory_church.order_by('year')
        
 
-    return render(request, 'details_page.html', {'object': obj, 'base': ctx_base})
+    return render(request, 'details_page.html', {
+        'object': obj, 
+        'base': ctx_base,
+        'active_assignments': active_assignments,
+        })
 
 def get_filtered_data(base, raw_filters, raw_stats=None):
     """
