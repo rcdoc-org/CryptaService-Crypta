@@ -208,7 +208,7 @@ def details_page(request, base, pk):
         # hospital connection
         obj.hospitals = obj.hospital_boundary.select_related('lkp_location_id').all()
         # Statistical records
-        obj.october_counts = obj.octoberCount_church.all()
+        obj.october_counts = obj.octoberCount_church.last()
         obj.statusAnimarum = obj.statusAnimarum_church.all() 
         obj.buildings_on_site = BuildingOnSite.objects.filter(
             statusAnimarum__in = obj.statusAnimarum
