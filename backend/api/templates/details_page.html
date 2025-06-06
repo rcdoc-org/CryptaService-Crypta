@@ -1069,20 +1069,24 @@
           <!-- CLERGY INFO -->
           <div id="clergy-info" class="detail-section d-none">
             <div class="col">
-                <div class="card mb-4 border-0 rounded-4 shadow-sm">
-                  <div class="card-body">
-                    <small class="text-muted">Assigned Personnel</small>
-                    {% for assign in object.assignments %}
+              <div class="card mb-4 border-0 rounded-4 shadow-sm">
+                <div class="card-body">
+                  <small class="text-muted">Assigned Personnel</small>
+
+                  {# Loop over only those assignments still active as of today #}
+                  {% if active_assignments %}
+                    {% for assign in active_assignments %}
                       <dt>{{ assign.lkp_assignmentType_id.title }}</dt>
                       <dd class="indent">{{ assign.lkp_person_id.name }}</dd>
                     {% endfor %}
-                    {% if not object.assignments %}
-                      <p class="mt-2">No staff assigned</p>
-                    {% endif %}
-                  </div>
+                  {% else %}
+                    <p class="mt-2">No staff assigned</p>
+                  {% endif %}
                 </div>
               </div>
+            </div>
           </div>
+
 
           <!-- MASS & MINISTRY INFO -->
           <div id="mass-info" class="detail-section d-none">
@@ -1311,21 +1315,20 @@
 
           <!-- STAFF INFO -->
           <div id="staff-info" class="detail-section d-none">
-            <div class="row mb-3">
-              <!-- 1) Assigned Clergy (unchanged) -->
-              <div class="col">
-                <div class="card mb-4 border-0 rounded-4 shadow-sm">
-                  <div class="card-body">
-                    <small class="text-muted">Assigned Clergy</small>
-                    {% if object.assignments %}
-                      {% for assign in object.assignments %}
-                        <dt>{{ assign.lkp_assignmentType_id.title }}</dt>
-                        <dd class="indent">{{ assign.lkp_person_id.name }}</dd>
-                      {% endfor %}
-                    {% else %}
-                      <p class="mt-2">No staff assigned</p>
-                    {% endif %}
-                  </div>
+            <div class="col">
+              <div class="card mb-4 border-0 rounded-4 shadow-sm">
+                <div class="card-body">
+                  <small class="text-muted">Assigned Personnel</small>
+
+                  {# Loop over only those assignments still active as of today #}
+                  {% if active_assignments %}
+                    {% for assign in active_assignments %}
+                      <dt>{{ assign.lkp_assignmentType_id.title }}</dt>
+                      <dd class="indent">{{ assign.lkp_person_id.name }}</dd>
+                    {% endfor %}
+                  {% else %}
+                    <p class="mt-2">No staff assigned</p>
+                  {% endif %}
                 </div>
               </div>
             </div>

@@ -146,9 +146,10 @@ def details_page(request, base, pk):
     obj.assignments = assignments
     
     active_assignments = obj.assignments.filter(
+        Q(date_assigned__lte=today),
         Q(date_released__isnull=True) |
         Q(date_released__gte=today)
-    ).order_by('lkp_assignmentType_id__title', 'lkp_person_id__name')
+    ).order_by('lkp_assignmentType_id__title', 'lkp_person_id__name_last')
 
     if ctx_base == 'person':
         # Person-specific details
