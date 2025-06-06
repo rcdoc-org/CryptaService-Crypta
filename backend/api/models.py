@@ -1360,6 +1360,18 @@ class StatusAnimarum(models.Model):
     def __str__(self):
         return f'{self.year}: {self.lkp_church_id.name}'
 
+class Offertory(models.Model):
+    lkp_church_id = models.ForeignKey(Location,
+                                      on_delete=models.CASCADE,
+                                      null=False,
+                                      related_name='offertory_church')
+    year = models.CharField(max_length=255, default=choice_year[-1],choices=choice_year,null=False)
+    income = models.IntegerField(default=0,
+                                 null=False,
+                                 validators=[
+                                     MinValueValidator(0)
+                                 ])
+
 class OctoberMassCount(models.Model):
     lkp_church_id = models.ForeignKey(Location,
                                       on_delete=models.CASCADE,
