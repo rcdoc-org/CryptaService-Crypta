@@ -10,6 +10,14 @@ from django.core.validators import (
                                     MaxLengthValidator,
 )
 
+choice_year = [
+        ('2020-21', '2020-21'),
+        ('2021-22', '2021-22'),
+        ('2022-23', '2022-23'),
+        ('2023-24', '2023-24'),
+        ('2024-25', '2024-25')
+    ]
+
 class Status(models.Model):
     """ Status holds the status for different person types. 
     You'll only see status options for users based on the type tied to a status name."""
@@ -1124,13 +1132,6 @@ class Assignment(models.Model):
             )
 
 class StatusAnimarum(models.Model):
-    choice_year = [
-        ('2020-21', '2020-21'),
-        ('2021-22', '2021-22'),
-        ('2022-23', '2022-23'),
-        ('2023-24', '2023-24'),
-        ('2024-25', '2024-25')
-    ]
     choice_schoolType = [
         ('inter-parochial', 'Inter-Parochial'),
         ('macs', 'MACS'),
@@ -1364,10 +1365,7 @@ class OctoberMassCount(models.Model):
                                       on_delete=models.CASCADE,
                                       null=False,
                                       related_name='octoberCount_church')
-    year = models.PositiveIntegerField(null = False,
-                                       validators = [
-                                            MinValueValidator(2000)
-                                           ])
+    year = models.CharField(max_length=255, default=choice_year[-1],choices=choice_year, null=False)
     week1 = models.BigIntegerField(default=0,
                                    null=False,
                                    validators= [
