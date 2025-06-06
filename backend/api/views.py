@@ -543,6 +543,13 @@ def get_filtered_data(base, raw_filters, raw_stats=None):
                 # assignments:
                 "assignment_set",
                 
+                #positions at the church
+                'church_dre',
+                'church_youthMinister',
+                'church_officeManager',
+                'church_financial',
+                'church_pastoral',
+                
                 # Location Relationships
                 "churchDetail_mission",
                 "campusMinistry_church",
