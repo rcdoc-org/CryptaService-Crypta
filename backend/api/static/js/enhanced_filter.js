@@ -20,6 +20,7 @@
 
     // keep most recent stats_info from the server
     let lastStatsInfo = [];
+    let originalStatsInfo = [];
     // keep the user's last slider/radio settings
     let currentStats = {};
 
@@ -372,8 +373,17 @@
             renderFilters(payload.filters_html);
 
             // savethe returned stats_info to be reused
+            // lastStatsInfo = payload.stats_info;
+            // const freshData = gatherFilters();
+            // Save the returned stats_info;
+            // - originalStatsInfo only on first load
+            if (originalStatsInfo.length === 0) {
+                originalStatsInfo = payload.stats_info;
+            }
             lastStatsInfo = payload.stats_info;
-            const freshData = gatherFilters();
+            
+            // re-gather filters so 'freshData' exists
+            const freshData = gatherFilters()
             renderActiveFilters(freshData);
             renderActiveFilters(data);
 
@@ -489,7 +499,8 @@
             populateColumnForm();
 
             // render stats for any visible
-            renderStatsFilters(lastStatsInfo, currentStats);
+            // renderStatsFilters(lastStatsInfo, currentStats);
+            renderStatsFilters(originalStatsInfo, currentStats);
 
             // render the 'Statistics Summary' card (min / max / average)
             renderStatsSummary(lastStatsInfo);
