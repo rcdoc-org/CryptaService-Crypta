@@ -275,7 +275,7 @@ class Person(models.Model):
     name_middle = models.CharField(max_length=255, null=True, blank=True,)
     name_last = models.CharField(max_length=255, null=False)
     suffix = models.CharField(max_length=255, null=True, blank=True,)
-    photo = models.ImageField(upload_to='photos/', blank=True, null=True)
+    photo = models.ImageField(upload_to='photos/persons/', blank=True, null=True)
     date_birth = models.DateField(null=True, blank=True,)
     date_retired = models.DateField(null=True, blank=True,)
     date_deceased = models.DateField(null=True, blank=True,)
@@ -568,6 +568,7 @@ class Location(models.Model):
     latitude = models.DecimalField(max_digits=9, decimal_places=6, null=True, blank=True,)
     longitude = models.DecimalField(max_digits=9, decimal_places=6, null=True, blank=True,)
     website = models.URLField(max_length=255, null=True, blank=True,)
+    photo = models.ImageField(upload_to='photos/locations/', blank=True, null=True)
     lkp_physicalAddress_id = models.ForeignKey(Address,
                                                on_delete=models.CASCADE,
                                                null=True, blank=True,
@@ -826,7 +827,7 @@ class Church_Detail(models.Model):
                                    blank=True,
                                    related_name='church_pastoral')
     parishUniqueName = models.CharField(max_length=255, null=False)
-    boundary = models.FileField(upload_to='../media/boundaries/', null=True, blank=True,)
+    boundary = models.FileField(upload_to='boundaries/', null=True, blank=True,)
     pastoralPlan = models.FileField(upload_to='../media/pastoralPlans/', null=True, blank=True)
     sitePlan = models.FileField(upload_to='../media/sitePlans/', null=True, blank=True)
     is_mission = models.BooleanField(null=False)
