@@ -450,6 +450,7 @@ def get_filtered_data(base, raw_filters, raw_stats=None):
         "School on Site?":              "Statistics",
         "NonParochial School Using Facilities?":        "Statistics",
         "Priest Count":     "Statistics",
+        "Offertory":        "Statistics",
         
     }
     
@@ -582,6 +583,7 @@ def get_filtered_data(base, raw_filters, raw_stats=None):
                 # Statistics
                 "enrollment_set",
                 "octoberCount_church",
+                "offertory_church",
                 "statusAnimarum_church",
                 
             )
@@ -852,6 +854,13 @@ def get_filtered_data(base, raw_filters, raw_stats=None):
                     "Lay Staff Teaching":   sc.academicLay,
                     "Canonical Status": sc.canonicalStatus,
                     "Chapel on Site":   sc.is_schoolChapel,
+                })
+                
+            offertory_qs = obj.offertory_church.order_by('-year')
+            offertory = offertory_qs.first()
+            if offertory:
+                rec.update({
+                    'Offertory': offertory.income,
                 })
             
             """ Found an issue where this was pulling the oldest data and not the newest. """
