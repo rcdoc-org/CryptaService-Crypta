@@ -1284,22 +1284,26 @@
 
           <!-- STAFF INFO -->
           <div id="staff-info" class="detail-section d-none">
-            <div class="col">
-              <div class="card mb-4 border-0 rounded-4 shadow-sm">
-                <div class="card-body">
-                  <small class="text-muted">Assigned Clergy</small>
-                  {% for assign in object.assignments %}
-                    <dt>{{ assign.lkp_assignmentType_id.title }}</dt>
-                    <dd class="indent">{{ assign.lkp_person_id.name }}</dd>
-                  {% endfor %}
-                  {% if not object.assignments %}
-                    <p class="mt-2">No staff assigned</p>
-                  {% endif %}
+            <div class="row mb-3">
+              <!-- 1) Assigned Clergy (unchanged) -->
+              <div class="col">
+                <div class="card mb-4 border-0 rounded-4 shadow-sm">
+                  <div class="card-body">
+                    <small class="text-muted">Assigned Clergy</small>
+                    {% if object.assignments %}
+                      {% for assign in object.assignments %}
+                        <dt>{{ assign.lkp_assignmentType_id.title }}</dt>
+                        <dd class="indent">{{ assign.lkp_person_id.name }}</dd>
+                      {% endfor %}
+                    {% else %}
+                      <p class="mt-2">No staff assigned</p>
+                    {% endif %}
+                  </div>
                 </div>
               </div>
             </div>
+
             <div class="row mb-3">
-              <div class="col mb-3">
                 {% with sa=object.statusAnimarum.last %}
                 <div class="col">
                   <div class="card mb-4 border-0 rounded-4 shadow-sm">
@@ -1354,110 +1358,249 @@
                       </div>
                     </div>
                   </div>
-                </div>
                 {% endwith %}
               </div>
 
-              <div class="col mb-3">
-                <div class="col">
-                  <div class="card mb-4 border-0 rounded-4 shadow-sm">
-                    <div class="card-body">
-                      <small class="text-muted">DRE</small>
+            <div class="row mb-3">
+              <!-- 2) DRE -->
+              <div class="col-md-4 mb-3">
+                <div class="card mb-4 border-0 rounded-4 shadow-sm">
+                  <div class="card-body">
+                    <small class="text-muted">DRE</small>
+                    {% if object.location_details.lkp_dre_id %}
                       <div class="mt-2">
                         <dt>Name</dt>
-                        <dd class="indent"></dd>
+                        <dd class="indent">{{ object.location_details.lkp_dre_id.name }}</dd>
                       </div>
                       <div class="mt-2">
                         <dt>Phone</dt>
-                        <dd class="indent"></dd>
+                        {% with phones=object.location_details.lkp_dre_id.person_phone_set.all|dictsortreversed:"is_primary" %}
+                          {% if phones %}
+                            {% with p=phones.0.phoneNumber %}
+                              <dd class="indent">
+                                <a href="tel:{{ p }}">
+                                  ({{ p|slice:"0:3" }}) {{ p|slice:"3:6" }}-{{ p|slice:"6:" }}
+                                </a>
+                              </dd>
+                            {% endwith %}
+                          {% else %}
+                            <dd class="indent"><span class="text-muted">None recorded</span></dd>
+                          {% endif %}
+                        {% endwith %}
                       </div>
                       <div class="mt-2">
                         <dt>Email</dt>
-                        <dd class="indent"></dd>
+                        {% with emails=object.location_details.lkp_dre_id.person_email_set.all|dictsortreversed:"is_primary" %}
+                          {% if emails %}
+                            <dd class="indent">
+                              <a href="mailto:{{ emails.0.email }}">
+                                {{ emails.0.email }}
+                              </a>
+                            </dd>
+                          {% else %}
+                            <dd class="indent"><span class="text-muted">None recorded</span></dd>
+                          {% endif %}
+                        {% endwith %}
                       </div>
-                    </div>
-                  </div>
-                </div>
-                <div class="col">
-                  {% with ym=object.location_details.lkp_youthMinister_id %}
-                  <div class="card mb-4 border-0 rounded-4 shadow-sm">
-                    <div class="card-body">
-                      <small class="text-muted">Youth Minister</small>
-                      <div class="mt-2">
-                        <dt>Name</dt>
-                        <dd class="indent">{{ ym.name }}</dd>
-                      </div>
-                      <div class="mt-2">
-                        <dt>Phone</dt>
-                        <dd class="indent">{{ ym.person_phone_set.all|first}}</dd>
-                      </div>
-                      <div class="mt-2">
-                        <dt>Email</dt>
-                        <dd class="indent"></dd>
-                      </div>
-                    </div>
-                  </div>
-                  {% endwith %}
-                </div>
-                <div class="col">
-                  <div class="card mb-4 border-0 rounded-4 shadow-sm">
-                    <div class="card-body">
-                      <small class="text-muted">Office Manager</small>
-                      <div class="mt-2">
-                        <dt>Name</dt>
-                        <dd class="indent"></dd>
-                      </div>
-                      <div class="mt-2">
-                        <dt>Phone</dt>
-                        <dd class="indent"></dd>
-                      </div>
-                      <div class="mt-2">
-                        <dt>Email</dt>
-                        <dd class="indent"></dd>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <div class="col">
-                  <div class="card mb-4 border-0 rounded-4 shadow-sm">
-                    <div class="card-body">
-                      <small class="text-muted">Financial Council Chair</small>
-                      <div class="mt-2">
-                        <dt>Name</dt>
-                        <dd class="indent"></dd>
-                      </div>
-                      <div class="mt-2">
-                        <dt>Phone</dt>
-                        <dd class="indent"></dd>
-                      </div>
-                      <div class="mt-2">
-                        <dt>Email</dt>
-                        <dd class="indent"></dd>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <div class="col">
-                  <div class="card mb-4 border-0 rounded-4 shadow-sm">
-                    <div class="card-body">
-                      <small class="text-muted">Pastoral Council Chair</small>
-                      <div class="mt-2">
-                        <dt>Name</dt>
-                        <dd class="indent"></dd>
-                      </div>
-                      <div class="mt-2">
-                        <dt>Phone</dt>
-                        <dd class="indent"></dd>
-                      </div>
-                      <div class="mt-2">
-                        <dt>Email</dt>
-                        <dd class="indent"></dd>
-                      </div>
-                    </div>
+                    {% else %}
+                      <p class="mt-2">None recorded</p>
+                    {% endif %}
                   </div>
                 </div>
               </div>
-            </div>
+
+              <!-- 3) Youth Minister -->
+              <div class="col-md-4 mb-3">
+                <div class="card mb-4 border-0 rounded-4 shadow-sm">
+                  <div class="card-body">
+                    <small class="text-muted">Youth Minister</small>
+                    {% if object.location_details.lkp_youthMinister_id %}
+                      <div class="mt-2">
+                        <dt>Name</dt>
+                        <dd class="indent">{{ object.location_details.lkp_youthMinister_id.name }}</dd>
+                      </div>
+                      <div class="mt-2">
+                        <dt>Phone</dt>
+                        {% with phones=object.location_details.lkp_youthMinister_id.person_phone_set.all|dictsortreversed:"is_primary" %}
+                          {% if phones %}
+                            {% with p=phones.0.phoneNumber %}
+                              <dd class="indent">
+                                <a href="tel:{{ p }}">
+                                  ({{ p|slice:"0:3" }}) {{ p|slice:"3:6" }}-{{ p|slice:"6:" }}
+                                </a>
+                              </dd>
+                            {% endwith %}
+                          {% else %}
+                            <dd class="indent"><span class="text-muted">None recorded</span></dd>
+                          {% endif %}
+                        {% endwith %}
+                      </div>
+                      <div class="mt-2">
+                        <dt>Email</dt>
+                        {% with emails=object.location_details.lkp_youthMinister_id.person_email_set.all|dictsortreversed:"is_primary" %}
+                          {% if emails %}
+                            <dd class="indent">
+                              <a href="mailto:{{ emails.0.email }}">
+                                {{ emails.0.email }}
+                              </a>
+                            </dd>
+                          {% else %}
+                            <dd class="indent"><span class="text-muted">None recorded</span></dd>
+                          {% endif %}
+                        {% endwith %}
+                      </div>
+                    {% else %}
+                      <p class="mt-2">None recorded</p>
+                    {% endif %}
+                  </div>
+                </div>
+              </div>
+
+              <!-- 4) Office Manager -->
+              <div class="col-md-4 mb-3">
+                <div class="card mb-4 border-0 rounded-4 shadow-sm">
+                  <div class="card-body">
+                    <small class="text-muted">Office Manager</small>
+                    {% if object.location_details.lkp_officeManager_id %}
+                      <div class="mt-2">
+                        <dt>Name</dt>
+                        <dd class="indent">{{ object.location_details.lkp_officeManager_id.name }}</dd>
+                      </div>
+                      <div class="mt-2">
+                        <dt>Phone</dt>
+                        {% with phones=object.location_details.lkp_officeManager_id.person_phone_set.all|dictsortreversed:"is_primary" %}
+                          {% if phones %}
+                            {% with p=phones.0.phoneNumber %}
+                              <dd class="indent">
+                                <a href="tel:{{ p }}">
+                                  ({{ p|slice:"0:3" }}) {{ p|slice:"3:6" }}-{{ p|slice:"6:" }}
+                                </a>
+                              </dd>
+                            {% endwith %}
+                          {% else %}
+                            <dd class="indent"><span class="text-muted">None recorded</span></dd>
+                          {% endif %}
+                        {% endwith %}
+                      </div>
+                      <div class="mt-2">
+                        <dt>Email</dt>
+                        {% with emails=object.location_details.lkp_officeManager_id.person_email_set.all|dictsortreversed:"is_primary" %}
+                          {% if emails %}
+                            <dd class="indent">
+                              <a href="mailto:{{ emails.0.email }}">
+                                {{ emails.0.email }}
+                              </a>
+                            </dd>
+                          {% else %}
+                            <dd class="indent"><span class="text-muted">None recorded</span></dd>
+                          {% endif %}
+                        {% endwith %}
+                      </div>
+                    {% else %}
+                      <p class="mt-2">None recorded</p>
+                    {% endif %}
+                  </div>
+                </div>
+              </div>
+            </div> <!-- /.row mb-3 -->
+
+            <div class="row mb-3">
+              <!-- 5) Financial Council Chair -->
+              <div class="col-md-6 mb-3">
+                <div class="card mb-4 border-0 rounded-4 shadow-sm">
+                  <div class="card-body">
+                    <small class="text-muted">Financial Council Chair</small>
+                    {% if object.location_details.lkp_financial_id %}
+                      <div class="mt-2">
+                        <dt>Name</dt>
+                        <dd class="indent">{{ object.location_details.lkp_financial_id.name }}</dd>
+                      </div>
+                      <div class="mt-2">
+                        <dt>Phone</dt>
+                        {% with phones=object.location_details.lkp_financial_id.person_phone_set.all|dictsortreversed:"is_primary" %}
+                          {% if phones %}
+                            {% with p=phones.0.phoneNumber %}
+                              <dd class="indent">
+                                <a href="tel:{{ p }}">
+                                  ({{ p|slice:"0:3" }}) {{ p|slice:"3:6" }}-{{ p|slice:"6:" }}
+                                </a>
+                              </dd>
+                            {% endwith %}
+                          {% else %}
+                            <dd class="indent"><span class="text-muted">None recorded</span></dd>
+                          {% endif %}
+                        {% endwith %}
+                      </div>
+                      <div class="mt-2">
+                        <dt>Email</dt>
+                        {% with emails=object.location_details.lkp_financial_id.person_email_set.all|dictsortreversed:"is_primary" %}
+                          {% if emails %}
+                            <dd class="indent">
+                              <a href="mailto:{{ emails.0.email }}">
+                                {{ emails.0.email }}
+                              </a>
+                            </dd>
+                          {% else %}
+                            <dd class="indent"><span class="text-muted">None recorded</span></dd>
+                          {% endif %}
+                        {% endwith %}
+                      </div>
+                    {% else %}
+                      <p class="mt-2">None recorded</p>
+                    {% endif %}
+                  </div>
+                </div>
+              </div>
+
+              <!-- 6) Pastoral Council Chair -->
+              <div class="col-md-6 mb-3">
+                <div class="card mb-4 border-0 rounded-4 shadow-sm">
+                  <div class="card-body">
+                    <small class="text-muted">Pastoral Council Chair</small>
+                    {% if object.location_details.lkp_pastoral_id %}
+                      <div class="mt-2">
+                        <dt>Name</dt>
+                        <dd class="indent">{{ object.location_details.lkp_pastoral_id.name }}</dd>
+                      </div>
+                      <div class="mt-2">
+                        <dt>Phone</dt>
+                        {% with phones=object.location_details.lkp_pastoral_id.person_phone_set.all|dictsortreversed:"is_primary" %}
+                          {% if phones %}
+                            {% with p=phones.0.phoneNumber %}
+                              <dd class="indent">
+                                <a href="tel:{{ p }}">
+                                  ({{ p|slice:"0:3" }}) {{ p|slice:"3:6" }}-{{ p|slice:"6:" }}
+                                </a>
+                              </dd>
+                            {% endwith %}
+                          {% else %}
+                            <dd class="indent"><span class="text-muted">None recorded</span></dd>
+                          {% endif %}
+                        {% endwith %}
+                      </div>
+                      <div class="mt-2">
+                        <dt>Email</dt>
+                        {% with emails=object.location_details.lkp_pastoral_id.person_email_set.all|dictsortreversed:"is_primary" %}
+                          {% if emails %}
+                            <dd class="indent">
+                              <a href="mailto:{{ emails.0.email }}">
+                                {{ emails.0.email }}
+                              </a>
+                            </dd>
+                          {% else %}
+                            <dd class="indent"><span class="text-muted">None recorded</span></dd>
+                          {% endif %}
+                        {% endwith %}
+                      </div>
+                    {% else %}
+                      <p class="mt-2">None recorded</p>
+                    {% endif %}
+                  </div>
+                </div>
+              </div>
+            </div> <!-- /.row mb-3 -->
+          </div> <!-- /#staff-info -->
+
 
           <!-- STATISTICS INFO -->
           <div id="stat-info" class="detail-section d-none">
