@@ -1086,25 +1086,52 @@
 
           <!-- MASS & MINISTRY INFO -->
           <div id="mass-info" class="detail-section d-none">
-            <div class="card mb-4 border-0 rounded-4 shadow-sm">
-              <div class="card-body">
-                <small class="text-muted">Mass Languages & Times</small>
-                {% if object.languages %}
-                    <dt>Saturday Masses</dt>
-                  {% for lang in object.languages %}
-                  {% if lang.massDay == 'sat' %}
-                    <dd class="indent">{{ lang.massTime|time:"g:i A" }} - {{ lang.lkp_language_id.name }}</dd>
-                  {% endif %}
-                  {% endfor %}
-                  <dt>Sunday Masses</dt>
-                  {% for lang in object.languages %}
-                  {% if lang.massDay == 'sun' %}
-                    <dd class="indent">{{ lang.massTime|time:"g:i A" }} - {{ lang.lkp_language_id.name }}</dd>
-                  {% endif %}
-                  {% endfor %}
-                {% else %}
-                  <p class="mt-2">No mass schedule recorded</p>
-                {% endif %}
+            <div clas="row mb-3">
+              <div class="col">
+                <div class="card mb-4 border-0 rounded-4 shadow-sm">
+                  <div class="card-body">
+                    <small class="text-muted">Mass Languages & Times</small>
+                    {% if object.languages %}
+                        <dt>Saturday Masses</dt>
+                      {% for lang in object.languages %}
+                      {% if lang.massDay == 'sat' %}
+                        <dd class="indent">{{ lang.massTime|time:"g:i A" }} - {{ lang.lkp_language_id.name }}</dd>
+                      {% endif %}
+                      {% endfor %}
+                      <dt>Sunday Masses</dt>
+                      {% for lang in object.languages %}
+                      {% if lang.massDay == 'sun' %}
+                        <dd class="indent">{{ lang.massTime|time:"g:i A" }} - {{ lang.lkp_language_id.name }}</dd>
+                      {% endif %}
+                      {% endfor %}
+                    {% else %}
+                      <p class="mt-2">No mass schedule recorded</p>
+                    {% endif %}
+                  </div>
+                </div>
+              </div>
+              <div class="col">
+                <div class="card mb-4 border-0 rounded-4 shadow-sm">
+                  <div class="card-body">
+                    <small class="text-muted">October Mass Counts</small>
+                    <div class='mt-2'>
+                      <dt>Week 1</dt>
+                      <dd class="indent">{{ object.october_counts.week1 }}</dd>
+                    </div>
+                    <div class='mt-2'>
+                      <dt>Week 2</dt>
+                      <dd class="indent">{{ object.october_counts.week2 }}</dd>
+                    </div>
+                    <div class='mt-2'>
+                      <dt>Week 3</dt>
+                      <dd class="indent">{{ object.october_counts.week3 }}</dd>
+                    </div>
+                    <div class='mt-2'>
+                      <dt>Week 4</dt>
+                      <dd class="indent">{{ object.october_counts.week4 }}</dd>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
              <!-- ── 2) Ministry & School Services (latest StatusAnimarum) ── -->
