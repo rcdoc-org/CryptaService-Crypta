@@ -1231,8 +1231,6 @@
                   </div>
                 </div>
             {% endif %}
-
-
             <!-- ── 3) Hospital / Hospice ── -->
             {% if object.hospitals %}
               {% with hd=object.hospitals.first %}
@@ -1281,17 +1279,185 @@
                   </div>
                 </div>
             {% endif %}
-
           </div>
 
-          </div>
 
           <!-- STAFF INFO -->
           <div id="staff-info" class="detail-section d-none">
-            <div class="row mb-3">
-              
+            <div class="col">
+              <div class="card mb-4 border-0 rounded-4 shadow-sm">
+                <div class="card-body">
+                  <small class="text-muted">Assigned Clergy</small>
+                  {% for assign in object.assignments %}
+                    <dt>{{ assign.lkp_assignmentType_id.title }}</dt>
+                    <dd class="indent">{{ assign.lkp_person_id.name }}</dd>
+                  {% endfor %}
+                  {% if not object.assignments %}
+                    <p class="mt-2">No staff assigned</p>
+                  {% endif %}
+                </div>
+              </div>
             </div>
-          </div>
+            <div class="row mb-3">
+              <div class="col mb-3">
+                {% with sa=object.statusAnimarum.last %}
+                <div class="col">
+                  <div class="card mb-4 border-0 rounded-4 shadow-sm">
+                    <div class="card-body">
+                      <small class="text-muted">Employees</small>
+                      <div class='mt-2'>
+                        <dt>Deacons</dt>
+                        <dd class="indent">{{ sa.fullTime_deacons }}</dd>
+                      </div>
+                      <div class="mt-2">
+                        <dt>Brothers</dt>
+                        <dd class="indent">{{ sa.fullTime_brothers }}</dd>
+                      </div>
+                      <div class="mt-2">
+                        <dt>Sisters</dt>
+                        <dd class="indent">{{ sa.fullTime_sisters }}</dd>
+                      </div>
+                      <div class="mt-2">
+                        <dt>Lay Staff</dt>
+                        <dd class="indent">{{ sa.fullTime_other }}</dd>
+                      </div>
+                      <div class="mt-2">
+                        <dt>Part Time Staff</dt>
+                        <dd class="indent">{{ sa.partTime_staff }}</dd>
+                      </div>
+                      <div class="mt-2">
+                        <dt>Catechist Paid</dt>
+                        <dd class="indent">{{ sa.catechist_paid }}</dd>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="col">
+                  <div class="card mb-4 border-0 rounded-4 shadow-sm">
+                    <div class="card-body">
+                      <small class="text-muted">Volunteers</small>
+                      <div class='mt-2'>
+                        <dt>Volunteer Total</dt>
+                        <dd class="indent">{{ sa.volunteers }}</dd>
+                      </div>
+                      <div class="mt-2">
+                        <dt>Catechist Volunteers</dt>
+                        <dd class="indent">{{ sa.catechist_vol }}</dd>
+                      </div>
+                      <div class="mt-2">
+                        <dt>Number of Volunteers Working with Youth</dt>
+                        <dd class="indent">{{ sa.volunteersWorkingYouth }}</dd>
+                      </div>
+                      <div class="mt-2">
+                        <dt>RCIA/RCIC</dt>
+                        <dd class="indent">{{ sa.rcia_rcic }}</dd>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                {% endwith %}
+              </div>
+
+              <div class="col mb-3">
+                <div class="col">
+                  <div class="card mb-4 border-0 rounded-4 shadow-sm">
+                    <div class="card-body">
+                      <small class="text-muted">DRE</small>
+                      <div class="mt-2">
+                        <dt>Name</dt>
+                        <dd class="indent"></dd>
+                      </div>
+                      <div class="mt-2">
+                        <dt>Phone</dt>
+                        <dd class="indent"></dd>
+                      </div>
+                      <div class="mt-2">
+                        <dt>Email</dt>
+                        <dd class="indent"></dd>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="col">
+                  {% with ym=object.location_details.lkp_youthMinister_id %}
+                  <div class="card mb-4 border-0 rounded-4 shadow-sm">
+                    <div class="card-body">
+                      <small class="text-muted">Youth Minister</small>
+                      <div class="mt-2">
+                        <dt>Name</dt>
+                        <dd class="indent">{{ ym.name }}</dd>
+                      </div>
+                      <div class="mt-2">
+                        <dt>Phone</dt>
+                        <dd class="indent">{{ ym.person_phone_set.all|first}}</dd>
+                      </div>
+                      <div class="mt-2">
+                        <dt>Email</dt>
+                        <dd class="indent"></dd>
+                      </div>
+                    </div>
+                  </div>
+                  {% endwith %}
+                </div>
+                <div class="col">
+                  <div class="card mb-4 border-0 rounded-4 shadow-sm">
+                    <div class="card-body">
+                      <small class="text-muted">Office Manager</small>
+                      <div class="mt-2">
+                        <dt>Name</dt>
+                        <dd class="indent"></dd>
+                      </div>
+                      <div class="mt-2">
+                        <dt>Phone</dt>
+                        <dd class="indent"></dd>
+                      </div>
+                      <div class="mt-2">
+                        <dt>Email</dt>
+                        <dd class="indent"></dd>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="col">
+                  <div class="card mb-4 border-0 rounded-4 shadow-sm">
+                    <div class="card-body">
+                      <small class="text-muted">Financial Council Chair</small>
+                      <div class="mt-2">
+                        <dt>Name</dt>
+                        <dd class="indent"></dd>
+                      </div>
+                      <div class="mt-2">
+                        <dt>Phone</dt>
+                        <dd class="indent"></dd>
+                      </div>
+                      <div class="mt-2">
+                        <dt>Email</dt>
+                        <dd class="indent"></dd>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="col">
+                  <div class="card mb-4 border-0 rounded-4 shadow-sm">
+                    <div class="card-body">
+                      <small class="text-muted">Pastoral Council Chair</small>
+                      <div class="mt-2">
+                        <dt>Name</dt>
+                        <dd class="indent"></dd>
+                      </div>
+                      <div class="mt-2">
+                        <dt>Phone</dt>
+                        <dd class="indent"></dd>
+                      </div>
+                      <div class="mt-2">
+                        <dt>Email</dt>
+                        <dd class="indent"></dd>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
 
           <!-- STATISTICS INFO -->
           <div id="stat-info" class="detail-section d-none">
