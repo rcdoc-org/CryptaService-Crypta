@@ -214,6 +214,9 @@ def details_page(request, base, pk):
             statusAnimarum__in = obj.statusAnimarum
         ).distinct()
         obj.boundary = getattr(location_details, 'boundary', None)
+
+        # Offertory income for each year
+        obj.offertories = obj.offertory_church.order_by('year')
        
 
     return render(request, 'details_page.html', {'object': obj, 'base': ctx_base})
