@@ -535,8 +535,8 @@ def get_filtered_data(base, raw_filters, raw_stats=None):
         
         # Get Location with a certain number of priests assigned no matter the assigned title.
         if raw_stats:
-            min_pc = raw_stats.get('priest_count_min')
-            max_pc = raw_stats.get('priest_count_max')
+            min_pc = raw_stats.get('Priest Count_min')
+            max_pc = raw_stats.get('Priest Count_max')
             
             if min_pc is not None:
                 qs = qs.filter(priest_count__gte=int(min_pc))
