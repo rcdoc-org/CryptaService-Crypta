@@ -240,6 +240,13 @@ html, body {
   height: 16px;
 }
 
+.stats-val-box {
+  width: auto;
+  padding: 0.25em 0.5em;
+  border-radius: 0.5rem;
+  border: 1px solid #ccc;
+}
+
 /* the “bar” track */
 .sliders_control input[type="range"] {
   position: absolute;
