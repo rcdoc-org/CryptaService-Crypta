@@ -243,6 +243,8 @@ class ChurchDetailInline(admin.StackedInline):
         "is_mission", "is_doc", "tax_id", "cityServed",
         "geo_id", "parish_id", "type_id", "date_established",
         "date_firstDedication", "date_secondDedication", "notes",
+        'lkp_youthMinister_id', 'lkp_officeManager_id',
+        'lkp_dre_id', 'lkp_financial_id', 'lkp_pastoral_id',
     )
 
 
@@ -250,7 +252,7 @@ class ChurchLanguageInline(admin.TabularInline):
     model = Church_Language
     extra = 0
     fk_name = "lkp_church_id"
-    fields = ("lkp_language_id", "massTime")
+    fields = ("lkp_language_id", "massTime",'massDay')
     verbose_name = "Mass Language"
     verbose_name_plural = "Mass Languages"
 
