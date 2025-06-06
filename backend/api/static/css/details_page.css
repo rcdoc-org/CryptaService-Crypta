@@ -123,3 +123,14 @@ dt {
   color: white;
   border: 1px solid black;
 }
+/* -------------------------------------------------------------------
+   CHART WRAPPER: Constrains any Chart.js canvas to a fixed height
+   ------------------------------------------------------------------- */
+.chart-wrapper {
+  position: relative;
+  width: 100%;
+  /* You can adjust “250px” to whatever max height you prefer */
+  height: 250px;
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+}

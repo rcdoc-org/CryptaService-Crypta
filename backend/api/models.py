@@ -1409,7 +1409,7 @@ class BuildingOnSite(models.Model):
 class SocialOutreachProgram(models.Model):
     name = models.CharField(max_length=255, null=False)
     #Only do this if no other fields required in many to many relationship
-    StatusAnimarum = models.ManyToManyField(StatusAnimarum,
+    church = models.ManyToManyField(Location,
                                             related_name='social_outreach_program')
 
     class Meta:

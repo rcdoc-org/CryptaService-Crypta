@@ -516,7 +516,7 @@ class SocialOutreachProgramAdmin(FlatpickrModelAdmin):
     list_display = ("name",)
     search_fields = ("name",)
     ordering = ("name",)
-    filter_horizontal = ("StatusAnimarum",)
+    filter_horizontal = ("church",)
 
 
 @admin.register(FilterOption)

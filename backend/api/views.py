@@ -532,6 +532,7 @@ def get_filtered_data(base, raw_filters, raw_stats=None):
                 "location_phone_set",
                 "location_status_set",
                 "church_language_set",
+                "social_outreach_program",
 
                 # detail tables:
                 "churchDetail_location",
@@ -542,13 +543,6 @@ def get_filtered_data(base, raw_filters, raw_stats=None):
                 
                 # assignments:
                 "assignment_set",
-                
-                #positions at the church
-                'church_dre',
-                'church_youthMinister',
-                'church_officeManager',
-                'church_financial',
-                'church_pastoral',
                 
                 # Location Relationships
                 "churchDetail_mission",

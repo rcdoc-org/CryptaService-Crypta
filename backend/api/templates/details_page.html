@@ -4,7 +4,7 @@
 {% block stylesheets %}
   <link rel="stylesheet" href="{% static 'css/details_page.css' %}" />
 
-  <scripts src="https://cdn.jsdelivr.net/npm/chart.js"></scipts>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 {% endblock %}
 
 {% block title %}
@@ -1119,8 +1119,8 @@
                       <div class="row mb-2">
                         <dt class="col-auto">Social Outreach Services:</dt>
                         <dd class="col">
-                          {% if sa.social_outreach_program.all %}
-                            {% for sop in sa.social_outreach_program.all %}
+                          {% if object.social_outreach_program.all %}
+                            {% for sop in object.social_outreach_program.all %}
                               {{ sop.name }}{% if not forloop.last %}, {% endif %}
                             {% endfor %}
                           {% else %}
@@ -1602,60 +1602,191 @@
             </div> <!-- /.row mb-3 -->
           </div> <!-- /#staff-info -->
 
-
-          <!-- STATISTICS INFO -->
+          <!-- STATISTICS INFO (UPDATED) -->
           <div id="stat-info" class="detail-section d-none">
-            <div class="row mb-3">
-              <!-- Enrollment Data -->
-              {% if object.enrollments %}
-                <div class="col-md-6">
-                  <div class="card mb-4 border-0 rounded-4 shadow-sm">
-                    <div class="card-body">
-                      <small class="text-muted">Enrollment Records</small>
-                      <ul class="mt-2">
-                        {% for enr in object.enrollments %}
-                          <li>{{ enr.year }}: PreK {{ enr.prek }}; K-12 total {{ enr.grade_1|add:enr.grade_2|add:enr.grade_3|add:enr.grade_4|add:enr.grade_5|add:enr.grade_6|add:enr.grade_7|add:enr.grade_8|add:enr.grade_9|add:enr.grade_10|add:enr.grade_11|add:enr.grade_12 }}</li>
-                        {% endfor %}
-                      </ul>
-                    </div>
-                  </div>
-                </div>
-              {% endif %}
-
-              <!-- October Mass Count -->
-              {% if object.october_counts %}
-                <div class="col-md-6">
-                  <div class="card mb-4 border-0 rounded-4 shadow-sm">
-                    <div class="card-body">
-                      <small class="text-muted">October Mass Counts</small>
-                      <ul class="mt-2">
-                        {% for octc in object.october_counts %}
-                          <li>{{ octc.year }}: Week1 {{ octc.week1 }}, Week2 {{ octc.week2 }}, Week3 {{ octc.week3 }}, Week4 {{ octc.week4 }}</li>
-                        {% endfor %}
-                      </ul>
-                    </div>
-                  </div>
-                </div>
-              {% endif %}
-            </div>
-
             {% if object.statusAnimarum %}
-              <div class="row mb-3">
-                <div class="col-md-12">
-                  <div class="card mb-4 border-0 rounded-4 shadow-sm">
-                    <div class="card-body">
-                      <small class="text-muted">Status Animarum Records</small>
-                      <ul class="mt-2">
-                        {% for sa in object.statusAnimarum %}
-                          <li>{{ sa.year }}: Full Time Deacons {{ sa.fullTime_deacons }}, Brothers {{ sa.fullTime_brothers }}, Sisters {{ sa.fullTime_sisters }}, Other {{ sa.fullTime_other }}, PartTime Staff {{ sa.partTime_staff }}, Volunteers {{ sa.volunteers }}; Households {{ sa.registeredHouseholds }}, Max Mass {{ sa.maxMass }}, Seating Cap {{ sa.seatingCapacity }}</li>
-                        {% endfor %}
-                      </ul>
+              {# 1) TABS for each year #}
+              <ul class="nav nav-tabs mb-3" id="statYearTabs" role="tablist">
+                {% for sa in object.statusAnimarum %}
+                  <li class="nav-item" role="presentation">
+                    <button
+                      class="nav-link {% if forloop.first %}active{% endif %}"
+                      id="tab-{{ sa.year|slugify }}-tab"
+                      data-bs-toggle="tab"
+                      data-bs-target="#tab-{{ sa.year|slugify }}"
+                      type="button"
+                      role="tab"
+                      aria-controls="tab-{{ sa.year|slugify }}"
+                      aria-selected="{% if forloop.first %}true{% else %}false{% endif %}"
+                    >
+                      {{ sa.year }}
+                    </button>
+                  </li>
+                {% endfor %}
+              </ul>
+
+              <div class="tab-content" id="statYearTabsContent">
+                {% for sa in object.statusAnimarum %}
+                  <div
+                    class="tab-pane fade {% if forloop.first %}show active{% endif %}"
+                    id="tab-{{ sa.year|slugify }}"
+                    role="tabpanel"
+                    aria-labelledby="tab-{{ sa.year|slugify }}-tab"
+                  >
+                    <div class="row">
+                      <!-- LEFT COLUMN: RAW DATA -->
+                      <div class="col-md-6">
+                        <div class="card mb-4 border-0 rounded-4 shadow-sm">
+                          <div class="card-body">
+                            <small class="text-muted">Raw Numbers ({{ sa.year }})</small>
+                            <dl class="row mt-3">
+                              <dt class="col-6">Full-Time Deacons</dt>
+                              <dd class="col-6 indent">{{ sa.fullTime_deacons }}</dd>
+
+                              <dt class="col-6">Full-Time Brothers</dt>
+                              <dd class="col-6 indent">{{ sa.fullTime_brothers }}</dd>
+
+                              <dt class="col-6">Full-Time Sisters</dt>
+                              <dd class="col-6 indent">{{ sa.fullTime_sisters }}</dd>
+
+                              <dt class="col-6">Full-Time Lay Staff</dt>
+                              <dd class="col-6 indent">{{ sa.fullTime_other }}</dd>
+
+                              <dt class="col-6">Part-Time Staff</dt>
+                              <dd class="col-6 indent">{{ sa.partTime_staff }}</dd>
+
+                              <dt class="col-6">Catechist Paid</dt>
+                              <dd class="col-6 indent">{{ sa.catechist_paid }}</dd>
+
+                              <dt class="col-6">Youth Ministry</dt>
+                              <dd class="col-6 indent">{{ sa.youthMinistry }}</dd>
+
+                              <dt class="col-6">Youth Ministry Volunteers</dt>
+                              <dd class="col-6 indent">{{ sa.volunteersWorkingYouth }}</dd>
+
+                              <dt class="col-6">Catechist Volunteers</dt>
+                              <dd class="col-6 indent">{{ sa.catechist_vol }}</dd>
+
+                              <dt class="col-6">Volunteers</dt>
+                              <dd class="col-6 indent">{{ sa.volunteers }}</dd>
+
+                              <dt class="col-6">Registered Households</dt>
+                              <dd class="col-6 indent">{{ sa.registeredHouseholds }}</dd>
+
+                              <dt class="col-6">Max Mass Size</dt>
+                              <dd class="col-6 indent">{{ sa.maxMass }}</dd>
+
+                              <dt class="col-6">Seating Capacity</dt>
+                              <dd class="col-6 indent">{{ sa.seatingCapacity }}</dd>
+
+                              <dt class="col-6">Baptisms (1-7)</dt>
+                              <dd class="col-6 indent">{{ sa.baptismAge_1_7 }}</dd>
+
+                              <dt class="col-6">Baptisms (8-17)</dt>
+                              <dd class="col-6 indent">{{ sa.baptismAge_8_17 }}</dd>
+
+                              <dt class="col-6">Baptisms (18+)</dt>
+                              <dd class="col-6 indent">{{ sa.baptismAge_18 }}</dd>
+
+                              <dt class="col-6">RCIA/RCIC</dt>
+                              <dd class="col-6 indent">{{ sa.rcia_rcic }}</dd>
+
+                              <dt class="col-6">First Communion</dt>
+                              <dd class="col-6 indent">{{ sa.firstCommunion }}</dd>
+
+                              <dt class="col-6">Confirmation</dt>
+                              <dd class="col-6 indent">{{ sa.confirmation }}</dd>
+
+                              <dt class="col-6">Children In Faith Formation</dt>
+                              <dd class="col-6 indent">{{ sa.childrenInFaithFormation }}</dd>
+
+                              <dt class="col-6">Kids in PreK - 5 Grade</dt>
+                              <dd class="col-6 indent">{{ sa.school_prek_5 }}</dd>
+
+                              <dt class="col-6">Kids in 6 Grade - 8 Grade</dt>
+                              <dd class="col-6 indent">{{ sa.school_grade6_8 }}</dd>
+
+                              <dt class="col-6">Kids in 9 Grade - 12 Grade</dt>
+                              <dd class="col-6 indent">{{ sa.school_grade9_12 }}</dd>
+
+                              <dt class="col-6">Adult Education</dt>
+                              <dd class="col-6 indent">{{ sa.adult_education }}</dd>
+
+                              <dt class="col-6">Adult Sacrament Prep</dt>
+                              <dd class="col-6 indent">{{ sa.adult_sacramentPrep }}</dd>
+                              
+                              <dt class="col-6">Catholic Marriages</dt>
+                              <dd class="col-6 indent">{{ sa.marriage_catholic }}</dd>
+
+                              <dt class="col-6">Interfaith Marriages</dt>
+                              <dd class="col-6 indent">{{ sa.marriage_interfaith }}</dd>
+
+                              <dt class="col-6">Deaths</dt>
+                              <dd class="col-6 indent">{{ sa.deaths }}</dd>
+
+                              <dt class="col-6">Referrals To Catholic Charities</dt>
+                              <dd class="col-6 indent">{{ sa.referrals_catholicCharities }}</dd>
+
+                              <dt class="col-6">% African</dt>
+                              <dd class="col-6 indent">{{ sa.percent_african }}</dd>
+
+                              <dt class="col-6">% African-American</dt>
+                              <dd class="col-6 indent">{{ sa.percent_african_american }}</dd>
+
+                              <dt class="col-6">% Asian</dt>
+                              <dd class="col-6 indent">{{ sa.percent_asian }}</dd>
+
+                              <dt class="col-6">% Hispanic</dt>
+                              <dd class="col-6 indent">{{ sa.percent_hispanic }}</dd>
+
+                              <dt class="col-6">% American-Indian</dt>
+                              <dd class="col-6 indent">{{ sa.percent_american_indian }}</dd>
+
+                              <dt class="col-6">% Other</dt>
+                              <dd class="col-6 indent">{{ sa.percent_other }}</dd>
+
+                              <!-- Add more fields here if you like… -->
+                            </dl>
+                          </div>
+                        </div>
+                      </div>
+
+                      <!-- RIGHT COLUMN: CHARTS -->
+                      <div class="col-md-6">
+                        <div class="card mb-4 border-0 rounded-4 shadow-sm">
+                          <div class="card-body">
+                            <small class="text-muted">Staff & Volunteers ({{ sa.year }})</small>
+                            <div class="chart-wrapper">
+                              <canvas id="barChart-{{ sa.year|slugify }}" class="mt-3"></canvas>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div class="card mb-4 border-0 rounded-4 shadow-sm">
+                          <div class="card-body">
+                            <small class="text-muted">Census Breakdown ({{ sa.year }})</small>
+                            {% if sa.is_censusEstimate %}
+                            <div class="chart-wrapper">
+                              <canvas id="pieChart-{{ sa.year|slugify }}" class="mt-3"></canvas>
+                            </div>
+                            {% else %}
+                              <p class="mt-3"><em>Not a census estimate for {{ sa.year }}</em></p>
+                            {% endif %}
+                          </div>
+                        </div>
+                      </div>
                     </div>
                   </div>
-                </div>
+                {% endfor %}
               </div>
+            {% else %}
+              <p>No statistical data recorded for this location.</p>
             {% endif %}
           </div>
+
+          
+
+
         </div>
       </main>
     {% endif %}
