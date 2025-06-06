@@ -954,6 +954,36 @@ def get_filtered_data(base, raw_filters, raw_stats=None):
     # return also the `columns` list
     return records, applied, filter_tree, columns, stats_info
 
+def filter_locations_by_priests(request):
+    
+    # Grab min_priests" from request (default to 0 if not provided)
+    try:
+        min_priests = int(request.GET.get('min_priests',0))
+    except ValueError:
+        min_priests = 0
+        
+    # Annotate each location with priest_count
+    #    - “assignment” is the reverse lookup from Location → Assignment (FK=lkp_location_id).
+    #    - “assignment__lkp_person_id__priest_detail__isnull=False” ensures we only count
+    #       those related Assignments whose Person has a Priest_Detail record.
+    qs = Location.objects.annotate(
+        priest_count=Count(
+            'assignment',
+            filter=Q(assignment__lkp_person_id__priest_detail__isnull=False)
+        )
+    )
+
+    # Apply the numeric filter. E.g. keep only locations with ≥ min_priests.
+    if min_priests:
+        qs = qs.filter(priest_count__gte=min_priests)
+
+    # Now “qs” is just the Locations matching your criteria.
+    #    You could render them in a template, or return JSON, etc.
+    return render(request, 'locations_by_priests.html', {
+        'locations': qs,
+        'min_priests': min_priests,
+    })
+        
 @login_required
 def enhanced_filter_view(request):
     """Initial page load: no filters yet."""
