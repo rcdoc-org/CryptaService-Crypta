@@ -647,6 +647,7 @@ def get_filtered_data(base, raw_filters, raw_stats=None):
             
             qs = qs.filter(**{real: val.lower() == 'true'})
 
+    today = date.today()
     qs = qs.distinct()
 
     records = []
@@ -735,7 +736,12 @@ def get_filtered_data(base, raw_filters, raw_stats=None):
                 "Assignments":      "; ".join(
                                     f"{a.lkp_assignmentType_id.title}@{a.lkp_location_id.name}"
                                     f" (term {a.term}, {a.date_assigned}→{a.date_released or 'present'})"
-                                    for a in obj.assignment_set.all()
+                                    for a in obj.assignment_set
+                                                .filter(date_assigned__lte=today,)
+                                                .filter(
+                                                    Q(date_released__isnull=True) |
+                                                    Q(date_released__gte=today)
+                                                )
                                 ),
 
                 # relationships (both directions)
