@@ -27,7 +27,7 @@ SECRET_KEY = 'django-insecure-edn%rlwea$@5oy#x$%xia5+qupvx%3w(ju05rnq-hylrlp2w55
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['127.0.0.1', 'localhost', '10.0.6.44', '10.213.1.3']
+ALLOWED_HOSTS = ['127.0.0.1', 'localhost', '10.0.6.4', '10.213.1.3', 'crypta.rcdoc.org']
 
 # URL users are redirected to for login
 LOGIN_URL = 'api:login'
