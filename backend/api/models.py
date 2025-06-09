@@ -607,9 +607,12 @@ class Location_Status(models.Model):
         db_table = 'location_status'
 
     def __str__(self):
+        
+        assigned = self.date_assigned.strftime("%m/%d/%Y")
+        
         return (
             f"{self.lkp_location_id.name} - {self.lkp_status_id.name}: "
-            f"{self.date_assigned} - {self.date_released}"
+            f"{assigned}"
             )
 
 class Location_Email(models.Model):
