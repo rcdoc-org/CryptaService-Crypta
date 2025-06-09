@@ -475,6 +475,7 @@
                 table = new Tabulator("#data-grid", {
                     rowHeader: {frozen:true, },
                     layout: "fitDataFill",
+                    layoutColumnsOnNewData: true,
                     data: payload.grid.data,
                     columns: allCols,
                     placeholder: "No Data Available",
