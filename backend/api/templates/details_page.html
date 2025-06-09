@@ -59,12 +59,12 @@
             {{ object.type|title }}
           {% endif %}
         </p>
-        <div class="d-flex justify-content-center mb-3">
+        <div class="d-flex justify-content-center mb-3 gap-4">
           {% if object.primary_phone %}
-            <a href="tel:{{ object.primary_phone }}" class="action-icons me-4"><i class="fas fa-phone fa-lg"></i></a>
+            <a href="tel:{{ object.primary_phone }}" class="action-icons"><i class="fas fa-phone fa-lg"></i></a>
           {% endif %}
           {% if object.primary_email %}
-            <a href="mailto:{{ object.primary_email }}" class="action-icons me-4"><i class="fas fa-envelope fa-lg"></i></a>
+            <a href="mailto:{{ object.primary_email }}" class="action-icons"><i class="fas fa-envelope fa-lg"></i></a>
           {% endif %}
           {% if base == 'person' and object.primary_email %}
             <a href="msteams://teams.microsoft.com/l/chat/0/0?users={{ object.primary_email|urlencode }}" class="action-icons"><i class="fas fa-users fa-lg"></i></a>
