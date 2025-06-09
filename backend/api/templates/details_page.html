@@ -1094,6 +1094,7 @@
                   {# Loop over only those assignments still active as of today #}
                   {% if active_assignments %}
                     {% for assign in active_assignments %}
+                    {% if assign.lkp_assignmentType_id.personType == 'priest' %}
                     <div class="mt-2">
                       <dt>{{ assign.lkp_assignmentType_id.title }}</dt>
                       <dd class="indent">
@@ -1102,6 +1103,7 @@
                         </a>
                       </dd>
                     </div>
+                    {% endif %}
                     {% endfor %}
                   {% else %}
                     <p class="mt-2">No staff assigned</p>
@@ -1348,6 +1350,7 @@
                     {# Loop over only those assignments still active as of today #}
                     {% if active_assignments %}
                       {% for assign in active_assignments %}
+                      {% if assign.lkp_assignmentType_id.personType == 'priest' %}
                       <div class="mt-2">
                         <dt>{{ assign.lkp_assignmentType_id.title }}</dt>
                         <dd class="indent">
@@ -1356,6 +1359,7 @@
                         </a>
                       </dd>
                       </div>
+                      {% endif %}
                       {% endfor %}
                     {% else %}
                       <p class="mt-2">No staff assigned</p>
