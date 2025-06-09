@@ -598,14 +598,16 @@
 
                       {# ── COLUMN 1: Name & Relationship ── #}
                       <div class="col-md-3 col-sm-6">
-                        <strong>Name</strong><br>
+                        <dt>Name</dt>
+                        <dd class="indent">
                         {{ rel.lkp_secondPerson_id.name }}
                         ({{ rel.lkp_relationshipType_id.name|title }})
+                        </dd>
                       </div>
 
                       {# ── COLUMN 2: Address (with Google‐Maps pin) ── #}
                       <div class="col-md-4 col-sm-6">
-                        <strong>Address</strong><br>
+                        <dt>Address</dt>
                         <div class="d-flex align-items-start">
                           {% if rel.lkp_secondPerson_id.lkp_residence_id %}
                             <a
@@ -644,7 +646,8 @@
                       {# ── COLUMN 3: Phone 1 & Phone 2 ── #}
                       {% with sorted_phones=rel.lkp_secondPerson_id.person_phone_set.all|dictsortreversed:"is_primary" %}
                         <div class="col-md-2 col-sm-6">
-                          <strong>Phone 1</strong><br>
+                          <dt>Phone 1</dt>
+                          <dd class="indent">
                           {% if sorted_phones|length >= 1 %}
                             {% with p=sorted_phones.0.phoneNumber %}
                               <a href="tel:{{ p }}">
@@ -654,10 +657,12 @@
                           {% else %}
                             <span class="text-muted">Not Recorded</span>
                           {% endif %}
+                          </dd>
                         </div>
 
                         <div class="col-md-2 col-sm-6">
-                          <strong>Phone 2</strong><br>
+                          <dt>Phone 2</dt>
+                          <dd class="indent">
                           {% if sorted_phones|length >= 2 %}
                             {% with p=sorted_phones.1.phoneNumber %}
                               <a href="tel:{{ p }}">
@@ -667,13 +672,15 @@
                           {% else %}
                             <span class="text-muted">Not Recorded</span>
                           {% endif %}
+                          </dd>
                         </div>
                       {% endwith %} {# closes sorted_phones “with” #}
 
                       {# ── COLUMN 4: Email 1 & Email 2 ── #}
                       {% with sorted_emails=rel.lkp_secondPerson_id.person_email_set.all|dictsortreversed:"is_primary" %}
                         <div class="col-md-3 col-sm-6">
-                          <strong>Email 1</strong><br>
+                          <dt>Email 1</dt>
+                          <dd class="indent">
                           {% if sorted_emails|length >= 1 %}
                             <a href="mailto:{{ sorted_emails.0.email }}">
                               {{ sorted_emails.0.email }}
@@ -681,10 +688,12 @@
                           {% else %}
                             <span class="text-muted">Not Recorded</span>
                           {% endif %}
+                          </dd>
                         </div>
 
                         <div class="col-md-3 col-sm-6">
-                          <strong>Email 2</strong><br>
+                          <dt>Email 2</dt>
+                          <dd class="indent">
                           {% if sorted_emails|length >= 2 %}
                             <a href="mailto:{{ sorted_emails.1.email }}">
                               {{ sorted_emails.1.email }}
@@ -692,6 +701,7 @@
                           {% else %}
                             <span class="text-muted">Not Recorded</span>
                           {% endif %}
+                          </dd>
                         </div>
                       {% endwith %} {# closes sorted_emails “with” #}
 
@@ -1016,7 +1026,7 @@
                         {{ object.location_details.lkp_rectoryAddress.country }} 
                     </address>
                     {% else %}
-                    <dd>Not Recorded</dd>
+                    <dd class="mt-2">Not Recorded</dd>
                     {% endif %}
                   </div>
                 </div>
@@ -1076,8 +1086,10 @@
                   {# Loop over only those assignments still active as of today #}
                   {% if active_assignments %}
                     {% for assign in active_assignments %}
+                    <div class="mt-2">
                       <dt>{{ assign.lkp_assignmentType_id.title }}</dt>
                       <dd class="indent">{{ assign.lkp_person_id.name }}</dd>
+                    </div>
                     {% endfor %}
                   {% else %}
                     <p class="mt-2">No staff assigned</p>
@@ -1096,7 +1108,7 @@
                   <div class="card-body">
                     <small class="text-muted">Mass Languages & Times</small>
                     {% if object.languages %}
-                        <dt>Saturday Masses</dt>
+                        <dt class="mt-2">Saturday Masses</dt>
                       {% for lang in object.languages %}
                       {% if lang.massDay == 'sat' %}
                         <dd class="indent">{{ lang.massTime|time:"g:i A" }} - {{ lang.lkp_language_id.name }}</dd>
@@ -1323,8 +1335,10 @@
                   {# Loop over only those assignments still active as of today #}
                   {% if active_assignments %}
                     {% for assign in active_assignments %}
+                    <div class="mt-2">
                       <dt>{{ assign.lkp_assignmentType_id.title }}</dt>
                       <dd class="indent">{{ assign.lkp_person_id.name }}</dd>
+                    </div>
                     {% endfor %}
                   {% else %}
                     <p class="mt-2">No staff assigned</p>
