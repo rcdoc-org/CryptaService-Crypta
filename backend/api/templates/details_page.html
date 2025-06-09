@@ -35,7 +35,7 @@
           <form method="POST" enctype="multipart/form-data">
             {% csrf_token %}
             {% if object.photo %}
-              <img src="{{ object.photo.url }}" alt="Profile Photo" class="rounded-circle mb-3" width="120" height="120">
+              <img src="{{ object.photo.url }}" alt="Profile Photo" class="rounded-circle mb-3 shadow" width="120" height="120">
             {% else %}
               {% if base == 'person' %}
                 <img src="{% static 'images/person.png' %}" alt="Profile Photo" class="rounded-circle mb-3" width="120" height="120">
