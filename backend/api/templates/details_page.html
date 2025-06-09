@@ -1327,22 +1327,24 @@
 
           <!-- STAFF INFO -->
           <div id="staff-info" class="detail-section d-none">
-            <div class="col">
-              <div class="card mb-4 border-0 rounded-4 shadow-sm">
-                <div class="card-body">
-                  <small class="text-muted">Assigned Personnel</small>
+            <div class="row mb-3">
+              <div class="col">
+                <div class="card mb-4 border-0 rounded-4 shadow-sm">
+                  <div class="card-body">
+                    <small class="text-muted">Assigned Personnel</small>
 
-                  {# Loop over only those assignments still active as of today #}
-                  {% if active_assignments %}
-                    {% for assign in active_assignments %}
-                    <div class="mt-2">
-                      <dt>{{ assign.lkp_assignmentType_id.title }}</dt>
-                      <dd class="indent">{{ assign.lkp_person_id.name }}</dd>
-                    </div>
-                    {% endfor %}
-                  {% else %}
-                    <p class="mt-2">No staff assigned</p>
-                  {% endif %}
+                    {# Loop over only those assignments still active as of today #}
+                    {% if active_assignments %}
+                      {% for assign in active_assignments %}
+                      <div class="mt-2">
+                        <dt>{{ assign.lkp_assignmentType_id.title }}</dt>
+                        <dd class="indent">{{ assign.lkp_person_id.name }}</dd>
+                      </div>
+                      {% endfor %}
+                    {% else %}
+                      <p class="mt-2">No staff assigned</p>
+                    {% endif %}
+                  </div>
                 </div>
               </div>
             </div>
@@ -1408,7 +1410,7 @@
 
             <div class="row mb-3">
               <!-- 2) DRE -->
-              <div class="col-md-4 mb-3">
+              <div class="col">
                 <div class="card mb-4 border-0 rounded-4 shadow-sm">
                   <div class="card-body">
                     <small class="text-muted">DRE</small>
@@ -1455,7 +1457,7 @@
               </div>
 
               <!-- 3) Youth Minister -->
-              <div class="col-md-4 mb-3">
+              <div class="col">
                 <div class="card mb-4 border-0 rounded-4 shadow-sm">
                   <div class="card-body">
                     <small class="text-muted">Youth Minister</small>
@@ -1502,7 +1504,7 @@
               </div>
 
               <!-- 4) Office Manager -->
-              <div class="col-md-4 mb-3">
+              <div class="col">
                 <div class="card mb-4 border-0 rounded-4 shadow-sm">
                   <div class="card-body">
                     <small class="text-muted">Office Manager</small>
