@@ -134,3 +134,20 @@ dt {
   margin-top: 1rem;
   margin-bottom: 1rem;
 }
+
+/* STATISTICS TABS: dark grey unselected, light grey selected */
+#statYearTabs .nav-link {
+  background-color: #6c757d;      /* darker grey for unselected */
+  color: #fff;                    /* white text */
+  border: none;                   /* remove default borders if desired */
+  margin-right: 0.25rem;          /* small gap between tabs */
+}
+#statYearTabs .nav-link:hover {
+  background-color: #5a6268;      /* slightly darker on hover */
+}
+#statYearTabs .nav-link.active {
+  background-color: #acb8c3;      /* match .bg-light or your tab-body bg */
+  color: #000;                    /* dark text for readability */
+  border-color: #dee2e6;          /* matches Bootstrap card border if you need a subtle outline */
+}
+
