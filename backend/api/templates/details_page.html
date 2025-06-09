@@ -1088,7 +1088,11 @@
                     {% for assign in active_assignments %}
                     <div class="mt-2">
                       <dt>{{ assign.lkp_assignmentType_id.title }}</dt>
-                      <dd class="indent">{{ assign.lkp_person_id.name }}</dd>
+                      <dd class="indent">
+                        <a href="{% url 'api:details_page' base='person' pk=assign.lkp_person_id.pk %}">
+                        {{ assign.lkp_person_id.name }}
+                        </a>
+                      </dd>
                     </div>
                     {% endfor %}
                   {% else %}
@@ -1338,7 +1342,11 @@
                       {% for assign in active_assignments %}
                       <div class="mt-2">
                         <dt>{{ assign.lkp_assignmentType_id.title }}</dt>
-                        <dd class="indent">{{ assign.lkp_person_id.name }}</dd>
+                        <dd class="indent">
+                        <a href="{% url 'api:details_page' base='person' pk=assign.lkp_person_id.pk %}">
+                        {{ assign.lkp_person_id.name }}
+                        </a>
+                      </dd>
                       </div>
                       {% endfor %}
                     {% else %}
