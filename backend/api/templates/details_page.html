@@ -110,8 +110,10 @@
                       <div class="mt-2">
                         <span>
                           {{ assignment.lkp_assignmentType_id.title }}<br>
+                          <a href="{% url 'api:details_page' base='location' pk=assignment.lkp_location_id.pk %}">
                           {{ assignment.lkp_location_id.name }}
-                          - As of: {{ assignment.date_assigned|date:"m/d/Y" }}
+                          </a>
+                         - As of: {{ assignment.date_assigned|date:"m/d/Y" }}
                         </span>
                       </div>
                       {% endif %}
@@ -209,7 +211,9 @@
                     {% for assignment in object.assignments %}
                     <div class="mt-2">
                       <p>{{ assignment.lkp_assignmentType_id.title }}<br>
+                      <a href="{% url 'api:details_page' base='location' pk=assignment.lkp_location_id.pk %}">
                       {{ assignment.lkp_location_id.name }}
+                      </a>
                       From {{ assignment.date_assigned|date:"m/d/Y" }}{% if assignment.date_released %}, To {{ assignment.date_released|date:"m/d/Y" }}{% else %}, To Present{% endif %}
                       </p>
                     </div>
@@ -422,7 +426,11 @@
                       <dt>Baptism Date:</dt>
                       <dd class="indent">{{ object.date_baptism|date:"m/d/Y" }}</dd>
                       <dt>Place of Baptism:</dt>
-                      <dd class="indent">{{ object.person_details.lkp_placeOfBaptism_id.name }}</dd>
+                      <dd class="indent">
+                        <a href="{% url 'api:details_page' base='location' pk=object.person_details.lkp_placeOfBaptism_id.pk %}">
+                          {{ object.person_details.lkp_placeOfBaptism_id.name }}
+                        </a>
+                      </dd>
                     {% else %}
                       <p>No sacrament info</p>
                   {% endif %}
