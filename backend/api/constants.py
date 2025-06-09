@@ -31,6 +31,7 @@ DYNAMIC_FILTER_FIELDS = {
         'type',                                   # Location type (Church / School / etc.)
         'assignment__lkp_assignmentType_id__title', # Assignments
         'churchDetail_location__cityServed',      # City Served
+        'statusAnimarum_church__has_chileCareDayCare', # Child Care Program
         'lkp_county_id__name',                    # Country 
         'churchDetail_location__is_doc',           # Diocesan Entity
         'churchDetail_location__is_mission',        # Mission
@@ -96,5 +97,7 @@ FIELD_LABLES = {
         'lkp_mailingAddress_id__state':            'Mailing State', 
         'church_language__lkp_language_id__name': 'Language Options',
         'social_outreach_program__name':            'Social Outreach Programs',
+        'statusAnimarum_church__has_chileCareDayCare': 'Child Care Program',
+    
         
 }
