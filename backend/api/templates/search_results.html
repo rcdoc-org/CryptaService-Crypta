@@ -1,39 +1,55 @@
 {% extends "base.html" %}
 
-{% block title %}Search Results for “{{ query }}”{% endblock %}
+{% block stylesheets %}
+  <!-- Reuse the same CSS used for changeLog -->
+  <link rel="stylesheet" href="/static/css/changeLog.css">
+{% endblock %}
+
+{% block title %}
+  Crypta - Search Results for “{{ query }}”
+{% endblock %}
 
 {% block content %}
   <div class="container my-5">
-    <h4>Results for “{{ query }}”</h4>
+    <div class="col-12">
+      <div class="card mb-4 border-0 rounded-4 shadow-sm">
+        <div class="card-body">
+          <h2 class="text-center">Results for “{{ query }}”</h2>
 
-    {% if persons %}
-      <h5 class="mt-4">People</h5>
-      <ul class="list-group mb-3">
-        {% for p in persons %}
-          <li class="list-group-item">
-            <a href="{% url 'api:details_page' base='person' pk=p.pk %}">
-              {{ p }}  {# adjust to your __str__ or fields #}
-            </a>
-          </li>
-        {% endfor %}
-      </ul>
-    {% endif %}
+          {% if persons %}
+            <h5 class="mt-4">People</h5>
+            <ul class="list-group mb-3">
+              {% for p in persons %}
+                <li class="list-group-item">
+                  <a href="{% url 'api:details_page' base='person' pk=p.pk %}">
+                    {{ p }}
+                  </a>
+                </li>
+              {% endfor %}
+            </ul>
+          {% endif %}
 
-    {% if locations %}
-      <h5 class="mt-4">Locations</h5>
-      <ul class="list-group">
-        {% for loc in locations %}
-          <li class="list-group-item">
-            <a href="{% url 'api:details_page' base='location' pk=loc.pk %}">
-              {{ loc }} 
-            </a>
-          </li>
-        {% endfor %}
-      </ul>
-    {% endif %}
+          {% if locations %}
+            <h5 class="mt-4">Locations</h5>
+            <ul class="list-group mb-3">
+              {% for loc in locations %}
+                <li class="list-group-item">
+                  <a href="{% url 'api:details_page' base='location' pk=loc.pk %}">
+                    {{ loc }}
+                  </a>
+                </li>
+              {% endfor %}
+            </ul>
+          {% endif %}
 
-    {% if not persons and not locations %}
-      <p>No results found.</p>
-    {% endif %}
+          {% if not persons and not locations %}
+            <p class="mt-4">No results found.</p>
+          {% endif %}
+        </div>
+      </div>
+    </div>
   </div>
+{% endblock %}
+
+{% block bodyScripts %}
 {% endblock %}

@@ -11,6 +11,7 @@ urlpatterns = [
     path("changeLog/", views.changeLog, name="changeLog"),
     path('test-404/', views.view_404, name='test_404'),
     path('login/', views.login_view, name='login'),
+    path('logout/', views.logout_view,name='logout'),
     path('home/', views.home_view, name='home'),
     path('', views.home_view, name='home'),
     path('database/', views.enhanced_filter_view, name='enhanced_filter'),

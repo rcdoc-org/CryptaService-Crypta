@@ -10,6 +10,7 @@
     const filterSearch      = document.getElementById('filterSearch');
     const exportExcelBtn    = document.getElementById('exportExcelBtn');
     const exportCsvBtn      = document.getElementById('exportCsvBtn');
+    const exportPdfBtn      = document.getElementById('exportPdfBtn');
 
     let lastBase = null;
     
@@ -19,6 +20,7 @@
 
     // keep most recent stats_info from the server
     let lastStatsInfo = [];
+    let originalStatsInfo = [];
     // keep the user's last slider/radio settings
     let currentStats = {};
 
@@ -34,11 +36,13 @@
         // number ranges
         document.querySelectorAll('.stats-range').forEach(r => {
             const f = r.dataset.field;
+            const originalMin = Number(r.dataset.min);
+            const originalMax = Number(r.dataset.max);
             const minIn = document.getElementById(`stat_min_${f}`);
             const maxIn = document.getElementById(`stat_max_${f}`);
 
             // Only send if the user has changed value
-            if (+minIn.value > +r.min || +maxIn.value < +r.max) {
+            if (Number(minIn.value) > originalMin || Number(maxIn.value) < originalMax) {
                 stats[`${f}_min`] = minIn.value;
                 stats[`${f}_max`] = maxIn.value;
             }
@@ -65,7 +69,6 @@
     function controlToInput(toSlider, fromInput, toInput, controlSlider) {
         const [from, to] = getParsed(fromInput, toInput);
         fillSlider(fromInput, toInput, '#C6C6C6', '#25daa5', controlSlider);
-        setToggleAccessible(toInput);
         if (from <= to) {
             toSlider.value = to;
             toInput.value = to;
@@ -88,7 +91,6 @@
     function controlToSlider(fromSlider, toSlider, toInput) {
         const [from, to] = getParsed(fromSlider, toSlider);
         fillSlider(fromSlider, toSlider, '#C6C6C6', '#25daa5', toSlider);
-        setToggleAccessible(toSlider);
         if (from <= to) {
             toSlider.value = to;
             toInput.value = to;
@@ -124,16 +126,6 @@
             )`;
     }
 
-    function setToggleAccessible(toEl) {
-        // when at absolute minimum, bump its z-index
-        const toSlider = document.querySelector('#toSlider');
-        if (Number(currentTarget.value) <= 0 ) {
-            toSlider.style.zIndex = 2;
-        } else {
-            toSlider.style.zIndex = 0;
-        }
-    }
-
     function renderStatsFilters(info, savedStats) {
         const ctr = document.getElementById('statsFilters');
         ctr.innerHTML = '';
@@ -161,9 +153,12 @@
                 const breakline = document.createElement('br');
                 div.appendChild(title_lbl);
                 div.appendChild(breakline);
+
+                // Create three radio buttons inside a single div
                 ['true', 'false', 'all'].forEach(val => {
                     const rd = document.createElement('div');
                     rd.className = 'form-check form-check-inline';
+
                     const inp = document.createElement('input');
                     inp.className = 'form-check-input stats-boolean';
                     inp.type = 'radio';
@@ -171,14 +166,18 @@
                     inp.dataset.field = field;
                     inp.value = val;
                     
-                    if (val === 'all') inp.checked = true;
+                    // if (val === 'all') inp.checked = true;
                     const lbl = document.createElement('label');
                     lbl.className = 'form-check-label';
                     lbl.textContent = val.charAt(0).toUpperCase() + val.slice(1);
+
+                    // restore checked state based on saved stats
+                    inp.checked = (savedStats[field] || 'all') === val;
+
                     rd.append(inp, lbl);
                     div.appendChild(rd);
-                    inp.checked = (savedStats[field] || 'all') === val
                     ctr.appendChild(div)
+                    inp.addEventListener('change', updateView);
                 });
             } else { // number
                 const currentMin = savedStats[`${field}_min`] ?? min;
@@ -186,12 +185,15 @@
 
                 // 1) container
                 const statDiv = document.createElement('div');
-                statDiv.className = 'mb-3';
+                statDiv.className = 'stats-range mb-3';
+                statDiv.dataset.field = field;
+                statDiv.dataset.min = min;
+                statDiv.dataset.max = max;
 
                 // 2) label
                 const lbl = document.createElement('label');
                 lbl.textContent = `${display}:`;
-                lbl.className = "mb-2"
+                lbl.className = "mb-2";
                 statDiv.appendChild(lbl);
 
                 const rangeContainer = document.createElement('div');
@@ -206,6 +208,7 @@
                 fromSliderEl.min = min;
                 fromSliderEl.max = max;
                 fromSliderEl.value = currentMin;
+                fromSliderEl.classList.add('range-from');
 
                 const toSliderEl = document.createElement('input');
                 toSliderEl.type= 'range'
@@ -213,10 +216,9 @@
                 toSliderEl.min = min;
                 toSliderEl.max = max;
                 toSliderEl.value = currentMax;
+                toSliderEl.classList.add('range-to');
 
                 slidersControl.append(fromSliderEl, toSliderEl);
-                fromSliderEl.classList.add('range-from');
-                toSliderEl.classList.add('range-to');
 
                 const formControl = document.createElement('div');
                 formControl.className = 'form_control';
@@ -224,7 +226,7 @@
                 const minBox = document.createElement('input');
                 minBox.type = 'number';
                 minBox.className = 'stats-val-box';
-                minBox.id = `fromInput_${field}`;
+                minBox.id = `stat_min_${field}`;
                 minBox.value = currentMin;
                 minBox.min = min;
                 minBox.max = max;
@@ -232,7 +234,7 @@
                 const maxBox = document.createElement('input');
                 maxBox.type = 'number';
                 maxBox.className = 'stats-val-box';
-                maxBox.id = `toInput_${field}`;
+                maxBox.id = `stat_max_${field}`;
                 maxBox.value = currentMax;
                 maxBox.min = min;
                 maxBox.max = max;
@@ -241,18 +243,22 @@
 
                 rangeContainer.append(slidersControl, formControl);
                 statDiv.appendChild(rangeContainer);
-                ctr.appendChild(statDiv)
+                ctr.appendChild(statDiv);
 
                 // initial paint + stacking
                 fillSlider(fromSliderEl, toSliderEl, '#C6C6C6', '#4a5568');
-                setToggleAccessible(toSliderEl);
 
                 // enforce min ≤ max and sync inputs
                 fromSliderEl.oninput = () => controlFromSlider(fromSliderEl, toSliderEl, minBox);
                 toSliderEl.oninput = () => controlToSlider(fromSliderEl, toSliderEl, maxBox);
-                // mirror changes from number inputs
                 minBox.oninput = () => controlFromInput(fromSliderEl, minBox, maxBox, toSliderEl);
                 maxBox.oninput = () => controlToInput(toSliderEl, minBox, maxBox, toSliderEl);    
+
+                fromSliderEl.addEventListener('change', () => updateView());
+                toSliderEl.addEventListener('change', () => updateView());
+                minBox.addEventListener('change', () => updateView());
+                maxBox.addEventListener('change', () => updateView());
+                
             }
         });
     }
@@ -290,7 +296,9 @@
           if (!cb) return;
 
           const groupName = cb.dataset.display;
-          const optionLabel = cb.dataset.label;
+          let optionLabel = cb.dataset.label;
+
+          optionLabel = optionLabel.replace(/\\u002D/g, '-');
 
           // Build the badge
           const badge = document.createElement('span');
@@ -365,8 +373,17 @@
             renderFilters(payload.filters_html);
 
             // savethe returned stats_info to be reused
+            // lastStatsInfo = payload.stats_info;
+            // const freshData = gatherFilters();
+            // Save the returned stats_info;
+            // - originalStatsInfo only on first load
+            if (originalStatsInfo.length === 0) {
+                originalStatsInfo = payload.stats_info;
+            }
             lastStatsInfo = payload.stats_info;
-            const freshData = gatherFilters();
+            
+            // re-gather filters so 'freshData' exists
+            const freshData = gatherFilters()
             renderActiveFilters(freshData);
             renderActiveFilters(data);
 
@@ -458,6 +475,7 @@
                 table = new Tabulator("#data-grid", {
                     rowHeader: {frozen:true, },
                     layout: "fitDataFill",
+                    layoutColumnsOnNewData: true,
                     data: payload.grid.data,
                     columns: allCols,
                     placeholder: "No Data Available",
@@ -482,7 +500,11 @@
             populateColumnForm();
 
             // render stats for any visible
-            renderStatsFilters(lastStatsInfo, currentStats);
+            // renderStatsFilters(lastStatsInfo, currentStats);
+            renderStatsFilters(originalStatsInfo, currentStats);
+
+            // render the 'Statistics Summary' card (min / max / average)
+            renderStatsSummary(lastStatsInfo);
 
 
             // Result determining and updating of the header for results
@@ -491,6 +513,112 @@
             headerEl.textContent = `Results (${rowCount})`; 
         });
     }
+
+        /**
+         * renderStatsSummary:
+         *   - Uses lastStatsInfo (array of { field, display, type, min, max }).
+         *   - Filters to only numeric fields whose column is currently visible.
+         *   - Grabs table.getData(), computes median & mean (average) for each.
+         *   - Injects a Bootstrap card with columns: Metric | Min | Median | Average | Max.
+         *   - Clears #statsSummaryContainer if no numeric stats are visible.
+         */
+        function renderStatsSummary(statsInfo) {
+        const container = document.getElementById('statsSummaryContainer');
+        if (!statsInfo || !statsInfo.length) {
+            container.innerHTML = '';
+            return;
+        }
+
+        // 1) Filter to numeric stats that are currently visible
+        const visibleNumericStats = statsInfo.filter(s => {
+            if (s.type !== 'number') return false;
+            const col = table.getColumn(s.field);
+            return col && col.isVisible();
+        });
+
+        if (visibleNumericStats.length === 0) {
+            container.innerHTML = '';
+            return;
+        }
+
+        // 2) Grab all visible rows' data and compute mean & median for each field
+        const allRows = table.getData(); // array of row-objects
+
+        // Build array of { display, min, median, avg, max }
+        const summaries = visibleNumericStats.map(stat => {
+            const { field, display, min, max } = stat;
+
+            // Collect all non-null numeric values
+            const nums = allRows
+            .map(r => r[field])
+            .filter(v => v !== null && v !== undefined && v !== '')
+            .map(v => parseFloat(v))
+            .filter(n => !isNaN(n));
+
+            let avg = 0;
+            let median = 0;
+            let total = 0;
+
+            if (nums.length) {
+            // Mean (average)
+            const sum = nums.reduce((a, b) => a + b, 0);
+            avg = (sum / nums.length).toFixed(2);
+            total = sum;
+            
+            // Median
+            nums.sort((a, b) => a - b);
+            const mid = Math.floor(nums.length / 2);
+            if (nums.length % 2 === 0) {
+                median = ((nums[mid - 1] + nums[mid]) / 2).toFixed(2);
+            } else {
+                median = nums[mid].toFixed(2);
+            }
+            } else {
+            avg = '0.00';
+            median = '0.00';
+            }
+
+            return { display, min, median, avg, max, total };
+        });
+
+        // 3) Build the Bootstrap card HTML
+        const html = `
+            <div class="card border-0 rounded-4 shadow-sm">
+            <div class="card-body p-3">
+                <small class="text-muted">Statistics Summary</small>
+                <div class="table-responsive">
+                <table class="table table-sm mb-0">
+                    <thead>
+                    <tr>
+                        <th>Metric</th>
+                        <th>Min</th>
+                        <th>Median</th>
+                        <th>Average</th>
+                        <th>Max</th>
+                        <th>Total</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    ${summaries.map(s => `
+                        <tr>
+                        <td>${s.display}</td>
+                        <td>${s.min}</td>
+                        <td>${s.median}</td>
+                        <td>${s.avg}</td>
+                        <td>${s.max}</td>
+                        <td>${s.total}</td>
+                        </tr>
+                    `).join('')}
+                    </tbody>
+                </table>
+                </div>
+            </div>
+            </div>
+        `;
+
+        container.innerHTML = html;
+        }
+
 
     function showDetailModal(data) {
         const body = JSON.stringify(data, null, 2);
@@ -725,6 +853,7 @@
 
             // after showing/hiding columns, re-render stats for newly-visible ones
             renderStatsFilters(lastStatsInfo, currentStats);
+            renderStatsSummary(lastStatsInfo);
             // bootstrap modal hide
             const modalEl = document.getElementById('columnModal');
             bootstrap.Modal.getInstance(modalEl).hide();
@@ -739,6 +868,13 @@
         });
         exportExcelBtn.addEventListener('click', () => {
             table.download("xlsx", "results.xlsx", { sheetName: "Results" });
+        });
+        exportPdfBtn.addEventListener('click', () => {
+            table.download('pdf', 'results.pdf', {
+                orientation: 'portrait', // or 'landscape'
+                jsPDF: { unit: 'pt', format: 'a4'},
+                autoTable: { styles: { fontSize: 10 }},
+            });
         });
 
         // ensure we populate everytime the modal opens

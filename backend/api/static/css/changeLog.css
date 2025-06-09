@@ -1,6 +1,13 @@
-html,body {
-    /* background: #f8f9fa; */
-    background: linear-gradient(rgb( 5,83,175), rgb(19,116,226));
+html {
+    /* height: 100%; */
+    margin: 0;
+    height: 100%;
+    background-size: 100% 100%;
+    background: linear-gradient(rgb( 5,83,175), rgb(19,116,226)), no-repeat fixed;
+}
+
+body{
+  background:transparent;
 }
 .container {
     flex: 1;

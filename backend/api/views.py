@@ -1,7 +1,7 @@
 import json
 import os
 import requests
-from datetime import datetime
+from datetime import datetime, date
 import logging
 from itertools import groupby
 import pandas as pd
@@ -12,13 +12,13 @@ from django.template.loader import render_to_string
 from django.db.models import Count, Q
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
-from django.contrib.auth import authenticate, login, get_user_model
+from django.contrib.auth import authenticate, login, get_user_model, logout
 from django.contrib.auth.decorators import login_required
 
 from .models import (
     Person, Location,
     Person_Email, Location_Email,
-    EmailType,
+    EmailType, BuildingOnSite
 )
 from .constants import DYNAMIC_FILTER_FIELDS, FIELD_LABLES
 from .utilities.emailingSys import message_creator, send_mail
@@ -40,8 +40,19 @@ def login_view(request):
     #         return redirect('home')
     #     return render(request, 'login.html', {'error': 'Invalid username or password'})
     # Demo Logins
+    User = get_user_model()
+
     if request.method == 'POST':
-        User = get_user_model()
+        # OAuth Style
+        oauth_provider = request.POST.get('oauth_provider')
+        if oauth_provider:
+            username = oauth_provider
+            demo_user, created = User.objects.get_or_create(username=username)
+            if created:
+                demo_user.set_unusable_password()
+                demo_user.save()
+            login(request, demo_user)
+            return redirect('api:home')
         username = request.POST.get('username')
         password = request.POST.get('password')
         demo_user, created = User.objects.get_or_create(username=username)
@@ -51,6 +62,23 @@ def login_view(request):
         login(request, demo_user)
         return redirect('api:home')
     return render(request, 'login.html')
+
+def logout_view(request):
+    """Logs out the current user and redirects to the home page.
+
+    Args:
+        request (_type_): _description_
+
+    Raises:
+        Http404: _description_
+        Http404: _description_
+
+    Returns:
+        _type_: _description_
+    """
+    logout(request)
+    
+    return redirect('api:home')
 
 @login_required
 def home_view(request):
@@ -108,11 +136,20 @@ def details_page(request, base, pk):
 
     obj = get_object_or_404(Model, pk=pk)
 
+    # Get today's date
+    today = date.today()
+
     # Common assignments
     assignments = obj.assignment_set.select_related(
         'lkp_location_id', 'lkp_assignmentType_id'
-    ).all()
+    ).order_by('date_assigned')
     obj.assignments = assignments
+    
+    active_assignments = obj.assignments.filter(
+        Q(date_assigned__lte=today),
+        Q(date_released__isnull=True) |
+        Q(date_released__gte=today)
+    ).order_by('lkp_assignmentType_id__title', 'lkp_person_id__name_last')
 
     if ctx_base == 'person':
         # Person-specific details
@@ -177,12 +214,25 @@ def details_page(request, base, pk):
         obj.parishes = obj.parish.all() if hasattr(obj, 'parish') else []
         # Schools: enrollment and relationships
         obj.enrollments = obj.enrollment_set.all()
+        # hospital connection
+        obj.hospitals = obj.hospital_boundary.select_related('lkp_location_id').all()
         # Statistical records
-        obj.october_counts = obj.octoberCount_church.all()
-        obj.statusAnimarum = obj.statusAnimarum_church.all()
+        obj.october_counts = obj.octoberCount_church.last()
+        obj.statusAnimarum = obj.statusAnimarum_church.all() 
+        obj.buildings_on_site = BuildingOnSite.objects.filter(
+            statusAnimarum__in = obj.statusAnimarum
+        ).distinct()
         obj.boundary = getattr(location_details, 'boundary', None)
 
-    return render(request, 'details_page.html', {'object': obj, 'base': ctx_base})
+        # Offertory income for each year
+        obj.offertories = obj.offertory_church.order_by('year')
+       
+
+    return render(request, 'details_page.html', {
+        'object': obj, 
+        'base': ctx_base,
+        'active_assignments': active_assignments,
+        })
 
 def get_filtered_data(base, raw_filters, raw_stats=None):
     """
@@ -198,7 +248,7 @@ def get_filtered_data(base, raw_filters, raw_stats=None):
         "# Sisters":  'statusAnimarum_church__fullTime_sisters',
         "# Lay":  'statusAnimarum_church__fullTime_other',
         "# Staff":  'statusAnimarum_church__partTime_staff',
-        "% Volunteers":  'statusAnimarum_church__percent_volunteers',
+        "Volunteers":  'statusAnimarum_church__volunteers',
         "Registered Households":  'statusAnimarum_church__registeredHouseholds',
         "Max Mass Size":  'statusAnimarum_church__maxMass',
         "Seating Capacity":  'statusAnimarum_church__seatingCapacity',
@@ -239,6 +289,8 @@ def get_filtered_data(base, raw_filters, raw_stats=None):
         "Cemetery on Site?":  'statusAnimarum_church__has_cemetary',
         "School on Site?":  'statusAnimarum_church__has_schoolOnSite',
         "NonParochial School Using Facilities?":  'statusAnimarum_church__is_nonParochialSchoolUsingFacilities',
+        'Offertory':            'offertory_church__income',
+        'October Mass Count':   'octoberCount_church__week1'
     }
     
     FIELD_CATEGORIES = {
@@ -286,6 +338,7 @@ def get_filtered_data(base, raw_filters, raw_stats=None):
         "Is Priest?":         "Standing in Diocese",
         "Is Deacon?":         "Standing in Diocese",
         "Is Lay?":            "Standing in Diocese",
+        'Ecclesiastical Offices': "Standing in Diocese",
         
         
         # - Degrees/Skills/Lang -
@@ -348,14 +401,15 @@ def get_filtered_data(base, raw_filters, raw_stats=None):
         
         # - Masses/Ministry - 
         "Mass Languages":          "Masses/Ministries",
-        "Campus Mass At Parish":   "Masses/Minitries",
-        "Served By":               "Masses/Minitries",
-        "Mass Schedule":           "Masses/Minitries",
-        "Hours":                   "Masses/Minitries",
-        "Facility Type":           "Masses/Minitries",
-        "Diocese":                 "Masses/Minitries",
-        "Parish Boundary":         "Masses/Minitries",
-        "Is Other Entity":         "Masses/Minitries",
+        "Campus Mass At Parish":   "Masses/Ministries",
+        "Served By":               "Masses/Ministries",
+        "Mass Schedule":           "Masses/Ministries",
+        "Hours":                   "Masses/Ministries",
+        "Facility Type":           "Masses/Ministries",
+        "Diocese":                 "Masses/Ministries",
+        "Parish Boundary":         "Masses/Ministries",
+        "Is Other Entity":         "Masses/Ministries",
+        "Social Outreach Programs": "Masses/Ministries",
         
         
         # - Staff -
@@ -401,6 +455,7 @@ def get_filtered_data(base, raw_filters, raw_stats=None):
         "% Hispanic":                   "Statistics",
         "% American-Indian":            "Statistics",
         "% Other":                      "Statistics",
+        "Volunteers":                 "Statistics",
         "Estimate Census?":             "Statistics",
         "# Referrals to Catholic Charities":            "Statistics",
         "HomeSchool Program?":          "Statistics",
@@ -412,6 +467,9 @@ def get_filtered_data(base, raw_filters, raw_stats=None):
         "Cemetery on Site?":            "Statistics",
         "School on Site?":              "Statistics",
         "NonParochial School Using Facilities?":        "Statistics",
+        "Priest Count":     "Statistics",
+        "Offertory":        "Statistics",
+        'October Mass Count': 'Statistics',
         
     }
     
@@ -423,11 +481,22 @@ def get_filtered_data(base, raw_filters, raw_stats=None):
     for rf in raw_filters:
         if ":" in rf:
             field, val = rf.split(":", 1)
+
+            # if date no in YYYY-mm-dd
+            if 'date' in field:
+                try:
+                    # parse strings like July 8,2025
+                    parsed_date = datetime.strptime(val, "%B %d, %Y").date().isoformat()
+                    val = parsed_date
+                except ValueError:
+                    pass
+                
             applied.setdefault(field, []).append(val)
 
     # 3) Apply each as __in filter
     for field, vals in applied.items():
         qs = qs.filter(**{f"{field}__in": vals})
+
     qs = qs.distinct()
 
     # 4) Build Dynamic Filter Tree exactly as before
@@ -477,6 +546,24 @@ def get_filtered_data(base, raw_filters, raw_stats=None):
                 "second_person",
             )
     else:
+        qs = qs.annotate(
+            priest_count = Count(
+                'assignment',
+                filter=Q(assignment__lkp_person_id__priest_detail__isnull=False)
+            )
+        )
+        
+        # Get Location with a certain number of priests assigned no matter the assigned title.
+        if raw_stats:
+            min_pc = raw_stats.get('Priest Count_min')
+            max_pc = raw_stats.get('Priest Count_max')
+            
+            if min_pc is not None:
+                qs = qs.filter(priest_count__gte=int(min_pc))
+            if max_pc is not None:
+                qs = qs.filter(priest_count__lte=int(max_pc))
+
+        
         qs = qs.select_related(
                 "lkp_physicalAddress_id", "lkp_mailingAddress_id",
                 "lkp_vicariate_id", "lkp_county_id"
@@ -486,6 +573,7 @@ def get_filtered_data(base, raw_filters, raw_stats=None):
                 "location_phone_set",
                 "location_status_set",
                 "church_language_set",
+                "social_outreach_program",
 
                 # detail tables:
                 "churchDetail_location",
@@ -514,12 +602,13 @@ def get_filtered_data(base, raw_filters, raw_stats=None):
                 # Statistics
                 "enrollment_set",
                 "octoberCount_church",
+                "offertory_church",
                 "statusAnimarum_church",
                 
             )
 
     # Apply raw_stats filters
-    if raw_stats:
+    if raw_stats and base == 'location':
         # collect all numeric bounds by field
         ranges = {}
         for key, val in raw_stats.items():
@@ -730,6 +819,7 @@ def get_filtered_data(base, raw_filters, raw_stats=None):
                                         for m in obj.mission.all()),
                 "Parishes":         ", ".join(p.lkp_mission_id.name
                                         for p in obj.parish.all()),
+                "Priest Count":     obj.priest_count,
             }
 
             # — Church‐specific details (if any) —
@@ -784,6 +874,22 @@ def get_filtered_data(base, raw_filters, raw_stats=None):
                     "Canonical Status": sc.canonicalStatus,
                     "Chapel on Site":   sc.is_schoolChapel,
                 })
+                
+            offertory_qs = obj.offertory_church.order_by('-year')
+            offertory = offertory_qs.first()
+            if offertory:
+                rec.update({
+                    'Offertory': offertory.income,
+                })
+            
+            octMass_qs = obj.octoberCount_church.order_by('-year')
+            octMass = octMass_qs.first()
+            if octMass:
+                total = octMass.week1 + octMass.week2 + octMass.week3 + octMass.week4
+                rec.update({
+                'October Mass Count': total,
+                    
+                })
             
             """ Found an issue where this was pulling the oldest data and not the newest. """
             # sa = obj.statusAnimarum_church.first()
@@ -796,7 +902,7 @@ def get_filtered_data(base, raw_filters, raw_stats=None):
                     "# Sisters":  sa.fullTime_sisters,
                     "# Lay":  sa.fullTime_other,
                     "# Staff":  sa.partTime_staff,
-                    "% Volunteers":  sa.volunteers,
+                    "Volunteers":  sa.volunteers,
                     "Registered Households":  sa.registeredHouseholds,
                     "Max Mass Size":  sa.maxMass,
                     "Seating Capacity":  sa.seatingCapacity,
@@ -838,9 +944,24 @@ def get_filtered_data(base, raw_filters, raw_stats=None):
                     "School on Site?":  sa.has_schoolOnSite,
                     "NonParochial School Using Facilities?":  sa.is_nonParochialSchoolUsingFacilities,
                 })
+                rec["Social Outreach Programs"] = ", ".join(
+                    sop.name for sop in obj.social_outreach_program.all()
+                )
 
 
         records.append(rec)
+
+    # ── Title-case every string in each record ──
+    titled_records = []
+    for rec in records:
+        new_rec = {}
+        for key, val in rec.items():
+            if isinstance(val, str):
+                new_rec[key] = val.title()
+            else:
+                new_rec[key] = val
+        titled_records.append(new_rec)
+    records = titled_records
 
     all_fields = []
     for r in records:
@@ -892,6 +1013,37 @@ def get_filtered_data(base, raw_filters, raw_stats=None):
     # return also the `columns` list
     return records, applied, filter_tree, columns, stats_info
 
+# Not used but considered if used in more place in the future.
+def filter_locations_by_priests(request):
+    
+    # Grab min_priests" from request (default to 0 if not provided)
+    try:
+        min_priests = int(request.GET.get('min_priests',0))
+    except ValueError:
+        min_priests = 0
+        
+    # Annotate each location with priest_count
+    #    - “assignment” is the reverse lookup from Location → Assignment (FK=lkp_location_id).
+    #    - “assignment__lkp_person_id__priest_detail__isnull=False” ensures we only count
+    #       those related Assignments whose Person has a Priest_Detail record.
+    qs = Location.objects.annotate(
+        priest_count=Count(
+            'assignment',
+            filter=Q(assignment__lkp_person_id__priest_detail__isnull=False)
+        )
+    )
+
+    # Apply the numeric filter. E.g. keep only locations with ≥ min_priests.
+    if min_priests:
+        qs = qs.filter(priest_count__gte=min_priests)
+
+    # Now “qs” is just the Locations matching your criteria.
+    #    You could render them in a template, or return JSON, etc.
+    return render(request, 'locations_by_priests.html', {
+        'locations': qs,
+        'min_priests': min_priests,
+    })
+        
 @login_required
 def enhanced_filter_view(request):
     """Initial page load: no filters yet."""
@@ -1023,10 +1175,11 @@ def send_email(request):
                   smtp_pass=settings.EMAIL_HOST_PASSWORD)
 
         # 6. Clean up temp file
-        try:
-            os.remove(attachment_path)
-        except OSError:
-            pass
+        if attachment_path:
+            try:
+                os.remove(attachment_path)
+            except OSError:
+                pass
 
         return redirect('api:enhanced_filter')
 

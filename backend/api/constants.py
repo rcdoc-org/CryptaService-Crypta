@@ -5,41 +5,43 @@ DYNAMIC_FILTER_FIELDS = {
     'person': [
         # Direct CharFields / choices on Person
         'personType',                # e.g. Priest / Deacon / Lay Person
-        'prefix',                    # Mr. / Dr. / Reverend / etc.
-        'residencyType',             # Your residencyType field
-        'activeOutsideDOC',          # Active outside DOC choices
-        'legalStatus',               # Legal status choices
-
-        # Boolean
-        'is_safeEnvironmentTraining',  # True / False
-
-        # DateFields
+        'assignment__lkp_location_id__lkp_county_id__name', # Assignment County
+        'assignment__lkp_location_id__name',          # Location name from assignments
+        'assignment__lkp_assignmentType_id__title',   # Assignment type title
         'date_baptism',              # Baptism date
+        'is_safeEnvironmentTraining',  # True / False
         'date_deceased',             # Deceased date
-        'date_retired',              # Retirement date
-
-        # ForeignKey → Address (residence & mailing)
-        'lkp_residence_id__city',    # Residence city
-        'lkp_residence_id__state',   # Residence state 
+        'priest_detail__diocesanReligious',
+        'legalStatus',               # Legal status choices
+        'activeOutsideDOC',          # Active outside DOC choices
         'lkp_mailing_id__city',      # Mailing address city
         'lkp_mailing_id__state',     # Mailing state 
-
-        # Reverse rel’n from Assignment
-        'assignment__lkp_assignmentType_id__title',   # Assignment type title
-        'assignment__lkp_location_id__name',          # Location name from assignments
-        'assignment__lkp_location_id__lkp_vicariate_id__name', # Vicariate Assignment
-        'assignment__date_assigned',                  # Assignment date
-
-        # Reverse rel’n from Person_Status
+        'priest_detail__is_massEnglish',
+        'priest_detail__is_massSpanish',
+        'prefix',                    # Mr. / Dr. / Reverend / etc.
+        'residencyType',             # Your residencyType field
+        'date_retired',              # Retirement date
+        'lkp_residence_id__city',    # Residence city
+        'lkp_residence_id__state',   # Residence state 
         'person_status__lkp_status_id__name',         # Status name
-        'person_status__date_assigned',               # When status assigned
+        'assignment__date_assigned',                    # Date Assigned
+        'assignment__lkp_location_id__lkp_vicariate_id__name', # Vicariate Assignment
     ],
     'location': [
         'type',                                   # Location type (Church / School / etc.)
-        'lkp_physicalAddress_id__city',           # Physical address city 
-        'lkp_mailingAddress_id__city',            # Mailing address city 
-        'lkp_vicariate_id__name',                 # Vicariate name 
-        'lkp_county_id__name',                    # Country name
+        'assignment__lkp_assignmentType_id__title', # Assignments
+        'churchDetail_location__cityServed',      # City Served
+        'lkp_county_id__name',                    # Country 
+        'churchDetail_location__is_doc',           # Diocesan Entity
+        'churchDetail_location__is_mission',        # Mission
+        'church_language__lkp_language_id__name', #Language Options
+        'lkp_physicalAddress_id__city',           # Physical city 
+        'lkp_physicalAddress_id__state',           # Physical state 
+        'lkp_mailingAddress_id__city',            # Mailing city 
+        'lkp_mailingAddress_id__state',            # Mailing city 
+        'churchDetail_location__lkp_rectoryAddress_id__city', #Rectory City
+        'social_outreach_program__name',            # Social Outreach Programs
+        'lkp_vicariate_id__name',                 # Vicariate
     ],
 }
 
@@ -51,6 +53,9 @@ FIELD_LABLES = {
         'residencyType':                                'Residency Type',
         'activeOutsideDOC':                             'Active Outside DOC',
         'legalStatus':                                  'Legal Status',
+        'priest_detail__diocesanReligious':             'Diocesan/Religious',
+        'priest_detail__is_massEnglish':                'Mass in English',
+        'priest_detail__is_massSpanish':                'Mass in Spanish',
 
         # Boolean
         'is_safeEnvironmentTraining':                   'Completed Safe Environment Training',
@@ -71,6 +76,7 @@ FIELD_LABLES = {
         'assignment__lkp_location_id__name':            'Assignment Location',
         'assignment__date_assigned':                    'Status Assigned',
         'assignment__lkp_location_id__lkp_vicariate_id__name':  'Vicariate',
+        'assignment__lkp_location_id__lkp_county_id__name': 'Assignment County',
         
         # Reverse rel’n from Person_Status
         'person_status__lkp_status_id__name':           'Status',
@@ -81,6 +87,14 @@ FIELD_LABLES = {
         'lkp_physicalAddress_id__city':                 'Physical City',
         'lkp_mailingAddress_id__city':                  'Mailing City',
         'lkp_vicariate_id__name':                       'Vicariate',
-        'lkp_county_id__name':                          'County'
+        'lkp_county_id__name':                          'County',
+        'churchDetail_location__cityServed':                    'City Served',
+        'churchDetail_location__is_doc':           'Diocesan Entity',
+        'churchDetail_location__is_mission':        'Mission',
+        'churchDetail_location__lkp_rectoryAddress_id__city': 'Rectory City',
+        'lkp_physicalAddress_id__state':           'Physical State',
+        'lkp_mailingAddress_id__state':            'Mailing State', 
+        'church_language__lkp_language_id__name': 'Language Options',
+        'social_outreach_program__name':            'Social Outreach Programs',
         
 }

@@ -4,11 +4,11 @@
 {% block stylesheets %}
   <link rel="stylesheet" href="{% static 'css/details_page.css' %}" />
 
-  <scripts src="https://cdn.jsdelivr.net/npm/chart.js"></scipts>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 {% endblock %}
 
 {% block title %}
-  {% if base == 'person' %}Person Details{% else %}Location Details{% endif %}
+  {% if base == 'person' %}Crypta - Person Details{% else %}Crypta - Location Details{% endif %}
 {% endblock %}
 
 {% block content %}
@@ -20,7 +20,13 @@
         <button type="button" class="btn actions-btn" onclick="history.back()">
           <i class="fas fa-arrow-left"></i> Back to Results
         </button>
-        <button class="btn actions-btn">Actions</button>
+        <button 
+          type='button'
+          class="btn actions-btn"
+          data-bs-toggle='modal'
+          data-bs-target='#actionModal'
+          id='actiontogglebtn'
+          >Actions</button>
       </div>
 
       <!-- Picture -->
@@ -29,7 +35,7 @@
           <form method="POST" enctype="multipart/form-data">
             {% csrf_token %}
             {% if object.photo %}
-              <img src="{{ object.photo.url }}" alt="Profile Photo" class="rounded-circle mb-3" width="120" height="120">
+              <img src="{{ object.photo.url }}" alt="Profile Photo" class="rounded-circle mb-3 shadow" width="120" height="120">
             {% else %}
               {% if base == 'person' %}
                 <img src="{% static 'images/person.png' %}" alt="Profile Photo" class="rounded-circle mb-3" width="120" height="120">
@@ -53,12 +59,12 @@
             {{ object.type|title }}
           {% endif %}
         </p>
-        <div class="d-flex justify-content-center mb-3">
+        <div class="d-flex justify-content-center mb-3 gap-4">
           {% if object.primary_phone %}
-            <a href="tel:{{ object.primary_phone }}" class="action-icons me-4"><i class="fas fa-phone fa-lg"></i></a>
+            <a href="tel:{{ object.primary_phone }}" class="action-icons"><i class="fas fa-phone fa-lg"></i></a>
           {% endif %}
           {% if object.primary_email %}
-            <a href="mailto:{{ object.primary_email }}" class="action-icons me-4"><i class="fas fa-envelope fa-lg"></i></a>
+            <a href="mailto:{{ object.primary_email }}" class="action-icons"><i class="fas fa-envelope fa-lg"></i></a>
           {% endif %}
           {% if base == 'person' and object.primary_email %}
             <a href="msteams://teams.microsoft.com/l/chat/0/0?users={{ object.primary_email|urlencode }}" class="action-icons"><i class="fas fa-users fa-lg"></i></a>
@@ -81,7 +87,7 @@
           <a class="nav-link" href="#" data-target="location-info">Location Info</a>
           <a class="nav-link" href="#" data-target="clergy-info">Clergy</a>
           <a class="nav-link" href="#" data-target="mass-info">Masses/Ministries</a>
-          <a class="nav-link" href="#" data-target="staff-info">Staff</a>
+          <a class="nav-link" href="#" data-target="staff-info">All Staff</a>
           <a class="nav-link" href="#" data-target="stat-info">Statistics</a>
         {% endif %}
       </nav>
@@ -98,21 +104,25 @@
               <div class="card mb-4 border-0 rounded-4 shadow-sm">
                 <div class="card-body">
                   <small class="text-muted">Current Assignment</small>
-                  <div>
+                  {% if object.assignments %}
                     {% for assignment in object.assignments %}
-                      {% if assignment.date_released != 'None' %}
+                      {% if not assignment.date_released %}
+                      <div class="mt-2">
                         <span>
                           {{ assignment.lkp_assignmentType_id.title }}<br>
+                          <a href="{% url 'api:details_page' base='location' pk=assignment.lkp_location_id.pk %}">
                           {{ assignment.lkp_location_id.name }}
-                          - As of: {{ assignment.date_assigned }}
+                          </a>
+                         - As of: {{ assignment.date_assigned|date:"m/d/Y" }}
                         </span>
-                      {% else %}
-                        <dd>No active assignments</dd>
+                      </div>
                       {% endif %}
-                    {% empty %}
-                      <dd>No assignments found</dd>
                     {% endfor %}
+                  {% else %}
+                  <div class="mt-2">
+                    <dd>No assignments found</dd>
                   </div>
+                  {% endif %}
                 </div>
               </div>
             </div>
@@ -121,14 +131,16 @@
               <div class="card mb-4 border-0 rounded-4 shadow-sm">
                 <div class="card-body">
                   <small class="text-muted">Status Info</small>
+                  <div class="mt-2">
                   {% if object.statuses %}
-                    {% with latest=object.statuses|last %}
-                      <p>Status: {{ latest.lkp_status_id.name }}</p>
-                      <p>As of: {{ latest.date_assigned|date:"Y-m-d" }}</p>
+                    {% with latest=object.statuses.last %}
+                      <dt>Status: {{ latest.lkp_status_id.name }}</dt>
+                      <dd class="indent">As of: {{ latest.date_assigned|date:"m/d/Y" }}</dd>
                     {% endwith %}
                   {% else %}
                     <p>No status recorded</p>
                   {% endif %}
+                  </div>
                 </div>
               </div>
             </div>
@@ -141,11 +153,11 @@
                 <div class="card-body">
                   <small class="text-muted">Person Details</small>
                   <dl class="mb-0">
-                    <dt class="mt-2">Vicariate</dt>
-                    <dd class="indent">{{ object.assignment_set.first.lkp_location_id.lkp_vicariate_id.name }}</dd>
+                    <dt class="mt-2">Assigned Vicariate</dt>
+                    <dd class="indent">{{ object.assignment_set.last.lkp_location_id.lkp_vicariate_id.name }}</dd>
 
-                    <dt>County</dt>
-                    <dd class="indent">{{ object.assignment_set.first.lkp_location_id.lkp_county_id.name }}</dd>
+                    <dt>Assigned County</dt>
+                    <dd class="indent">{{ object.assignment_set.last.lkp_location_id.lkp_county_id.name }}</dd>
 
                     <dt>Eastern Catholic Member?</dt>
                     <dd class="indent">{{ object.person_details.is_easternCatholicChurchMember|yesno:"Yes,No" }}</dd>
@@ -157,12 +169,12 @@
 
                     {% if object.date_retired %}
                       <dt>Retired On</dt>
-                      <dd class="indent">{{ object.date_retired|date:"Y-m-d" }}</dd>
+                      <dd class="indent">{{ object.date_retired|date:"m/d/Y" }}</dd>
                     {% endif %}
 
                     {% if object.date_deceased %}
                       <dt>Deceased On</dt>
-                      <dd class="indent">{{ object.date_deceased|date:"Y-m-d" }}</dd>
+                      <dd class="indent">{{ object.date_deceased|date:"m/d/Y" }}</dd>
                     {% endif %}
                   </dl>
                 </div>
@@ -173,17 +185,18 @@
               <div class="card mb-4 border-0 rounded-4 shadow-sm">
                 <div class="card-body">
                   <small class="text-muted">Ecclesiastical Offices</small>
-                  {% if object.titles %}
-                    <ul class="mt-2">
+                    <div class="mt-2">
+                    {% if object.titles %}
                       {% for title in object.titles %}
                         {% if title.lkp_title_id.is_ecclesiastical %}
-                          <li>{{ title.lkp_title_id.name }} ({{ title.date_assigned|date:"Y-m-d" }})</li>
+                          <dt>{{ title.lkp_title_id.name }}</dt>
+                          <dd class="indent">({{ title.date_assigned|date:"m/d/Y" }})</dd>
                         {% endif %}
                       {% endfor %}
-                    </ul>
-                  {% else %}
-                    <p class="mt-2">No titles</p>
-                  {% endif %}
+                    {% else %}
+                      <p>No titles</p>
+                    {% endif %}
+                    </div>
                 </div>
               </div>
             </div>
@@ -195,13 +208,16 @@
               <div class="card mb-4 border-0 rounded-4 shadow-sm">
                 <div class="card-body">
                   <small class="text-muted">Assignment History</small>
-                  {% for assignment in object.assignments %}
-                    <p>{{ assignment.lkp_assignmentType_id.title }}</p>
-                    <p>{{ assignment.lkp_location_id.name }}
-                    From {{ assignment.date_assigned|date:"Y-m-d" }}{% if assignment.date_released %}, To {{ assignment.date_released|date:"Y-m-d" }}{% else %}, To Present{% endif %}
-                    </p>
-                    <hr>
-                  {% endfor %}
+                    {% for assignment in object.assignments %}
+                    <div class="mt-2">
+                      <p>{{ assignment.lkp_assignmentType_id.title }}<br>
+                      <a href="{% url 'api:details_page' base='location' pk=assignment.lkp_location_id.pk %}">
+                      {{ assignment.lkp_location_id.name }}
+                      </a>
+                      From {{ assignment.date_assigned|date:"m/d/Y" }}{% if assignment.date_released %}, To {{ assignment.date_released|date:"m/d/Y" }}{% else %}, To Present{% endif %}
+                      </p>
+                    </div>
+                    {% endfor %}
                 </div>
               </div>
             </div>
@@ -210,7 +226,9 @@
               <div class="card mb-4 border-0 rounded-4 shadow-sm">
                 <div class="card-body">
                   <small class="text-muted">Notes</small>
-                  <p class="mt-2">{{ object.person_details.notes }}</p>
+                  <div class="mt-2">
+                    <p class="indent">{{ object.person_details.notes }}</p>
+                  </div>
                 </div>
               </div>
             </div>
@@ -225,11 +243,29 @@
               <div class="card mb-4 border-0 rounded-4 shadow-sm">
                 <div class="card-body">
                   <small class="text-muted">Phone Numbers</small>
-                  <ul class="mt-2">
+                  {% if object.phones %}
                     {% for phone in object.phones %}
-                      <li>{{ phone.lkp_phoneType_id.name }}: {{ phone.phoneNumber }}</li>
+                    <div class="mt-2">
+                      <dt>
+                        {{ phone.lkp_phoneType_id.name|title }} 
+                        {% if phone.is_primary %}
+                          (Primary) 
+                        {% endif %}
+                      </dt>
+                      {% with p=phone.phoneNumber %}
+                        <dd class="indent">
+                          <a href="tel:{{ p }}">
+                            ({{ p|slice:"0:3" }}) {{ p|slice:"3:6" }}-{{ p|slice:"6:" }}
+                          </a>
+                        </dd>
+                      {% endwith %}
+                    </div>
                     {% endfor %}
-                  </ul>
+                  {% else %}
+                    <div class="mt-2">
+                      <p>Not Recorded</p>
+                    </div>
+                  {% endif %}
                 </div>
               </div>
             </div>
@@ -238,10 +274,23 @@
               <div class="card mb-4 border-0 rounded-4 shadow-sm">
                 <div class="card-body">
                   <small class="text-muted">Emails</small>
+                  {% if object.emails %}
                     {% for email in object.emails %}
-                      <dt>{{ email.lkp_emailType_id.name }}</dt>
+                    <div class="mt-2">
+                      <dt>
+                        {{ email.lkp_emailType_id.name|title }} 
+                        {% if email.is_primary %}
+                          (Primary)
+                        {% endif %}
+                      </dt>
                       <dd class="indent"><a href="mailto:{{ email.email }}">{{ email.email }}</a></dd>
+                    </div>
                     {% endfor %}
+                  {% else %}
+                    <div class="mt-2">
+                      <p>Not Recorded</p>
+                    </div>
+                  {% endif %}
                   </ul>
                 </div>
               </div>
@@ -252,36 +301,96 @@
             <!-- Residence Address -->
             <div class="col">
               <div class="card mb-4 border-0 rounded-4 shadow-sm">
-                <div class="card-body">
-                  <small class="text-muted">Residence Address</small>
+                <div class="card-body d-flex align-items-center">
                   {% if object.residence %}
-                    <address class="mt-2">
-                      {{ object.residence.address1 }}<br>
-                      {% if object.residence.address2 != 'nan' %}{{ object.residence.address2 }}<br>{% endif %}
-                      {{ object.residence.city }}, {{ object.residence.state }} {{ object.residence.zip_code }}<br>
-                      {% if object.residence.country != 'nan' %}{{ object.residence.country }}{% else %}USA{% endif %}
-                    </address>
+                    {# Build a Google Maps “search” URL piece by piece #}
+                    <a
+                      href="
+                        https://www.google.com/maps/search/?api=1&query=
+                        {{ object.residence.address1|urlencode }},
+                        {% if object.residence.address2 and object.residence.address2 != 'nan' %}
+                          {{ object.residence.address2|urlencode }},
+                        {% endif %}
+                        {{ object.residence.city|urlencode }},
+                        {{ object.residence.state|urlencode }}
+                        {{ object.residence.zip_code|urlencode }}
+                      "
+                      target="_blank"
+                      class="me-2"
+                      style="text-decoration: none; color: inherit;"
+                    >
+                      <i class="fas fa-map-marker-alt fa-lg text-primary"></i>
+                    </a>
                   {% else %}
-                    <p class="mt-2">None</p>
+                    {# If there is no residence, still show a dimmed icon (optional) #}
+                    <i class="fas fa-map-marker-alt me-2 text-muted"></i>
                   {% endif %}
+
+                  <div>
+                    <small class="text-muted">Residence Address</small>
+                    {% if object.residence %}
+                      <address class="mt-2">
+                        {{ object.residence.address1 }}<br>
+                        {% if object.residence.address2 and object.residence.address2 != 'nan' %}
+                          {{ object.residence.address2 }}<br>
+                        {% endif %}
+                        {{ object.residence.city }}, {{ object.residence.state }}
+                        {{ object.residence.zip_code }}<br>
+                        {% if object.residence.country and object.residence.country != 'nan' %}
+                          {{ object.residence.country }}
+                        {% else %}
+                          USA
+                        {% endif %}
+                      </address>
+                    {% else %}
+                      <p class="mt-2">None</p>
+                    {% endif %}
+                  </div>
                 </div>
               </div>
             </div>
+
             <!-- Mailing Address -->
             <div class="col">
               <div class="card mb-4 border-0 rounded-4 shadow-sm">
-                <div class="card-body">
-                  <small class="text-muted">Mailing Address</small>
+                <div class="card-body d-flex align-items-center">
                   {% if object.mailing %}
-                    <address class="mt-2">
-                      {{ object.mailing.address1 }}<br>
-                      {% if object.mailing.address2 != 'nan' %}{{ object.mailing.address2 }}<br>{% endif %}
-                      {{ object.mailing.city }}, {{ object.mailing.state }} {{ object.mailing.zip_code }}<br>
-                      {% if object.mailing.country != 'nan' %}{{ object.mailing.country }}{% else %}USA{% endif %}
-                    </address>
+                    {# Build a Google Maps “search” URL piece by piece #}
+                    <a
+                      href="
+                        https://www.google.com/maps/search/?api=1&query=
+                        {{ object.mailing.address1|urlencode }},
+                        {% if object.mailing.address2 and object.mailing.address2 != 'nan' %}
+                          {{ object.mailing.address2|urlencode }},
+                        {% endif %}
+                        {{ object.mailing.city|urlencode }},
+                        {{ object.mailing.state|urlencode }}
+                        {{ object.mailing.zip_code|urlencode }}
+                      "
+                      target="_blank"
+                      class="me-2"
+                      style="text-decoration: none; color: inherit;"
+                    >
+                      <i class="fas fa-map-marker-alt fa-lg text-primary"></i>
+                    </a>
                   {% else %}
-                    <p class="mt-2">None</p>
+                    {# If there is no residence, still show a dimmed icon (optional) #}
+                    <i class="fas fa-map-marker-alt me-2 text-muted"></i>
                   {% endif %}
+
+                  <div>
+                    <small class="text-muted">Mailing Address</small>
+                    {% if object.mailing %}
+                      <address class="mt-2">
+                        {{ object.mailing.address1 }}<br>
+                        {% if object.mailing.address2 != 'nan' %}{{ object.mailing.address2 }}<br>{% endif %}
+                        {{ object.mailing.city }}, {{ object.mailing.state }} {{ object.mailing.zip_code }}<br>
+                        {% if object.mailing.country != 'nan' %}{{ object.mailing.country }}{% else %}USA{% endif %}
+                      </address>
+                    {% else %}
+                      <p class="mt-2">None</p>
+                    {% endif %}
+                  </div>
                 </div>
               </div>
             </div>
@@ -295,14 +404,16 @@
               <div class="card mb-4 border-0 rounded-4 shadow-sm">
                 <div class="card-body">
                   <small class="text-muted">Birth Details</small>
-                  {% if object.person_details %}
-                    <dt>Date of Birth:</dt>
-                    <dd class="indent">{{ object.date_birth|date:"Y-m-d" }}</dd>
-                    <dt>Place of Birth:</dt>
-                    <dd class="indent">{{ object.person_details.birth_city }}, {{ object.person_details.birth_state }} {{ object.person_details.birth_country }}</dd>
-                  {% else %}
-                    <p class="mt-2">No birth details</p>
-                  {% endif %}
+                  <div class="mt-2">
+                    {% if object.person_details %}
+                      <dt>Date of Birth:</dt>
+                      <dd class="indent">{{ object.date_birth|date:"m/d/Y" }}</dd>
+                      <dt>Place of Birth:</dt>
+                      <dd class="indent">{{ object.person_details.birth_city }}, {{ object.person_details.birth_state }} {{ object.person_details.birth_country }}</dd>
+                    {% else %}
+                      <p class="mt-2">No birth details</p>
+                    {% endif %}
+                  </div>
                 </div>
               </div>
             </div>
@@ -310,14 +421,20 @@
               <div class="card mb-4 border-0 rounded-4 shadow-sm">
                 <div class="card-body">
                   <small class="text-muted">Sacraments</small>
-                  {% if object.date_baptism or object.person_details.lkp_placeOfBaptism_id %}
-                    <dt>Baptism Date:</dt>
-                    <dd class="indent">{{ object.date_baptism|date:"Y-m-d" }}</dd>
-                    <dt>Place of Baptism:</dt>
-                    <dd class="indent">{{ object.person_details.lkp_placeOfBaptism_id.name }}</dd>
-                  {% else %}
-                    <p class="mt-2">No sacrament info</p>
+                  <div class="mt-2">
+                    {% if object.date_baptism or object.person_details.lkp_placeOfBaptism_id %}
+                      <dt>Baptism Date:</dt>
+                      <dd class="indent">{{ object.date_baptism|date:"m/d/Y" }}</dd>
+                      <dt>Place of Baptism:</dt>
+                      <dd class="indent">
+                        <a href="{% url 'api:details_page' base='location' pk=object.person_details.lkp_placeOfBaptism_id.pk %}">
+                          {{ object.person_details.lkp_placeOfBaptism_id.name }}
+                        </a>
+                      </dd>
+                    {% else %}
+                      <p>No sacrament info</p>
                   {% endif %}
+                  </div>
                 </div>
               </div>
             </div>
@@ -331,14 +448,16 @@
               <div class="card mb-4 border-0 rounded-4 shadow-sm">
                 <div class="card-body">
                   <small class="text-muted">Status History</small>
-                  {% if object.statuses %}
-                      {% for status in object.statuses %}
-                        <dt>{{ status.lkp_status_id.name }}:</dt>
-                        <dd class="indent">{{ status.date_assigned|date:"Y-m-d" }}{% if status.date_released %} - {{ status.date_released|date:"Y-m-d" }}{%else%} - Present{% endif %}</dd>
-                      {% endfor %}
-                  {% else %}
-                    <p class="mt-2">No history</p>
+                  <div class="mt-2">
+                    {% if object.statuses %}
+                        {% for status in object.statuses %}
+                          <dt>{{ status.lkp_status_id.name }}:</dt>
+                          <dd class="indent">{{ status.date_assigned|date:"m/d/Y" }}{% if status.date_released %} - {{ status.date_released|date:"m/d/Y" }}{%else%} - Present{% endif %}</dd>
+                        {% endfor %}
+                    {% else %}
+                      <p>No history</p>
                   {% endif %}
+                  </div>
                 </div>
               </div>
             </div>
@@ -352,14 +471,16 @@
               <div class="card mb-4 border-0 rounded-4 shadow-sm">
                 <div class="card-body">
                   <small class="text-muted">Degrees & Certificates</small>
-                  {% if object.degrees %}
-                      {% for deg in object.degrees %}
-                        <dt>{{ deg.lkp_degreeCertificate_id.institute }} {{deg.lkp_degreeCertificate_id.lkp_subjectMatter_id.name}}</dt>
-                        <dd class="indent">Type of Degree: {{deg.lkp_degreeCertificate_id.lkp_typeOfDegree_id.name}} ({{ deg.date_acquired|date:"Y-m-d" }}{% if deg.date_expiration %} - {{ deg.date_expiration|date:"Y-m-d" }}{% endif %})</dd>
-                      {% endfor %}
-                  {% else %}
-                    <p class="mt-2">None recorded</p>
-                  {% endif %}
+                  <div class="mt-2">
+                    {% if object.degrees %}
+                        {% for deg in object.degrees %}
+                          <dt>{{ deg.lkp_degreeCertificate_id.institute }} {{deg.lkp_degreeCertificate_id.lkp_subjectMatter_id.name}}</dt>
+                          <dd class="indent">Type of Degree: {{deg.lkp_degreeCertificate_id.lkp_typeOfDegree_id.name}} ({{ deg.date_acquired|date:"m/d/Y" }}{% if deg.date_expiration %} - {{ deg.date_expiration|date:"m/d/Y" }}{% endif %})</dd>
+                        {% endfor %}
+                    {% else %}
+                      <p>None recorded</p>
+                    {% endif %}
+                  </div>
                 </div>
               </div>
             </div>
@@ -368,22 +489,24 @@
               <div class="card mb-4 border-0 rounded-4 shadow-sm">
                 <div class="card-body">
                   <small class="text-muted">Languages & Skills</small>
-                  {% if object.languages %}
-                      {% for lang in object.languages %}
-                        <dt>{{ lang.lkp_language_id.name }}</dt>
-                        <dd class="indent">{{ lang.lkp_languageProficiency_id.name }}</dd>
-                      {% endfor %}
-                  {% else %}
-                    <dt>Languagues<dt>
-                    <dd class="indent">None</dd>
-                  {% endif %}
-                  {% if object.person_details.otherSkillsCompentencies %}
-                    <dt>Other Skills</dt>
-                    <dd class="indent">{{ object.person_details.otherSkillsCompentencies }}</dd>
-                  {% else %}
-                    <dt>Other Skills</dt>
-                    <dd class="indent">None</dd>
-                  {% endif %}
+                  <div class="mt-2">
+                    {% if object.languages %}
+                        {% for lang in object.languages %}
+                          <dt>{{ lang.lkp_language_id.name }}</dt>
+                          <dd class="indent">{{ lang.lkp_languageProficiency_id.name }}</dd>
+                        {% endfor %}
+                    {% else %}
+                      <dt>Languagues<dt>
+                      <dd class="indent">None</dd>
+                    {% endif %}
+                    {% if object.person_details.otherSkillsCompentencies %}
+                      <dt>Other Skills</dt>
+                      <dd class="indent">{{ object.person_details.otherSkillsCompentencies }}</dd>
+                    {% else %}
+                      <dt>Other Skills</dt>
+                      <dd class="indent">None</dd>
+                    {% endif %}
+                  </div>
                 </div>
               </div>
             </div>
@@ -397,30 +520,28 @@
               <div class="card mb-4 border-0 rounded-4 shadow-sm">
                 <div class="card-body">
                   <small class="text-muted">Formation Dates</small>
-                  {% if object.person_details %}
-                      {% if object.person_details.date_ordination %}
-                        <dt>Ordination</dt>
-                          <dd class="indent">{{ object.person_details.date_ordination|date:"Y-m-d" }}</dd>
-                      {% endif %}
+                  <div class="mt-2">
+                    {% if object.person_details %}
                       {% if object.person_details.date_transitionalDiaconateOrdination %}
                         <dt>Transitional Diaconate Ordination</dt>
-                          <dd class="indent">{{ object.person_details.date_transitionalDiaconateOrdination|date:"Y-m-d" }}</dd>
+                        <dd class="indent">{{ object.person_details.date_transitionalDiaconateOrdination|date:"m/d/Y" }}</dd>
                       {% endif %}
                       {% if object.person_details.date_priestOrdination %}
                         <dt>Priest Ordination</dt>
-                          <dd class="indent">{{ object.person_details.date_priestOrdination|date:"Y-m-d" }}</dd>
+                        <dd class="indent">{{ object.person_details.date_priestOrdination|date:"m/d/Y" }}</dd>
                       {% endif %}
                       {% if object.person_details.date_episcopalOrdination %}
                         <dt>Episcopal Ordination</dt>
-                          <dd class="indent">{{ object.person_details.date_episcopalOrdination|date:"Y-m-d" }}</dd>
+                        <dd class="indent">{{ object.person_details.date_episcopalOrdination|date:"m/d/Y" }}</dd>
                       {% endif %}
                       {% if object.person_details.date_incardination %}
                         <dt>Incardination</dt>
-                          <dd class="indent">{{ object.person_details.date_incardination|date:"Y-m-d" }}</dd>
+                        <dd class="indent">{{ object.person_details.date_incardination|date:"m/d/Y" }}</dd>
                       {% endif %}
                   {% else %}
-                    <p class="mt-2">No formation info</p>
+                    <p>No formation info</p>
                   {% endif %}
+                  </div>
                 </div>
               </div>
             </div>
@@ -434,9 +555,10 @@
               <div class="card mb-4 border-0 rounded-4 shadow-sm">
                 <div class="card-body">
                   <small class="text-muted">Name Details</small>
+                  <div class="mt-2">
                     <div class="row">
                       <dt class="col-auto">Prefix:</dt>
-                      <dd class="col">{{ object.prefix|default:"None" }}</dd>
+                      <dd class="col">{{ object.prefix|default:"None"|title }}</dd>
                     </div>
                     <div class="row">
                       <dt class="col-auto">First Name:</dt>
@@ -462,6 +584,7 @@
                       <dt class="col-auto">Diocesan Suffix:</dt>
                       <dd class="col">{{ object.person_details.diocesanSuffix|default:"None" }}</dd>
                     </div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -470,27 +593,138 @@
 
         <!-- EMERGENCY INFO -->
         <div id="emergency-info" class="detail-section d-none">
-          <div class="row mb-3">
-            <div class="col">
-              <div class="card mb-4 border-0 rounded-4 shadow-sm">
-                <div class="card-body">
-                  <small class="text-muted">Emergency Contacts</small>
-                  {% if object.relationships %}
-                    <ul class="mt-2">
-                      {% for rel in object.relationships %}
-                        {% if rel.lkp_relationshipType_id.name == 'emergency' %}
-                          <li>{{ rel.lkp_relationshipType_id.name }}: {{ rel.lkp_secondPerson_id.name }}</li>
-                        {% endif %}
-                      {% endfor %}
-                    </ul>
-                  {% else %}
-                    <p class="mt-2">None recorded</p>
-                  {% endif %}
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+          {% if object.relationships %}
+            {% for rel in object.relationships %}
+              {% if rel.is_emergencyContact %}
+                {# ── Wrap each contact in its own card ── #}
+                <div class="card mb-4 border-0 rounded-4 shadow-sm">
+                  <div class="card-body">
+                    <small class="text-muted">Emergency Contact</small>
+
+                    {# ── Create one Bootstrap row per contact ── #}
+                    <div class="row mt-3 gx-4">
+
+                      {# ── COLUMN 1: Name & Relationship ── #}
+                      <div class="col-md-3 col-sm-6">
+                        <dt>Name</dt>
+                        <dd class="indent">
+                        {{ rel.lkp_secondPerson_id.name }}
+                        ({{ rel.lkp_relationshipType_id.name|title }})
+                        </dd>
+                      </div>
+
+                      {# ── COLUMN 2: Address (with Google‐Maps pin) ── #}
+                      <div class="col-md-4 col-sm-6">
+                        <dt>Address</dt>
+                        <div class="d-flex align-items-start">
+                          {% if rel.lkp_secondPerson_id.lkp_residence_id %}
+                            <a
+                              href="https://www.google.com/maps/search/?api=1&amp;query={{ rel.lkp_secondPerson_id.lkp_residence_id.address1|urlencode }}
+                                {% if rel.lkp_secondPerson_id.lkp_residence_id.address2 and rel.lkp_secondPerson_id.lkp_residence_id.address2 != 'nan' %},+{{ rel.lkp_secondPerson_id.lkp_residence_id.address2|urlencode }}{% endif %},
+                                +{{ rel.lkp_secondPerson_id.lkp_residence_id.city|urlencode }},
+                                +{{ rel.lkp_secondPerson_id.lkp_residence_id.state|urlencode }}
+                                +{{ rel.lkp_secondPerson_id.lkp_residence_id.zip_code|urlencode }}"
+                              target="_blank"
+                              class="me-2"
+                              style="text-decoration: none; color: inherit;"
+                            >
+                              <i class="fas fa-map-marker-alt fa-lg text-primary"></i>
+                            </a>
+                          {% else %}
+                            <i class="fas fa-map-marker-alt fa-lg text-muted me-2"></i>
+                          {% endif %}
+
+                          <address class="mb-0">
+                            {% if rel.lkp_secondPerson_id.lkp_residence_id %}
+                              {{ rel.lkp_secondPerson_id.lkp_residence_id.address1 }}<br>
+                              {% if rel.lkp_secondPerson_id.lkp_residence_id.address2 and rel.lkp_secondPerson_id.lkp_residence_id.address2 != 'nan' %}
+                                {{ rel.lkp_secondPerson_id.lkp_residence_id.address2 }}<br>
+                              {% endif %}
+                              {{ rel.lkp_secondPerson_id.lkp_residence_id.city }},
+                              {{ rel.lkp_secondPerson_id.lkp_residence_id.state }}
+                              {{ rel.lkp_secondPerson_id.lkp_residence_id.zip_code }}<br>
+                              {{ rel.lkp_secondPerson_id.lkp_residence_id.country }}
+                            {% else %}
+                              <span class="text-muted">None</span>
+                            {% endif %}
+                          </address>
+                        </div>
+                      </div>
+
+                      {# ── COLUMN 3: Phone 1 & Phone 2 ── #}
+                      {% with sorted_phones=rel.lkp_secondPerson_id.person_phone_set.all|dictsortreversed:"is_primary" %}
+                        <div class="col-md-2 col-sm-6">
+                          <dt>Phone 1</dt>
+                          <dd class="indent">
+                          {% if sorted_phones|length >= 1 %}
+                            {% with p=sorted_phones.0.phoneNumber %}
+                              <a href="tel:{{ p }}">
+                                ({{ p|slice:"0:3" }}) {{ p|slice:"3:6" }}-{{ p|slice:"6:" }}
+                              </a>
+                            {% endwith %}
+                          {% else %}
+                            <span class="text-muted">Not Recorded</span>
+                          {% endif %}
+                          </dd>
+                        </div>
+
+                        <div class="col-md-2 col-sm-6">
+                          <dt>Phone 2</dt>
+                          <dd class="indent">
+                          {% if sorted_phones|length >= 2 %}
+                            {% with p=sorted_phones.1.phoneNumber %}
+                              <a href="tel:{{ p }}">
+                                ({{ p|slice:"0:3" }}) {{ p|slice:"3:6" }}-{{ p|slice:"6:" }}
+                              </a>
+                            {% endwith %}
+                          {% else %}
+                            <span class="text-muted">Not Recorded</span>
+                          {% endif %}
+                          </dd>
+                        </div>
+                      {% endwith %} {# closes sorted_phones “with” #}
+
+                      {# ── COLUMN 4: Email 1 & Email 2 ── #}
+                      {% with sorted_emails=rel.lkp_secondPerson_id.person_email_set.all|dictsortreversed:"is_primary" %}
+                        <div class="col-md-3 col-sm-6">
+                          <dt>Email 1</dt>
+                          <dd class="indent">
+                          {% if sorted_emails|length >= 1 %}
+                            <a href="mailto:{{ sorted_emails.0.email }}">
+                              {{ sorted_emails.0.email }}
+                            </a>
+                          {% else %}
+                            <span class="text-muted">Not Recorded</span>
+                          {% endif %}
+                          </dd>
+                        </div>
+
+                        <div class="col-md-3 col-sm-6">
+                          <dt>Email 2</dt>
+                          <dd class="indent">
+                          {% if sorted_emails|length >= 2 %}
+                            <a href="mailto:{{ sorted_emails.1.email }}">
+                              {{ sorted_emails.1.email }}
+                            </a>
+                          {% else %}
+                            <span class="text-muted">Not Recorded</span>
+                          {% endif %}
+                          </dd>
+                        </div>
+                      {% endwith %} {# closes sorted_emails “with” #}
+
+                    </div> {# /.row ─ end of this contact’s columns #}
+
+                  </div> {# /.card-body #}
+                </div> {# /.card #}
+              {% endif %} {# closes “if rel.is_emergencyContact” #}
+            {% endfor %} {# closes for rel in object.relationships #}
+          {% else %}
+            <p>None recorded</p>
+          {% endif %} {# closes “if object.relationships” #}
+        </div> {# /#emergency-info #}
+
+
       </main>
 
     {% else %}
@@ -498,17 +732,212 @@
       <main class="col-md-8 p-4 bg-light">
         <!-- PRIMARY INFO -->
         <div id="primary-info" class="detail-section">
+          <!-- Church/Mission and Parish ID-->
+          <div class="row mb-3">
+            <div class="col">
+              <div class="card mb-4 border-0 rounded-4 shadow-sm">
+                <div class="card-body d-flex align-items-center">
+                  <i class="fas fa-map-marker-alt fa-lg me-2 text-muted"></i>
+                  <div>
+                    <small class="text-muted">Church/Mission</small>
+                    <div class="mt-2">
+                    {% if object.location_details.is_mission %}
+                      <p>Mission</p>
+                    {% else %}
+                      <p>Church</p>
+                    {% endif %}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="col">
+              <div class="card mb-4 border-0 rounded-4 shadow-sm">
+                <div class="card-body d-flex align-items-center">
+                  <div>
+                    <small class="text-muted">Parish ID</small>
+                    <div class="mt-2">
+                      <p>{{ object.location_details.parish_id }}</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- Church Details-->
+          <div class="row mb-3">
+            <div class="card mb-4 border-0 rounded-4 shadow-sm">
+              <div class="card-body">
+                <small class="text-muted">Church Details</small>
+                <div class="row mt-2">
+                  <dt class="col-auto">Parish Unique Name:</dt>
+                  <dd class="col">{{ object.location_details.parishUniqueName }}</dd>
+                </div>
+
+                <div class="row">
+                  <dt class="col-auto">Diocese of Charlotte Entity:</dt>
+                  <dd class="col">{{ object.location_details.is_doc|yesno:"Yes,No" }}</dd>
+                </div>
+
+                <div class="row">
+                  <dt class="col-auto">Status:</dt>
+                  {% if object.statuses %}
+                    {% for status in object.statuses %}
+                      {% if not status.date_released %}
+                        <dd class="col">{{ status }}</dd>
+                      {% endif %}
+                    {% endfor %}
+                  {% else %}
+                    <dd class="col">Not Recorded</dd>
+                  {% endif %}
+                </div>
+
+                <div class="row">
+                  <dt class="col-auto">Tax ID:</dt>
+                  <dd class="col">{{ object.location_details.tax_id|default:"None" }}</dd>
+                </div>  
+
+                <div class="row">
+                {% if object.location_details.type_id %}
+                  <dt class="col-auto">Type ID:</dt>
+                  <dd class="col">{{ object.location_details.type_id }}</dd>
+                {% endif %}
+                </div>
+
+                <div class="row">
+                  <dt class="col-auto">Date Established:</dt>
+                  <dd class="col">{{ object.location_details.date_established|date:"m/d/Y"|default:"Unknown" }}</dd>
+                </div>
+
+                <div class="row">
+                  <dt class="col-auto">First Church Dedication:</dt>
+                  <dd class="col">{{ object.location_details.date_firstDedication|date:"m/d/Y"|default:"Unknown" }}</dd>
+                </div>
+
+                <div class="row">
+                  <dt class="col-auto">Second Church Dedication:</dt>
+                  <dd class="col">{{ object.location_details.date_secondDedication|date:"m/d/Y"|default:"Unknown" }}</dd>
+                </div>
+
+                <div class="row">
+                {% if object.location_details.cityServed %}
+                  <dt class="col-auto">City Served:</dt>
+                  <dd class="col">{{ object.location_details.cityServed }}</dd>
+                {% endif %}
+                </div>
+
+                <div class="row">
+                  <dt class="col-auto">Website:</dt>
+                  <dd class="col">
+                    {% if object.website %}
+                      <a href="{{ object.website }}" target="_blank">{{ object.website }}</a>
+                    {% else %}
+                      None
+                    {% endif %}
+                  </dd>
+                </div>
+
+                <div class="row">
+                  <dt class="col-auto">Vicariate:</dt>
+                  <dd class="col">{{ object.lkp_vicariate_id.name }}</dd>
+                </div>
+
+                <div class="row">
+                  <dt class="col-auto">County:</dt>
+                  <dd class="col">{{ object.lkp_county_id.name }}</dd>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- Pastoral Plan and Site Plan -->
+          <div class="row mb-3">
+            <div class="col">
+              <div class="card mb-4 border-0 rounded-4 shadow-sm">
+                <div class="card-body">
+                  <small class="text-muted">Pastoral Plan</small>
+                  <div class="mt-2">
+                    {% if  object.location_details.pastoralPlan %}
+                    <p><a href="{{ object.location_details.pastoralPlan }}" target="_blank">View Pastoral Plan</a></p>
+                    {% else %}
+                    <p>Not Recorded</p>
+                    {% endif %}
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="col">
+              <div class="card mb-4 border-0 rounded-4 shadow-sm">
+                <div class="card-body">
+                  <small class="text-muted">Site Plan</small>
+                  <div class="mt-2">
+                    {% if  object.location_details.sitePlan %}
+                    <p><a href="{{ object.location_details.sitePlan }}" target="_blank">View Pastoral Plan</a></p>
+                    {% else %}
+                    <p>Not Recorded</p>
+                    {% endif %}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- Buildings on Site -->
+          <div class="row mb-3">
+            <div class="col">
+              <div class="card mb-4 border-0 rounded-4 shadow-sm">
+                <div class="card-body">
+                  <small class="text-muted">Buildings on Site</small>
+                  <div class="mt-2">
+                    {% if object.buildings_on_site %}
+                    {% for building in object.buildings_on_site %}
+                      <dd class="indent">{{ building.name|title }}</dd>
+                    {% endfor %}
+                    {% else %}
+                      <dd class="indent">No buildings recorded.</dd>
+                    {% endif %}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+          <!-- Location Details -->
+        <div id="location-info" class="detail-section d-none">
+          <!-- Address Info -->
           <div class="row mb-3">
             <!-- Physical Address -->
             <div class="col">
               <div class="card mb-4 border-0 rounded-4 shadow-sm">
                 <div class="card-body d-flex align-items-center">
-                  <i class="fas fa-map-marker-alt me-2"></i>
+                  {% if object.lkp_physicalAddress_id %}
+                    {# Build a Google Maps “search” URL piece by piece #}
+                    <a
+                      href="
+                        https://www.google.com/maps/search/?api=1&query=
+                        {{ object.lkp_physicalAddress_id.address1|urlencode }},
+                        {% if object.lkp_physicalAddress_id.address2 and object.lkp_physicalAddress_id.address2 != 'nan' %}
+                          {{ object.lkp_physicalAddress_id.address2|urlencode }},
+                        {% endif %}
+                        {{ object.lkp_physicalAddress_id.city|urlencode }},
+                        {{ object.lkp_physicalAddress_id.state|urlencode }}
+                        {{ object.lkp_physicalAddress_id.zip_code|urlencode }}
+                      "
+                      target="_blank"
+                      class="me-2"
+                      style="text-decoration: none; color: inherit;"
+                    >
+                      <i class="fas fa-map-marker-alt fa-lg text-primary"></i>
+                    </a>
+                  {% else %}
+                    {# If there is no residence, still show a dimmed icon (optional) #}
+                    <i class="fas fa-map-marker-alt me-2 text-muted"></i>
+                  {% endif %}
+
                   {% if object.lkp_physicalAddress_id %}
                     <div>
                       <small class="text-muted">Physical Address</small><br>
-                      <address>{{ object.lkp_physicalAddress_id.address1 }}<br>
-                      {% if object.lkp_physicalAddress_id.address2 %}{{ object.lkp_physicalAddress_id.address2 }}<br>{% endif %}
+                      <address class="mt-2">{{ object.lkp_physicalAddress_id.address1 }}<br>
+                      {% if object.lkp_physicalAddress_id.address2 and object.lkp_physicalAddress_id.address2 != 'nan' %}{{ object.lkp_physicalAddress_id.address2 }}<br>{% endif %}
                       {{ object.lkp_physicalAddress_id.city }}, {{ object.lkp_physicalAddress_id.state }} {{ object.lkp_physicalAddress_id.zip_code }}<br>
                       {{ object.lkp_physicalAddress_id.country }}
                       </address>
@@ -526,12 +955,35 @@
             <div class="col">
               <div class="card mb-4 border-0 rounded-4 shadow-sm">
                 <div class="card-body d-flex align-items-center">
-                  <i class="fas fa-map-marker-alt me-2"></i>
+                  {% if object.lkp_mailingAddress_id %}
+                    {# Build a Google Maps “search” URL piece by piece #}
+                    <a
+                      href="
+                        https://www.google.com/maps/search/?api=1&query=
+                        {{ object.lkp_mailingAddress_id.address1|urlencode }},
+                        {% if object.lkp_mailingAddress_id.address2 and object.lkp_mailingAddress_id.address2 != 'nan' %}
+                          {{ object.lkp_mailingAddress_id.address2|urlencode }},
+                        {% endif %}
+                        {{ object.lkp_mailingAddress_id.city|urlencode }},
+                        {{ object.lkp_mailingAddress_id.state|urlencode }}
+                        {{ object.lkp_mailingAddress_id.zip_code|urlencode }}
+                      "
+                      target="_blank"
+                      class="me-2"
+                      style="text-decoration: none; color: inherit;"
+                    >
+                      <i class="fas fa-map-marker-alt fa-lg text-primary"></i>
+                    </a>
+                  {% else %}
+                    {# If there is no residence, still show a dimmed icon (optional) #}
+                    <i class="fas fa-map-marker-alt me-2 text-muted"></i>
+                  {% endif %}
+
                   {% if object.lkp_mailingAddress_id %}
                     <div>
                       <small class="text-muted">Mailing Address</small><br>
-                      <address>{{ object.lkp_mailingAddress_id.address1 }}<br>
-                      {% if object.lkp_mailingAddress_id.address2 %}{{ object.lkp_mailingAddress_id.address2 }}<br>{% endif %}
+                      <address class="mt-2">{{ object.lkp_mailingAddress_id.address1 }}<br>
+                      {% if object.lkp_mailingAddress_id.address2 and object.lkp_mailingAddress_id.address2 != 'nan' %}{{ object.lkp_mailingAddress_id.address2 }}<br>{% endif %}
                       {{ object.lkp_mailingAddress_id.city }}, {{ object.lkp_mailingAddress_id.state }} {{ object.lkp_mailingAddress_id.zip_code }}<br>
                       {{ object.lkp_mailingAddress_id.country }}
                       </address>
@@ -546,39 +998,86 @@
               </div>
             </div>
           </div>
-        </div>
-
-          <!-- Location Details -->
-        <div id="location-info" class="detail-section">
-          <div class="card mb-4">
+          <!-- Rectory Address -->
+          <div class="row mb-3">
+            <div class="col">
+              <div class="card mb-4 border-0 rounded-4 shadow-sm">
+                <div class="card-body d-flex align-items-center">
+                  {% if object.location_details.lkp_rectoryAddress %}
+                    <a
+                      href="
+                        https://www.google.com/maps/search/?api=1&query=
+                        {{ object.location_details.lkp_rectoryAddress.address1|urlencode }},
+                        {% if object.location_details.lkp_rectoryAddress.address2 and object.location_details.lkp_rectoryAddress.address2 != 'nan' %}
+                          {{ object.location_details.lkp_rectoryAddress.address2|urlencode }},
+                        {% endif %}
+                        {{ object.location_details.lkp_rectoryAddress.city|urlencode }},
+                        {{ object.location_details.lkp_rectoryAddress.state|urlencode }}
+                        {{ object.location_details.lkp_rectoryAddress.zip_code|urlencode }}
+                      "
+                      target="_blank"
+                      class="me-2"
+                      style="text-decoration: none; color: inherit;"
+                    >
+                      <i class="fas fa-map-marker-alt fa-lg text-primary"></i>
+                    </a>
+                  {% else %}
+                    {# If there is no residence, still show a dimmed icon (optional) #}
+                    <i class="fas fa-map-marker-alt me-2 text-muted"></i>
+                  {% endif %}
+                  <div>
+                    <small class="text-muted">Rectory Address</small>
+                    {% if object.location_details.lkp_rectoryAddress %}
+                    <address class="mt-2">{{ object.location_details.lkp_rectoryAddress_id.address1 }}<br>
+                    {% if object.location_details.lkp_rectoryAddress.address2 and object.lkp_physicalAddress_id.address2 != 'nan' %}{{ object.location_details.lkp_rectoryAddress.address2 }}<br>{% endif %}
+                        {{ object.location_details.lkp_rectoryAddress.city }}, {{ object.location_details.lkp_rectoryAddress.state }} {{ object.location_details.lkp_rectoryAddress.zip_code }}<br>
+                        {{ object.location_details.lkp_rectoryAddress.country }} 
+                    </address>
+                    {% else %}
+                    <dd class="mt-2">Not Recorded</dd>
+                    {% endif %}
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="col">
+            </div>
+          </div>
+          <div class="card mb-4 border-0 rounded-4 shadow-sm">
             <div class="card-body">
               <small class="text-muted">Location Details</small>
-              <div>
+              <div class="mt-2">
+                <div class="row">
+                  <dt class="col-auto">Geo ID:</dt>
+                  <dd class="col">{{ object.location_details.geo_id|default:"None" }}</dd>
+                </div>
+
                 <div class="row">
                   <dt class="col-auto">Latitude:</dt>
                   <dd class="col">{{ object.latitude }}</dd>
                 </div>
+
                 <div class="row">
                   <dt class="col-auto">Longitude:</dt>
                   <dd class="col">{{ object.longitude }}</dd>
                 </div>
-                <div class="row">
-                  <dt class="col-auto">Website:</dt>
-                  <dd class="col">
-                    {% if object.website %}
-                      <a href="{{ object.website }}" target="_blank">{{ object.website }}</a>
-                    {% else %}
-                      None
-                    {% endif %}
-                  </dd>
-                </div>
-                <div class="row">
-                  <dt class="col-auto">Vicariate:</dt>
-                  <dd class="col">{{ object.lkp_vicariate_id.name }}</dd>
-                </div>
-                <div class="row">
-                  <dt class="col-auto">County:</dt>
-                  <dd class="col">{{ object.lkp_county_id.name }}</dd>
+
+                
+              </div>
+            </div>
+          </div>
+          <div class="row mb-3">
+            <div class="col">
+              <div class="card mb-4 border-0 rounded-4 shadow-sm">
+                <div class="card-body">
+                  <small class="text-muted">Boundary</small>
+                  <div class="mt-2">
+                  {% if object.boundary %}
+                    <p><a href="{{ object.boundary.url }}" target="_blank">View Boundary File</a></p>
+                  {% else %}
+                    <p>No boundary data</p>
+                  {% endif %}
+                  </div>
                 </div>
               </div>
             </div>
@@ -587,117 +1086,256 @@
 
           <!-- CLERGY INFO -->
           <div id="clergy-info" class="detail-section d-none">
+            <div class="col">
+              <div class="card mb-4 border-0 rounded-4 shadow-sm">
+                <div class="card-body">
+                  <small class="text-muted">Assigned Personnel</small>
+
+                  {# Loop over only those assignments still active as of today #}
+                  {% if active_assignments %}
+                    {% for assign in active_assignments %}
+                    <div class="mt-2">
+                      <dt>{{ assign.lkp_assignmentType_id.title }}</dt>
+                      <dd class="indent">
+                        <a href="{% url 'api:details_page' base='person' pk=assign.lkp_person_id.pk %}">
+                        {{ assign.lkp_person_id.name }}
+                        </a>
+                      </dd>
+                    </div>
+                    {% endfor %}
+                  {% else %}
+                    <p class="mt-2">No staff assigned</p>
+                  {% endif %}
+                </div>
+              </div>
+            </div>
+          </div>
+
+
+          <!-- MASS & MINISTRY INFO -->
+          <div id="mass-info" class="detail-section d-none">
             <div class="row mb-3">
               <div class="col">
                 <div class="card mb-4 border-0 rounded-4 shadow-sm">
-                  <div class="card-body d-flex align-items-center">
-                    <i class="fas fa-map-marker-alt me-2"></i>
-                    <div>
-                      <small class="text-muted">Church/Mission</small><br>
-                      {% if object.location_details.is_mission %}
-                        <p>Mission</p>
-                      {% else %}
-                        <p>Church</p>
+                  <div class="card-body">
+                    <small class="text-muted">Mass Languages & Times</small>
+                    {% if object.languages %}
+                        <dt class="mt-2">Saturday Masses</dt>
+                      {% for lang in object.languages %}
+                      {% if lang.massDay == 'sat' %}
+                        <dd class="indent">{{ lang.massTime|time:"g:i A" }} - {{ lang.lkp_language_id.name }}</dd>
                       {% endif %}
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div class="col">
-                <div class="card mb-4 border-0 rounded-4 shadow-sm">
-                  <div class="card-body d-flex align-items-center">
-                    <div>
-                      <small class="text-muted">Parish ID</small><br>
-                      <p>{{ object.location_details.parish_id }}</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div class="card mb-4">
-              <div class="card-body">
-                <small class="text-muted">Church Details</small>
-                <dl class="row">
-                  <dt class="col-sm-4">Parish Unique Name</dt>
-                  <dd class="col-sm-8">{{ object.location_details.parishUniqueName }}</dd>
-
-                  <dt class="col-sm-4">Diocese of Charlotte Entity</dt>
-                  <dd class="col-sm-8">{{ object.location_details.is_doc|yesno:"Yes,No" }}</dd>
-
-                  <dt class="col-sm-4">Tax ID</dt>
-                  <dd class="col-sm-8">{{ object.location_details.tax_id|default:"None" }}</dd>
-
-                  <dt class="col-sm-4">Geo ID</dt>
-                  <dd class="col-sm-8">{{ object.location_details.geo_id|default:"None" }}</dd>
-
-                  {% if object.location_details.type_id %}
-                    <dt class="col-sm-4">Type ID</dt>
-                    <dd class="col-sm-8">{{ object.location_details.type_id }}</dd>
-                  {% endif %}
-
-                  <dt class="col-sm-4">Date Established</dt>
-                  <dd class="col-sm-8">{{ object.location_details.date_established|date:"Y-m-d"|default:"Unknown" }}</dd>
-
-                  {% if object.location_details.cityServed %}
-                    <dt class="col-sm-4">City Served</dt>
-                    <dd class="col-sm-8">{{ object.location_details.cityServed }}</dd>
-                  {% endif %}
-                </dl>
-              </div>
-            </div>
-
-            <div class="row">
-              <div class="col">
-                <div class="card mb-4 border-0 rounded-4 shadow-sm">
-                  <div class="card-body">
-                    <small class="text-muted">Dedications</small>
-                      <dt>First Dedication</dt>
-                      <dd class="indent">{{ object.location_details.date_firstDedication|date:"Y-m-d"|default:"None" }}</dd>
-
-                      <dt>Second Dedication</dt>
-                      <dd class="indent">{{ object.location_details.date_secondDedication|date:"Y-m-d"|default:"None" }}</dd>
-                  </div>
-                </div>
-                <div class="card mb-4 border-0 rounded-4 shadow-sm">
-                  <div class="card-body">
-                    <small class="text-muted">Boundary</small>
-                    {% if object.boundary %}
-                      <p><a href="{{ object.boundary.url }}" target="_blank">View Boundary File</a></p>
+                      {% endfor %}
+                      <dt>Sunday Masses</dt>
+                      {% for lang in object.languages %}
+                      {% if lang.massDay == 'sun' %}
+                        <dd class="indent">{{ lang.massTime|time:"g:i A" }} - {{ lang.lkp_language_id.name }}</dd>
+                      {% endif %}
+                      {% endfor %}
                     {% else %}
-                      <p>No boundary data</p>
+                      <p class="mt-2">No mass schedule recorded</p>
                     {% endif %}
                   </div>
                 </div>
               </div>
-
               <div class="col">
                 <div class="card mb-4 border-0 rounded-4 shadow-sm">
                   <div class="card-body">
-                    <small class="text-muted">Notes</small>
-                    <p class="indent">{{ object.location_details.notes|default:"No notes" }}</p>
+                    <small class="text-muted">October Mass Counts</small>
+                    <div class='mt-2'>
+                      <dt>Week 1</dt>
+                      <dd class="indent">{{ object.october_counts.week1 }}</dd>
+                    </div>
+                    <div class='mt-2'>
+                      <dt>Week 2</dt>
+                      <dd class="indent">{{ object.october_counts.week2 }}</dd>
+                    </div>
+                    <div class='mt-2'>
+                      <dt>Week 3</dt>
+                      <dd class="indent">{{ object.october_counts.week3 }}</dd>
+                    </div>
+                    <div class='mt-2'>
+                      <dt>Week 4</dt>
+                      <dd class="indent">{{ object.october_counts.week4 }}</dd>
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
+             <!-- ── 2) Ministry & School Services (latest StatusAnimarum) ── -->
+            {% if object.statusAnimarum %}
+              {% with sa=object.statusAnimarum.last %}
+                <div class="card mb-4 border-0 rounded-4 shadow-sm">
+                  <div class="card-body">
+                    <small class="text-muted">Ministry &amp; School Services</small>
+                    <div class="mt-2">
+
+                      <!-- Social Outreach Services -->
+                      <div class="row mb-2">
+                        <dt class="col-auto">Social Outreach Services:</dt>
+                        <dd class="col">
+                          {% if object.social_outreach_program.all %}
+                            {% for sop in object.social_outreach_program.all %}
+                              {{ sop.name }}{% if not forloop.last %}, {% endif %}
+                            {% endfor %}
+                          {% else %}
+                            None
+                          {% endif %}
+                        </dd>
+                      </div>
+
+                      <!-- Referrals to Catholic Charities -->
+                      <div class="row mb-2">
+                        <dt class="col-auto">Referrals to Catholic Charities:</dt>
+                        <dd class="col">
+                          {{ sa.referrals_catholicCharities|default:"0" }}
+                        </dd>
+                      </div>
+
+                      <!-- Homeschool Program -->
+                      <div class="row mb-2">
+                        <dt class="col-auto">Homeschool Program:</dt>
+                        <dd class="col">
+                          {{ sa.has_homeschoolProgram|yesno:"Yes,No" }}
+                        </dd>
+                      </div>
+
+                      <!-- Child care / Day care -->
+                      <div class="row mb-2">
+                        <dt class="col-auto">Child care / Day care:</dt>
+                        <dd class="col">
+                          {{ sa.has_chileCareDayCare|yesno:"Yes,No" }}
+                        </dd>
+                      </div>
+
+                      <!-- Scouting Program -->
+                      <div class="row mb-2">
+                        <dt class="col-auto">Scouting Program:</dt>
+                        <dd class="col">
+                          {{ sa.has_scoutingProgram|yesno:"Yes,No" }}
+                        </dd>
+                      </div>
+
+                      <!-- Chapel on Campus -->
+                      <div class="row mb-2">
+                        <dt class="col-auto">Chapel on Campus:</dt>
+                        <dd class="col">
+                          {{ sa.has_chapelOnCampus|yesno:"Yes,No" }}
+                        </dd>
+                      </div>
+
+                      <!-- Adoration Chapel on Campus -->
+                      <div class="row mb-2">
+                        <dt class="col-auto">Adoration Chapel on Campus:</dt>
+                        <dd class="col">
+                          {{ sa.has_adorationChapelOnCampus|yesno:"Yes,No" }}
+                        </dd>
+                      </div>
+
+                      <!-- Columbarium -->
+                      <div class="row mb-2">
+                        <dt class="col-auto">Columbarium:</dt>
+                        <dd class="col">
+                          {{ sa.has_columbarium|yesno:"Yes,No" }}
+                        </dd>
+                      </div>
+
+                      <!-- Cemetery -->
+                      <div class="row mb-2">
+                        <dt class="col-auto">Cemetery:</dt>
+                        <dd class="col">
+                          {{ sa.has_cemetary|yesno:"Yes,No" }}
+                        </dd>
+                      </div>
+
+                      <!-- School on Site -->
+                      <div class="row mb-2">
+                        <dt class="col-auto">School On Site:</dt>
+                        <dd class="col">
+                          {{ sa.has_schoolOnSite|yesno:"Yes,No" }}
+                        </dd>
+                      </div>
+
+                      <!-- School Type -->
+                      {% if sa.has_schoolOnSite %}
+                        <div class="row mb-2">
+                          <dt class="col-auto">School Type:</dt>
+                          <dd class="col">
+                            {{ sa.get_schoolType_display|default:"None" }}
+                          </dd>
+                        </div>
+
+                        <!-- Non-parochial School Using Facilities -->
+                        <div class="row mb-2">
+                          <dt class="col-auto">Non-parochial School Using Facilities:</dt>
+                          <dd class="col">
+                            {{ sa.is_nonParochialSchoolUsingFacilities|yesno:"Yes,No" }}
+                          </dd>
+                        </div>
+                      {% endif %}
+
+                    </div>
+                  </div>
+                </div>
+              {% endwith %}
+              {% else %}
+                <div class="card mb-4 border-0 rounded-4 shadow-sm">
+                  <div class="card-body">
+                    <small class="text-muted">Ministry &amp; School Services</small>
+                    <p class="mt-2">No ministry/school data recorded</p>
+                  </div>
+                </div>
+            {% endif %}
+            <!-- ── 3) Hospital / Hospice ── -->
+            {% if object.hospitals %}
+              {% with hd=object.hospitals.first %}
+                <div class="card mb-4 border-0 rounded-4 shadow-sm">
+                  <div class="card-body">
+                    <small class="text-muted">Hospitals / Hospices</small>
+                    <div class="mt-2">
+
+                      <!-- Facility Type -->
+                      <div class="row mb-2">
+                        <dt class="col-auto">Facility Type</dt>
+                        <dd class="col">{{ hd.facilityType|title }}</dd>
+                      </div>
+
+                      <!-- Diocese -->
+                      <div class="row mb-2">
+                        <dt class="col-auto">Diocese</dt>
+                        <dd class="col">
+                          {% if hd.diocese == 'diocese_of_charlotte' %}
+                            Diocese of Charlotte
+                          {% elif hd.diocese == 'diocese_of_raleigh' %}
+                            Diocese of Raleigh
+                          {% else %}
+                            {{ hd.diocese }}
+                          {% endif %}
+                        </dd>
+                      </div>
+
+                      <!-- Parish Boundary (if any) -->
+                      {% if hd.lkp_parishBoundary_id %}
+                        <div class="row mb-2">
+                          <dt class="col-auto">Parish Boundary</dt>
+                          <dd class="col">{{ hd.lkp_parishBoundary_id.name }}</dd>
+                        </div>
+                      {% endif %}
+
+                    </div>
+                  </div>
+                </div>
+              {% endwith %}
+              {% else %}
+                <div class="card mb-4 border-0 rounded-4 shadow-sm">
+                  <div class="card-body">
+                    <small class="text-muted">Hospitals / Hospices</small>
+                    <p class="mt-2">No hospital/hospice data recorded</p>
+                  </div>
+                </div>
+            {% endif %}
           </div>
 
-          <!-- MASS & MINISTRY INFO -->
-          <div id="mass-info" class="detail-section d-none">
-            <div class="card mb-4 border-0 rounded-4 shadow-sm">
-              <div class="card-body">
-                <small class="text-muted">Mass Languages & Times</small>
-                {% if object.languages %}
-                    {% for lang in object.languages %}
-                      <dt>{{ lang.lkp_language_id.name }}</dt>
-                      <dd class="indent">{{ lang.massTime|time:"H:i" }}</dd>
-                    {% endfor %}
-                {% else %}
-                  <p class="mt-2">No mass schedule recorded</p>
-                {% endif %}
-              </div>
-            </div>
-          </div>
 
           <!-- STAFF INFO -->
           <div id="staff-info" class="detail-section d-none">
@@ -706,74 +1344,576 @@
                 <div class="card mb-4 border-0 rounded-4 shadow-sm">
                   <div class="card-body">
                     <small class="text-muted">Assigned Personnel</small>
-                    {% for assign in object.assignments %}
-                      <p>{{ assign.lkp_assignmentType_id.title }}: {{ assign.lkp_person_id.name }}</p>
-                    {% endfor %}
-                    {% if not object.assignments %}
+
+                    {# Loop over only those assignments still active as of today #}
+                    {% if active_assignments %}
+                      {% for assign in active_assignments %}
+                      <div class="mt-2">
+                        <dt>{{ assign.lkp_assignmentType_id.title }}</dt>
+                        <dd class="indent">
+                        <a href="{% url 'api:details_page' base='person' pk=assign.lkp_person_id.pk %}">
+                        {{ assign.lkp_person_id.name }}
+                        </a>
+                      </dd>
+                      </div>
+                      {% endfor %}
+                    {% else %}
                       <p class="mt-2">No staff assigned</p>
                     {% endif %}
                   </div>
                 </div>
               </div>
             </div>
-          </div>
 
-          <!-- STATISTICS INFO -->
-          <div id="stat-info" class="detail-section d-none">
             <div class="row mb-3">
-              <!-- Enrollment Data -->
-              {% if object.enrollments %}
-                <div class="col-md-6">
+                {% with sa=object.statusAnimarum.last %}
+                <div class="col">
                   <div class="card mb-4 border-0 rounded-4 shadow-sm">
                     <div class="card-body">
-                      <small class="text-muted">Enrollment Records</small>
-                      <ul class="mt-2">
-                        {% for enr in object.enrollments %}
-                          <li>{{ enr.year }}: PreK {{ enr.prek }}; K-12 total {{ enr.grade_1|add:enr.grade_2|add:enr.grade_3|add:enr.grade_4|add:enr.grade_5|add:enr.grade_6|add:enr.grade_7|add:enr.grade_8|add:enr.grade_9|add:enr.grade_10|add:enr.grade_11|add:enr.grade_12 }}</li>
-                        {% endfor %}
-                      </ul>
+                      <small class="text-muted">Employees</small>
+                      <div class='mt-2'>
+                        <dt>Deacons</dt>
+                        <dd class="indent">{{ sa.fullTime_deacons }}</dd>
+                      </div>
+                      <div class="mt-2">
+                        <dt>Brothers</dt>
+                        <dd class="indent">{{ sa.fullTime_brothers }}</dd>
+                      </div>
+                      <div class="mt-2">
+                        <dt>Sisters</dt>
+                        <dd class="indent">{{ sa.fullTime_sisters }}</dd>
+                      </div>
+                      <div class="mt-2">
+                        <dt>Lay Staff</dt>
+                        <dd class="indent">{{ sa.fullTime_other }}</dd>
+                      </div>
+                      <div class="mt-2">
+                        <dt>Part Time Staff</dt>
+                        <dd class="indent">{{ sa.partTime_staff }}</dd>
+                      </div>
+                      <div class="mt-2">
+                        <dt>Catechist Paid</dt>
+                        <dd class="indent">{{ sa.catechist_paid }}</dd>
+                      </div>
                     </div>
                   </div>
                 </div>
-              {% endif %}
-
-              <!-- October Mass Count -->
-              {% if object.october_counts %}
-                <div class="col-md-6">
+                <div class="col">
                   <div class="card mb-4 border-0 rounded-4 shadow-sm">
                     <div class="card-body">
-                      <small class="text-muted">October Mass Counts</small>
-                      <ul class="mt-2">
-                        {% for octc in object.october_counts %}
-                          <li>{{ octc.year }}: Week1 {{ octc.week1 }}, Week2 {{ octc.week2 }}, Week3 {{ octc.week3 }}, Week4 {{ octc.week4 }}</li>
-                        {% endfor %}
-                      </ul>
+                      <small class="text-muted">Volunteers</small>
+                      <div class='mt-2'>
+                        <dt>Volunteer Total</dt>
+                        <dd class="indent">{{ sa.volunteers }}</dd>
+                      </div>
+                      <div class="mt-2">
+                        <dt>Catechist Volunteers</dt>
+                        <dd class="indent">{{ sa.catechist_vol }}</dd>
+                      </div>
+                      <div class="mt-2">
+                        <dt>Number of Volunteers Working with Youth</dt>
+                        <dd class="indent">{{ sa.volunteersWorkingYouth }}</dd>
+                      </div>
+                      <div class="mt-2">
+                        <dt>RCIA/RCIC</dt>
+                        <dd class="indent">{{ sa.rcia_rcic }}</dd>
+                      </div>
                     </div>
                   </div>
                 </div>
-              {% endif %}
-            </div>
+                {% endwith %}
+              </div>
 
-            {% if object.statusAnimarum %}
-              <div class="row mb-3">
-                <div class="col-md-12">
-                  <div class="card mb-4 border-0 rounded-4 shadow-sm">
-                    <div class="card-body">
-                      <small class="text-muted">Status Animarum Records</small>
-                      <ul class="mt-2">
-                        {% for sa in object.statusAnimarum %}
-                          <li>{{ sa.year }}: Full Time Deacons {{ sa.fullTime_deacons }}, Brothers {{ sa.fullTime_brothers }}, Sisters {{ sa.fullTime_sisters }}, Other {{ sa.fullTime_other }}, PartTime Staff {{ sa.partTime_staff }}, Volunteers {{ sa.volunteers }}; Households {{ sa.registeredHouseholds }}, Max Mass {{ sa.maxMass }}, Seating Cap {{ sa.seatingCapacity }}</li>
-                        {% endfor %}
-                      </ul>
-                    </div>
+            <div class="row mb-3">
+              <!-- 2) DRE -->
+              <div class="col">
+                <div class="card mb-4 border-0 rounded-4 shadow-sm">
+                  <div class="card-body">
+                    <small class="text-muted">DRE</small>
+                    {% if object.location_details.lkp_dre_id %}
+                      <div class="mt-2">
+                        <dt>Name</dt>
+                        <dd class="indent">{{ object.location_details.lkp_dre_id.name }}</dd>
+                      </div>
+                      <div class="mt-2">
+                        <dt>Phone</dt>
+                        {% with phones=object.location_details.lkp_dre_id.person_phone_set.all|dictsortreversed:"is_primary" %}
+                          {% if phones %}
+                            {% with p=phones.0.phoneNumber %}
+                              <dd class="indent">
+                                <a href="tel:{{ p }}">
+                                  ({{ p|slice:"0:3" }}) {{ p|slice:"3:6" }}-{{ p|slice:"6:" }}
+                                </a>
+                              </dd>
+                            {% endwith %}
+                          {% else %}
+                            <dd class="indent"><span class="text-muted">None recorded</span></dd>
+                          {% endif %}
+                        {% endwith %}
+                      </div>
+                      <div class="mt-2">
+                        <dt>Email</dt>
+                        {% with emails=object.location_details.lkp_dre_id.person_email_set.all|dictsortreversed:"is_primary" %}
+                          {% if emails %}
+                            <dd class="indent">
+                              <a href="mailto:{{ emails.0.email }}">
+                                {{ emails.0.email }}
+                              </a>
+                            </dd>
+                          {% else %}
+                            <dd class="indent"><span class="text-muted">None recorded</span></dd>
+                          {% endif %}
+                        {% endwith %}
+                      </div>
+                    {% else %}
+                      <p class="mt-2">None recorded</p>
+                    {% endif %}
                   </div>
                 </div>
               </div>
+
+              <!-- 3) Youth Minister -->
+              <div class="col">
+                <div class="card mb-4 border-0 rounded-4 shadow-sm">
+                  <div class="card-body">
+                    <small class="text-muted">Youth Minister</small>
+                    {% if object.location_details.lkp_youthMinister_id %}
+                      <div class="mt-2">
+                        <dt>Name</dt>
+                        <dd class="indent">{{ object.location_details.lkp_youthMinister_id.name }}</dd>
+                      </div>
+                      <div class="mt-2">
+                        <dt>Phone</dt>
+                        {% with phones=object.location_details.lkp_youthMinister_id.person_phone_set.all|dictsortreversed:"is_primary" %}
+                          {% if phones %}
+                            {% with p=phones.0.phoneNumber %}
+                              <dd class="indent">
+                                <a href="tel:{{ p }}">
+                                  ({{ p|slice:"0:3" }}) {{ p|slice:"3:6" }}-{{ p|slice:"6:" }}
+                                </a>
+                              </dd>
+                            {% endwith %}
+                          {% else %}
+                            <dd class="indent"><span class="text-muted">None recorded</span></dd>
+                          {% endif %}
+                        {% endwith %}
+                      </div>
+                      <div class="mt-2">
+                        <dt>Email</dt>
+                        {% with emails=object.location_details.lkp_youthMinister_id.person_email_set.all|dictsortreversed:"is_primary" %}
+                          {% if emails %}
+                            <dd class="indent">
+                              <a href="mailto:{{ emails.0.email }}">
+                                {{ emails.0.email }}
+                              </a>
+                            </dd>
+                          {% else %}
+                            <dd class="indent"><span class="text-muted">None recorded</span></dd>
+                          {% endif %}
+                        {% endwith %}
+                      </div>
+                    {% else %}
+                      <p class="mt-2">None recorded</p>
+                    {% endif %}
+                  </div>
+                </div>
+              </div>
+
+              <!-- 4) Office Manager -->
+              <div class="col">
+                <div class="card mb-4 border-0 rounded-4 shadow-sm">
+                  <div class="card-body">
+                    <small class="text-muted">Office Manager</small>
+                    {% if object.location_details.lkp_officeManager_id %}
+                      <div class="mt-2">
+                        <dt>Name</dt>
+                        <dd class="indent">{{ object.location_details.lkp_officeManager_id.name }}</dd>
+                      </div>
+                      <div class="mt-2">
+                        <dt>Phone</dt>
+                        {% with phones=object.location_details.lkp_officeManager_id.person_phone_set.all|dictsortreversed:"is_primary" %}
+                          {% if phones %}
+                            {% with p=phones.0.phoneNumber %}
+                              <dd class="indent">
+                                <a href="tel:{{ p }}">
+                                  ({{ p|slice:"0:3" }}) {{ p|slice:"3:6" }}-{{ p|slice:"6:" }}
+                                </a>
+                              </dd>
+                            {% endwith %}
+                          {% else %}
+                            <dd class="indent"><span class="text-muted">None recorded</span></dd>
+                          {% endif %}
+                        {% endwith %}
+                      </div>
+                      <div class="mt-2">
+                        <dt>Email</dt>
+                        {% with emails=object.location_details.lkp_officeManager_id.person_email_set.all|dictsortreversed:"is_primary" %}
+                          {% if emails %}
+                            <dd class="indent">
+                              <a href="mailto:{{ emails.0.email }}">
+                                {{ emails.0.email }}
+                              </a>
+                            </dd>
+                          {% else %}
+                            <dd class="indent"><span class="text-muted">None recorded</span></dd>
+                          {% endif %}
+                        {% endwith %}
+                      </div>
+                    {% else %}
+                      <p class="mt-2">None recorded</p>
+                    {% endif %}
+                  </div>
+                </div>
+              </div>
+            </div> <!-- /.row mb-3 -->
+
+            <div class="row mb-3">
+              <!-- 5) Financial Council Chair -->
+              <div class="col-md-6 mb-3">
+                <div class="card mb-4 border-0 rounded-4 shadow-sm">
+                  <div class="card-body">
+                    <small class="text-muted">Financial Council Chair</small>
+                    {% if object.location_details.lkp_financial_id %}
+                      <div class="mt-2">
+                        <dt>Name</dt>
+                        <dd class="indent">{{ object.location_details.lkp_financial_id.name }}</dd>
+                      </div>
+                      <div class="mt-2">
+                        <dt>Phone</dt>
+                        {% with phones=object.location_details.lkp_financial_id.person_phone_set.all|dictsortreversed:"is_primary" %}
+                          {% if phones %}
+                            {% with p=phones.0.phoneNumber %}
+                              <dd class="indent">
+                                <a href="tel:{{ p }}">
+                                  ({{ p|slice:"0:3" }}) {{ p|slice:"3:6" }}-{{ p|slice:"6:" }}
+                                </a>
+                              </dd>
+                            {% endwith %}
+                          {% else %}
+                            <dd class="indent"><span class="text-muted">None recorded</span></dd>
+                          {% endif %}
+                        {% endwith %}
+                      </div>
+                      <div class="mt-2">
+                        <dt>Email</dt>
+                        {% with emails=object.location_details.lkp_financial_id.person_email_set.all|dictsortreversed:"is_primary" %}
+                          {% if emails %}
+                            <dd class="indent">
+                              <a href="mailto:{{ emails.0.email }}">
+                                {{ emails.0.email }}
+                              </a>
+                            </dd>
+                          {% else %}
+                            <dd class="indent"><span class="text-muted">None recorded</span></dd>
+                          {% endif %}
+                        {% endwith %}
+                      </div>
+                    {% else %}
+                      <p class="mt-2">None recorded</p>
+                    {% endif %}
+                  </div>
+                </div>
+              </div>
+
+              <!-- 6) Pastoral Council Chair -->
+              <div class="col-md-6 mb-3">
+                <div class="card mb-4 border-0 rounded-4 shadow-sm">
+                  <div class="card-body">
+                    <small class="text-muted">Pastoral Council Chair</small>
+                    {% if object.location_details.lkp_pastoral_id %}
+                      <div class="mt-2">
+                        <dt>Name</dt>
+                        <dd class="indent">{{ object.location_details.lkp_pastoral_id.name }}</dd>
+                      </div>
+                      <div class="mt-2">
+                        <dt>Phone</dt>
+                        {% with phones=object.location_details.lkp_pastoral_id.person_phone_set.all|dictsortreversed:"is_primary" %}
+                          {% if phones %}
+                            {% with p=phones.0.phoneNumber %}
+                              <dd class="indent">
+                                <a href="tel:{{ p }}">
+                                  ({{ p|slice:"0:3" }}) {{ p|slice:"3:6" }}-{{ p|slice:"6:" }}
+                                </a>
+                              </dd>
+                            {% endwith %}
+                          {% else %}
+                            <dd class="indent"><span class="text-muted">None recorded</span></dd>
+                          {% endif %}
+                        {% endwith %}
+                      </div>
+                      <div class="mt-2">
+                        <dt>Email</dt>
+                        {% with emails=object.location_details.lkp_pastoral_id.person_email_set.all|dictsortreversed:"is_primary" %}
+                          {% if emails %}
+                            <dd class="indent">
+                              <a href="mailto:{{ emails.0.email }}">
+                                {{ emails.0.email }}
+                              </a>
+                            </dd>
+                          {% else %}
+                            <dd class="indent"><span class="text-muted">None recorded</span></dd>
+                          {% endif %}
+                        {% endwith %}
+                      </div>
+                    {% else %}
+                      <p class="mt-2">None recorded</p>
+                    {% endif %}
+                  </div>
+                </div>
+              </div>
+            </div> <!-- /.row mb-3 -->
+          </div> <!-- /#staff-info -->
+
+          <!-- STATISTICS INFO (UPDATED) -->
+          <div id="stat-info" class="detail-section d-none">
+            {% if object.statusAnimarum %}
+              <div class="tab-content" id="statYearTabsContent">
+                {% if object.offertories %}
+                  <div class="card mb-4 border-0 rounded-4 shadow-sm">
+                    <div class="card-body">
+                      <small class="text-muted">Offertory Income Over Years</small>
+                      <div class="chart-wrapper">
+                        <canvas id="offertoryChart" class="mt-3" style="height: 300px;"></canvas>
+                      </div>
+                    </div>
+                  </div>
+                  <script>
+                    const offertoryYears = [
+                      {% for off in object.offertories %}
+                        "{{ off.year }}"{% if not forloop.last %},{% endif %}
+                      {% endfor %}
+                    ];
+                    const offertoryIncomes = [
+                      {% for off in object.offertories %}
+                        {{ off.income }}{% if not forloop.last %},{% endif %}
+                      {% endfor %}
+                    ];
+                  </script>
+                {% endif %}
+                              {# 1) TABS for each year #}
+                <ul class="nav nav-tabs mb-3" id="statYearTabs" role="tablist">
+                  {% for sa in object.statusAnimarum %}
+                    <li class="nav-item" role="presentation">
+                      <button
+                        class="nav-link {% if forloop.first %}active{% endif %}"
+                        id="tab-{{ sa.year|slugify }}-tab"
+                        data-bs-toggle="tab"
+                        data-bs-target="#tab-{{ sa.year|slugify }}"
+                        type="button"
+                        role="tab"
+                        aria-controls="tab-{{ sa.year|slugify }}"
+                        aria-selected="{% if forloop.first %}true{% else %}false{% endif %}"
+                      >
+                        {{ sa.year }}
+                      </button>
+                    </li>
+                  {% endfor %}
+                </ul>
+                {% for sa in object.statusAnimarum %}
+                  <div
+                    class="tab-pane fade {% if forloop.first %}show active{% endif %}"
+                    id="tab-{{ sa.year|slugify }}"
+                    role="tabpanel"
+                    aria-labelledby="tab-{{ sa.year|slugify }}-tab"
+                  >
+                    <div class="row">
+                      <!-- LEFT COLUMN: RAW DATA -->
+                      <div class="col-md-6">
+                        <div class="card mb-4 border-0 rounded-4 shadow-sm">
+                          <div class="card-body">
+                            <small class="text-muted">Raw Numbers ({{ sa.year }})</small>
+                            <dl class="row mt-3">
+                              <dt class="col-6">Full-Time Deacons</dt>
+                              <dd class="col-6 indent">{{ sa.fullTime_deacons }}</dd>
+
+                              <dt class="col-6">Full-Time Brothers</dt>
+                              <dd class="col-6 indent">{{ sa.fullTime_brothers }}</dd>
+
+                              <dt class="col-6">Full-Time Sisters</dt>
+                              <dd class="col-6 indent">{{ sa.fullTime_sisters }}</dd>
+
+                              <dt class="col-6">Full-Time Lay Staff</dt>
+                              <dd class="col-6 indent">{{ sa.fullTime_other }}</dd>
+
+                              <dt class="col-6">Part-Time Staff</dt>
+                              <dd class="col-6 indent">{{ sa.partTime_staff }}</dd>
+
+                              <dt class="col-6">Catechist Paid</dt>
+                              <dd class="col-6 indent">{{ sa.catechist_paid }}</dd>
+
+                              <dt class="col-6">Youth Ministry</dt>
+                              <dd class="col-6 indent">{{ sa.youthMinistry }}</dd>
+
+                              <dt class="col-6">Youth Ministry Volunteers</dt>
+                              <dd class="col-6 indent">{{ sa.volunteersWorkingYouth }}</dd>
+
+                              <dt class="col-6">Catechist Volunteers</dt>
+                              <dd class="col-6 indent">{{ sa.catechist_vol }}</dd>
+
+                              <dt class="col-6">Volunteers</dt>
+                              <dd class="col-6 indent">{{ sa.volunteers }}</dd>
+
+                              <dt class="col-6">Registered Households</dt>
+                              <dd class="col-6 indent">{{ sa.registeredHouseholds }}</dd>
+
+                              <dt class="col-6">Max Mass Size</dt>
+                              <dd class="col-6 indent">{{ sa.maxMass }}</dd>
+
+                              <dt class="col-6">Seating Capacity</dt>
+                              <dd class="col-6 indent">{{ sa.seatingCapacity }}</dd>
+
+                              <dt class="col-6">Baptisms (1-7)</dt>
+                              <dd class="col-6 indent">{{ sa.baptismAge_1_7 }}</dd>
+
+                              <dt class="col-6">Baptisms (8-17)</dt>
+                              <dd class="col-6 indent">{{ sa.baptismAge_8_17 }}</dd>
+
+                              <dt class="col-6">Baptisms (18+)</dt>
+                              <dd class="col-6 indent">{{ sa.baptismAge_18 }}</dd>
+
+                              <dt class="col-6">RCIA/RCIC</dt>
+                              <dd class="col-6 indent">{{ sa.rcia_rcic }}</dd>
+
+                              <dt class="col-6">First Communion</dt>
+                              <dd class="col-6 indent">{{ sa.firstCommunion }}</dd>
+
+                              <dt class="col-6">Confirmation</dt>
+                              <dd class="col-6 indent">{{ sa.confirmation }}</dd>
+
+                              <dt class="col-6">Children In Faith Formation</dt>
+                              <dd class="col-6 indent">{{ sa.childrenInFaithFormation }}</dd>
+
+                              <dt class="col-6">Kids in PreK - 5 Grade</dt>
+                              <dd class="col-6 indent">{{ sa.school_prek_5 }}</dd>
+
+                              <dt class="col-6">Kids in 6 Grade - 8 Grade</dt>
+                              <dd class="col-6 indent">{{ sa.school_grade6_8 }}</dd>
+
+                              <dt class="col-6">Kids in 9 Grade - 12 Grade</dt>
+                              <dd class="col-6 indent">{{ sa.school_grade9_12 }}</dd>
+
+                              <dt class="col-6">Adult Education</dt>
+                              <dd class="col-6 indent">{{ sa.adult_education }}</dd>
+
+                              <dt class="col-6">Adult Sacrament Prep</dt>
+                              <dd class="col-6 indent">{{ sa.adult_sacramentPrep }}</dd>
+                              
+                              <dt class="col-6">Catholic Marriages</dt>
+                              <dd class="col-6 indent">{{ sa.marriage_catholic }}</dd>
+
+                              <dt class="col-6">Interfaith Marriages</dt>
+                              <dd class="col-6 indent">{{ sa.marriage_interfaith }}</dd>
+
+                              <dt class="col-6">Deaths</dt>
+                              <dd class="col-6 indent">{{ sa.deaths }}</dd>
+
+                              <dt class="col-6">Referrals To Catholic Charities</dt>
+                              <dd class="col-6 indent">{{ sa.referrals_catholicCharities }}</dd>
+
+                              <dt class="col-6">% African</dt>
+                              <dd class="col-6 indent">{{ sa.percent_african }}</dd>
+
+                              <dt class="col-6">% African-American</dt>
+                              <dd class="col-6 indent">{{ sa.percent_african_american }}</dd>
+
+                              <dt class="col-6">% Asian</dt>
+                              <dd class="col-6 indent">{{ sa.percent_asian }}</dd>
+
+                              <dt class="col-6">% Hispanic</dt>
+                              <dd class="col-6 indent">{{ sa.percent_hispanic }}</dd>
+
+                              <dt class="col-6">% American-Indian</dt>
+                              <dd class="col-6 indent">{{ sa.percent_american_indian }}</dd>
+
+                              <dt class="col-6">% Other</dt>
+                              <dd class="col-6 indent">{{ sa.percent_other }}</dd>
+
+                              <!-- Add more fields here if you like… -->
+                            </dl>
+                          </div>
+                        </div>
+                      </div>
+
+                      <!-- RIGHT COLUMN: CHARTS -->
+                      <div class="col-md-6">
+                        <div class="card mb-4 border-0 rounded-4 shadow-sm">
+                          <div class="card-body">
+                            <small class="text-muted">Staff & Volunteers ({{ sa.year }})</small>
+                            <div class="chart-wrapper">
+                              <canvas id="barChart-{{ sa.year|slugify }}" class="mt-3"></canvas>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div class="card mb-4 border-0 rounded-4 shadow-sm">
+                          <div class="card-body">
+                            <small class="text-muted">Census Breakdown ({{ sa.year }})</small>
+                            {% if sa.is_censusEstimate %}
+                            <div class="chart-wrapper">
+                              <canvas id="pieChart-{{ sa.year|slugify }}" class="mt-3"></canvas>
+                            </div>
+                            {% else %}
+                              <p class="mt-3"><em>Not a census estimate for {{ sa.year }}</em></p>
+                            {% endif %}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                {% endfor %}
+              </div>
+            {% else %}
+              <p>No statistical data recorded for this location.</p>
             {% endif %}
+
           </div>
+
+          
+
+
         </div>
       </main>
     {% endif %}
+  </div>
+</div>
+
+
+<!-- Modals below -->
+ <!-- Actions Modal -->
+<div class="modal fade" id="actionModal" tabindex="-1" aria-labelledby="actionmodallabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="actionmodallabel">Actions</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="close"></button>
+      </div>
+      <div class="modal-body">
+        <div class="d-grid gap-2">
+          {% if base == 'person' %}
+            <button 
+              type="button" 
+              class="btn result-btn btn-sm"
+            >Report: Assignment History</button>
+          {% else %}
+            <button 
+              type="button" 
+              class="btn result-btn btn-sm">
+              Report: P3 Report
+            </button>
+            <button 
+              type="button" 
+              class="btn result-btn btn-sm">
+              Report: Status Animarum
+            </button>
+            <button
+              type="button"
+              class="btn result-btn btn-sm">
+              Report: Offetories
+          </button>
+          {% endif %}
+          </div>
+      </div>
+    </div>
   </div>
 </div>
 
