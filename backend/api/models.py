@@ -6,8 +6,6 @@ from django.core.validators import (
                                     RegexValidator, 
                                     MinValueValidator, 
                                     MaxValueValidator,
-                                    MinLengthValidator,
-                                    MaxLengthValidator,
 )
 
 choice_year = [
