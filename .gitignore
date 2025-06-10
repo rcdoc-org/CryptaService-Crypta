@@ -1,6 +1,5 @@
 __pycache__
 venv
-Dockerfile
 .dockerignore
 manifest*/
 0*.py
@@ -9,3 +8,5 @@ manifest*/
 init.sql
 tmp
 .DS_Store
+*.env
+docker-compose.yml
