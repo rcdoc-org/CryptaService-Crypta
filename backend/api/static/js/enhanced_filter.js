@@ -50,6 +50,9 @@
         // boolean
         document.querySelectorAll('.stats-boolean:checked').forEach( r => {
             stats[r.dataset.field] = r.value; // "true", "false", "all"
+            if (r.value === 'all') {
+                checked.push(`${r.dateset.field}:${r.value}`);
+            }
         });
 
         return { base, filters: checked, stats };
