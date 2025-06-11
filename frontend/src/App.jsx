@@ -1,35 +1,36 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import React from 'react';
+import { Routes, Route, BrowserRouter, Navigate } from 'react-router-dom';
+import Layout from './components/Layout';
+import Home from './pages/Home';
+import SearchResults from './pages/SearchResults';
+import Details from './pages/Details';
+import Database from './pages/Database';
+import ChangeLog from './pages/ChangeLog';
+import Login from './pages/Login';
+import NotFound from './pages/NotFound';
 
-function App() {
-  const [count, setCount] = useState(0)
-
-  return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+function Logout() {
+  localStorage.clear();
+  return <Navigate to="/login" />;
 }
 
-export default App
+// Define Routes and wrap in Layout component
+const App = () => {
+    return (
+    <BrowserRouter>
+        <Layout>
+        <Routes>
+            <Route path='/' element={<Home />} />
+            <Route path='/database' element={<Database />} />
+            <Route path='/search' element={<SearchResults />} />
+            <Route path='/details/:base/:id' element={<Details />} />
+            <Route path='/change-log' element={<ChangeLog />} />
+            <Route path='/login' element={<Login />} />
+            <Route path='*' element={<NotFound />} />
+        </Routes>
+        </Layout>
+    </BrowserRouter>
+    )
+}
+
+export default App;
