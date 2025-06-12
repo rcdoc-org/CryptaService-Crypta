@@ -1,6 +1,15 @@
+body {
+  margin: 0;
+  padding: 0;
+}
+
 /* Header gradient & padding */
 .custom-header {
-  position: sticky;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 1030;
   background: #fff;
   padding: 0.5rem 1rem;
   /* border-bottom: 1px solid #e0e0e0; */

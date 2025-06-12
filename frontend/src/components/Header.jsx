@@ -1,71 +1,166 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import profilePic from '../assets/images/profilePic.jpg';
+import logo from '../assets/images/logo.png';
 import '../styles/Header.css';
 
 const Header = () => {
     const navigate = useNavigate();
+    const [q, setQ] = useState("");
+    const [menuOpen, setMenuOpen] = useState(false);
 
-    const onSearch = (e) => {
-        if (e.key === 'Enter') {
-            navigate(`/search?q=${encodeURIComponent(e.target.value)}`);
+    useEffect(() => {
+      const handleClickOutside = (event) => {
+        const trigger = document.getElementById('menuTrigger');
+        const nav = document.getElementById('menuNav');
+        if (menuOpen && trigger && nav && !trigger.contains(event.target) && !nav.contains(event.target)) {
+          setMenuOpen(false);
         }
+      };
+      document.addEventListener("click", handleClickOutside);
+      return () => document.removeEventListener("click", handleClickOutside);
+    }, [menuOpen])
+
+    
+    const handleSubmit = (e) => {
+      e.preventDefault();
+      navigate(`/search?q=${encodeURIComponent(q)}`);
     };
 
     return (
-    <header className="navbar navbar-expand-lg navbar-light bg-white shadow-sm custom-header">
+    <header className="custom-header fixed-top w-100 shadow-sm">
       <div className="container-fluid">
-        <Link className="navbar-brand" to="/">
-          Crypta
-        </Link>
-        <button
-          className="navbar-toggler"
-          type="button"
-          data-bs-toggle="collapse"
-          data-bs-target="#navbarSupportedContent"
-          aria-controls="navbarSupportedContent"
-          aria-expanded="false"
-          aria-label="Toggle navigation"
-        >
-          <span className="navbar-toggler-icon" />
-        </button>
-        <div className="collapse navbar-collapse" id="navbarSupportedContent">
-          <ul className="navbar-nav me-auto mb-2 mb-lg-0">
-            <li className="nav-item">
-              <Link className="nav-link" to="/database">Database</Link>
-            </li>
-            <li className="nav-item">
-              <Link className="nav-link" to="/change-log">Change Log</Link>
-            </li>
-          </ul>
-          <form className="d-flex me-3">
-            <input
-              className="form-control form-control-sm me-2"
-              type="search"
-              placeholder="Search"
-              aria-label="Search"
-              onKeyDown={onSearch}
-            />
+        <div className="d-flex align-items-center justify-content-between position-relative">
+          <div className="menu-box-wrapper">
+            <div
+              id="menuTrigger" 
+              className="menu-trigger"
+              type="button"
+              onClick={() => setMenuOpen(open => !open)}
+              aria-expanded={menuOpen}
+              >
+               <div className="hamburger">
+                <span></span>
+                <span></span>
+                <span></span>
+               </div>
+              <span className="toggler-label ms-2">MENU</span>
+            </div>
+            <nav 
+              id="menuNav" 
+              className={`menu-nav${menuOpen ? " active" : ""}`}
+              >
+              <ul className="nav flex-column">
+                <li className="nav-item">
+                  <Link className="nav-link" to="/">Home</Link>
+                </li>
+                <li className="nav-item">
+                  <Link className="nav-link" to="/database">Database</Link>
+                </li>
+                <li className="nav-item">
+                  <Link className="nav-link" to="/change-log">Change Log</Link>
+                </li>
+                <li className="nav-item">
+                  <a 
+                    className="nav-link" 
+                    href="https://nimbus.rcdoc.org/" 
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    >Nimbus</a>
+                </li>
+              </ul>
+            </nav>
+          </div>
+
+          <div className="app-logo ms-3 d-flex align-items-center">
+            <img src={logo}
+                  alt="App Logo"
+                  className="app-logo-img"/>
+            <span className="org-title">Crypta 2.0</span>
+          </div>
+
+          <form 
+                onSubmit={handleSubmit}
+                className="search-form d-flex align-items-center mx-auto"
+                role="search">
+            <i className="fas fa-search search-icon"></i>
+            <input 
+              className="form-control" 
+              type="search" 
+              value={q}
+              onChange={e => setQ(e.target.value)}
+              placeholder="Search..."
+              aria-label="Search"/>
           </form>
-          <ul className="navbar-nav">
-            <li className="nav-item dropdown">
+
+          <div className="header-icons d-flex align-items-center">
+            <a className="header-icon me-3" href="#"><i className="far fa-comment"/></a>
+            <div className="dropdown me-3">
               <a
-                className="nav-link dropdown-toggle"
+                className="header-icon position-relative dropdown-toggle"
                 href="#"
-                id="userDropdown"
                 role="button"
+                id="alertsDropdown"
+                data-bs-toggle="dropdown"
+                aria-expanded="false"
+                >
+                <i className="fas fa-bell"></i>
+                <span
+                  className="position-absolute top-0 start-75 translate-middle badge rounded-pill bg-danger bell-badge"
+                >
+                  1
+                  <span className="visually-hidden">unread alerts</span>
+                </span>
+                </a>
+              <ul
+                className="dropdown-menu dropdown-menu-end p-2"
+                aria-labelledby="alertsDropdown"
+                style={{ minWidth: '200px'}}
+              >
+                <li>
+                  <a className="dropdown-item" href="#">
+                    <strong>RTFV:</strong> Pending Approval Tech Services.
+                  </a>
+                </li>
+              </ul>
+            </div>
+            <a className="header-icon me-3" href="#"><i className="fas fa-inbox"></i></a>
+            <div className="dropdown me-3">
+              <a
+                href="#"
+                className="header-icon dropdown-toggle"
+                id="profileDropdown"
                 data-bs-toggle="dropdown"
                 aria-expanded="false"
               >
-                <i className="fas fa-user-circle fa-lg" />
+                <img
+                  src={profilePic}
+                  alt="Profile"
+                  className="profile-pic rounded-circle"
+                />
               </a>
-              <ul className="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
-                <li><Link className="dropdown-item" to="/profile">Profile</Link></li>
-                <li><Link className="dropdown-item" to="/settings">Settings</Link></li>
-                <li><hr className="dropdown-divider" /></li>
-                <li><button className="dropdown-item">Logout</button></li>
+              <ul
+                className="dropdown-menu dropdown-menu-end"
+                aria-labelledby="profileDropdown"
+                style={{ minWidth: '150px' }}
+              >
+                <li>
+                  <a className="dropdown-item" href="#">
+                    Profile
+                  </a>
+                </li>
+                <li>
+                  <a className="dropdown-item" href="#">
+                    Security
+                  </a>
+                </li>
+                <li><hr className="dropdown-divider"/></li>
+                <li>
+                  <Link className="dropdown-item" to="/logout">Log Out</Link>
+                </li>
               </ul>
-            </li>
-          </ul>
+            </div>
+          </div>
         </div>
       </div>
     </header>
