@@ -2,6 +2,7 @@ import React from 'react';
 import '../styles/Login.css'
 import Card from '../components/Card';
 import logo from '../assets/images/logo.png';
+import { Link, Navigate } from 'react-router-dom';
 
 const Login = () => (
   <div className="d-flex justify-content-center align-items-center vh-100 login-background">
@@ -18,6 +19,18 @@ const Login = () => (
           <input type="password" name="password" className="form-control" id="password" placeholder="Enter your password" required />
         </div>
         <button type="submit" className="btn btn-primary w-100 btn-login mb-3">Sign In</button>
+        <button 
+          type="button" 
+          className="btn btn-primary w-100 btn-login mb-3"
+          onClick={() => {
+            // Clear local storage and redirect to register page
+            localStorage.clear();
+            window.location.href = '/register';
+          }}
+          >
+            Register
+            </button>
+        {/* <Link type='button' to="/register" className="btn btn-primary w-100 btn-login">Create Account</Link>  */}
         <div className="text-center my-3">—or sign in with—</div>
         <button type="submit" name="oauth_provider" value="google" className="btn btn-light w-100 mb-2 oauth-btn oauth-google">
           <img src="/assets/images/google-logo.png" alt="Google Logo" className="oauth-logo me-2" />Google

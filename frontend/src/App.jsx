@@ -8,6 +8,7 @@ import Database from './pages/Database';
 import ChangeLog from './pages/ChangeLog';
 import Login from './pages/Login';
 import NotFound from './pages/NotFound';
+import Register from './pages/Register';
 import './styles/App.css';
 
 function Logout() {
@@ -22,6 +23,7 @@ const App = () => {
         <Routes>
             
             <Route path='/login' element={<Login />} />
+            <Route path='/register' element={<Register />} />
 
             <Route element={<Layout />}>
                 <Route path='/' element={<Home />} />
