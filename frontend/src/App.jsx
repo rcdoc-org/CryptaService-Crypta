@@ -19,17 +19,19 @@ function Logout() {
 const App = () => {
     return (
     <BrowserRouter>
-        <Layout>
         <Routes>
-            <Route path='/' element={<Home />} />
-            <Route path='/database' element={<Database />} />
-            <Route path='/search' element={<SearchResults />} />
-            <Route path='/details/:base/:id' element={<Details />} />
-            <Route path='/change-log' element={<ChangeLog />} />
+            
             <Route path='/login' element={<Login />} />
-            <Route path='*' element={<NotFound />} />
+
+            <Route element={<Layout />}>
+                <Route path='/' element={<Home />} />
+                <Route path='/database' element={<Database />} />
+                <Route path='/search' element={<SearchResults />} />
+                <Route path='/details/:base/:id' element={<Details />} />
+                <Route path='/change-log' element={<ChangeLog />} />
+                <Route path='*' element={<NotFound />} />
+            </Route>
         </Routes>
-        </Layout>
     </BrowserRouter>
     )
 }

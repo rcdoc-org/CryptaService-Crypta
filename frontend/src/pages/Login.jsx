@@ -1,11 +1,12 @@
 import React from 'react';
 import '../styles/Login.css'
 import Card from '../components/Card';
+import logo from '../assets/images/logo.png';
 
 const Login = () => (
-  <div className="d-flex justify-content-center align-items-center vh-100">
+  <div className="d-flex justify-content-center align-items-center vh-100 login-background">
     <Card className="login-card text-center rounded-4 shadow p-4">
-      <img src="/assets/images/logo.png" alt="Company Logo" className="login-logo mb-4" />
+      <img src={logo} alt="Company Logo" className="login-logo mb-4" />
       <h4 className="mb-4">Sign in to Your Account</h4>
       <form method="post" className="text-start">
         <div className="mb-3">
@@ -22,7 +23,7 @@ const Login = () => (
           <img src="/assets/images/google-logo.png" alt="Google Logo" className="oauth-logo me-2" />Google
         </button>
         <button type="submit" name="oauth_provider" value="microsoft" className="btn btn-light w-100 oauth-btn oauth-microsoft">
-          <img src="/assets/images/microsoft-logo.png" alt="Microsoft Logo" className="oauth-logo me-2" />Microsoft
+          <img src="/assets/images/microsoft-logo.png" alt="Microsoft Logo" className="oauth-logo me-2" />
         </button>
       </form>
       <small className="text-muted d-block mt-4">Need help? Contact <a href="mailto:helpdesk@rcdoc.org">helpdesk@rcdoc.org</a></small>

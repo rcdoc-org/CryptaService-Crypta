@@ -19,3 +19,10 @@ html, body, #root {
   background: linear-gradient(rgb(5,83,175), rgb(19,116,226)) no-repeat fixed;
   background-size: 100% 100%;
 }
+
+.login-background {
+  margin: 0;
+  background: transparent;
+  background: linear-gradient(rgb(5,83,175), rgb(19,116,226)) no-repeat fixed;
+  background-size: 100% 100%;
+}
