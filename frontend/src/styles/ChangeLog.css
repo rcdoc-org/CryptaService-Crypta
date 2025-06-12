@@ -1,19 +1,21 @@
-html {
-    /* height: 100%; */
-    margin: 0;
-    height: 100%;
-    background-size: 100% 100%;
-    background: linear-gradient(rgb( 5,83,175), rgb(19,116,226)), no-repeat fixed;
-}
-
-body{
-  background:transparent;
-}
-.container {
-    flex: 1;
-    height: 100%;
-    overflow-y:auto;
+.container-changeLog {
     padding: 1rem;
+}
+.container-changeLog .card {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+.container-changeLog .card-body {
+  flex: 1;
+  overflow-y: auto;
+  padding-right: 0.5rem;
+}
+.container-changeLog .card-body p {
+  text-align: left;
+}
+.container-changeLog .card-body li {
+  text-align: left;
 }
 /* give headers a subtle background */
 .card-header {
