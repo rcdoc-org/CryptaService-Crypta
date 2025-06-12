@@ -8,6 +8,7 @@ import Database from './pages/Database';
 import ChangeLog from './pages/ChangeLog';
 import Login from './pages/Login';
 import NotFound from './pages/NotFound';
+import './styles/App.css';
 
 function Logout() {
   localStorage.clear();
