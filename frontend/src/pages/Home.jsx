@@ -52,7 +52,13 @@ const Home = () => {
                 <h4>The Diocese of Charlotte's data vault.</h4>
                 <h6>Here you can find information on churches, priests, schools and many other things.</h6>
                 <div className="pt-3 pb-2 align-items-middle">
-                  <button type="button" className="btn btn-sm me-2 mb-2" data-bs-toggle="modal" data-bs-target="#welcomeModal" id="welcometogglebtn">
+                  <button 
+                  type="button" 
+                  className="btn btn-sm me-2 mb-2" 
+                  data-bs-toggle="modal" 
+                  data-bs-target="#welcomeModal" 
+                  id="welcometogglebtn"
+                  >
                     Learn More
                   </button>
                 </div>
@@ -148,7 +154,6 @@ const Home = () => {
         </div>
 
         <Modal id="welcomeModal" title="Welcome">
-          <div>
             <h5>In Crypta you can do the following:</h5>
             <h6>Database Queries on:</h6>
             <ul>
@@ -166,7 +171,6 @@ const Home = () => {
             <h6>Use our Robust Search Engine.</h6>
             <h6>Submit and see current workflows.</h6>
             <h6>Perform actions on pending requests. And much more...</h6>
-          </div>
         </Modal>
       </div>
     </div>

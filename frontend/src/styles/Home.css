@@ -74,3 +74,9 @@ a.button:hover {
     color: white;
     border: 1px solid black;
 }
+.modal-title {
+  font-size: 1.5rem;
+}
+.modal-body {
+  text-align: left;
+}
