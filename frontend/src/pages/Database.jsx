@@ -3,12 +3,19 @@ import '../styles/Database.css';
 import AsidePanel from '../components/AsidePanel';
 import Card from '../components/Card';
 import DataGrid from '../components/DataGrid';
+import Button from '../components/Button';
+import Dropdown from '../components/Dropdown';
+import SearchBar from '../components/SearchBar'
 import { fetchFilterTree } from '../api/crypta';
 
 const Database = () => {
     const [filterTree, setFilterTree] = useState([]);
     const [appliedFilters, setAppliedFilters] = useState([]);
     const [rows, setRows] = useState([]);
+    const baseToggles = [
+        { value: 'person', label: 'People' },
+        { value: 'location', label: 'Locations' }
+    ];
 
     useEffect(() => {
         fetchFilterTree('person').then(res => setFilterTree(res.data));
@@ -36,17 +43,35 @@ const Database = () => {
         rowClick: (e, row) => {
             const data = row.getData();
             window.location.href = `/details/${data.base}/${data.id}`;
-    }
-  };
+        },
+    paginationSize: 20,
+};
 
-    return (
-        <div className="container-fluid filter-page">
+return (
+    <div className="container-fluid filter-page">
             <div className="row">
                 <AsidePanel header="Database Options">
-                <select className="form-select" onChange={handleBaseChange}>
-                    <option value="person">People</option>
-                    <option value="location">Locations</option>
-                </select>
+                    <div className='p-4'>
+                        <span className="side-panel-header">Database Options</span>
+                        <Dropdown
+                        options={baseToggles}
+                        onChange={handleBaseChange}
+                        id='baseToggle'
+                        name='baseToggle'
+                        className='side-panel-form'
+                        ></Dropdown>
+                    </div>
+                    <div className='p-4'>
+                        <span className="side-panel-header">Filter Options</span>
+                        <SearchBar
+                            id='filterSearch'
+                            className='filter-search'
+                            placeholder='Search filter options...'
+                            onSearch={(value) => {
+                                // Implement search logic here
+                                console.log('Searching filters for:', value);
+                            }}/>
+                    </div>
                 </AsidePanel>
                 <main className="col-md-8 p-4 bg-light">
                     <Card title='Results'>
