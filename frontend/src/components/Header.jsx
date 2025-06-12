@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import SearchBar from './SearchBar';
 import profilePic from '../assets/images/profilePic.jpg';
 import logo from '../assets/images/logo.png';
 import '../styles/Header.css';
 
 const Header = () => {
     const navigate = useNavigate();
-    const [q, setQ] = useState("");
     const [menuOpen, setMenuOpen] = useState(false);
 
     useEffect(() => {
@@ -20,12 +20,6 @@ const Header = () => {
       document.addEventListener("click", handleClickOutside);
       return () => document.removeEventListener("click", handleClickOutside);
     }, [menuOpen])
-
-    
-    const handleSubmit = (e) => {
-      e.preventDefault();
-      navigate(`/search?q=${encodeURIComponent(q)}`);
-    };
 
     return (
     <header className="custom-header fixed-top w-100 shadow-sm">
@@ -79,20 +73,10 @@ const Header = () => {
             <span className="org-title">Crypta 2.0</span>
           </div>
 
-          <form 
-                onSubmit={handleSubmit}
-                className="search-form d-flex align-items-center mx-auto"
-                role="search">
-            <i className="fas fa-search search-icon"></i>
-            <input 
-              className="form-control" 
-              type="search" 
-              value={q}
-              onChange={e => setQ(e.target.value)}
-              placeholder="Search..."
-              aria-label="Search"/>
-          </form>
-
+          <SearchBar
+            className='search-form mx-auto'
+            placeholder='Search...'
+          />
           <div className="header-icons d-flex align-items-center">
             <a className="header-icon me-3" href="#"><i className="far fa-comment"/></a>
             <div className="dropdown me-3">
