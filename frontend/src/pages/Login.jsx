@@ -12,8 +12,12 @@ const Login = () => {
 
   const handleEmailSubmit = (e) => {
     e.preventDefault()
-    if (email) {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (emailRegex.test(email)) {
+      setError(null);
       setStep(2);
+    } else {
+      setError('Please enter a valid email address');
     }
   };
 
