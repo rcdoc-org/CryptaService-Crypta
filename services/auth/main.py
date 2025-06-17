@@ -1,5 +1,15 @@
 import os
 from flask import Flask, request
+try:
+    # older Flask
+    from flask.json import JSONEncoder
+except ImportError:
+    # Flask ≥2.3 moved JSONEncoder into the provider
+    from flask.json.provider import DefaultJSONProvider as JSONEncoder
+
+# inject it so `from flask.json import JSONEncoder` works again
+flask.json.JSONEncoder = JSONEncoder
+
 from flask_mongoengine import MongoEngine
 from flask_security import Security, MongoEngineUserDatastore
 from flask_jwt_extended import JWTManager
