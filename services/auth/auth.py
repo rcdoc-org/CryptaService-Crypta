@@ -3,7 +3,7 @@ from datetime import datetime, timezone, timedelta
 from flask import Blueprint, redirect, url_for, request, jsonify
 from authlib.integrations.flask_client import OAuth
 from flask_jwt_extended import create_access_token
-from .models import User, OAuthAccount, pwd_ctx
+from models import User, OAuthAccount, pwd_ctx
 
 oauth = OAuth()
 auth_v1_bp = Blueprint("auth_v1", __name__)
