@@ -28,3 +28,4 @@ Werkzeug>=2.2,<3.0
 WTForms==3.2.1
 uvicorn>=0.22,<1.0
 requests>=2.31.0
+gunicorn==21.2.0
