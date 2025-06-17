@@ -55,7 +55,7 @@ def create_app():
     app.register_blueprint(auth_v1_bp, url_prefix="/api/v1/auth")
     return app
 
-
+app = create_app()
 
 if __name__ == "__main__":
-    app = create_app().run(debug=True)
+    app.run(debug=True)
