@@ -1,0 +1,47 @@
+import os
+from flask import Flask, request
+from flask_mongoengine import MongoEngine
+from flask_security import Security, MongoEngineUserDatastore
+from flask_jwt_extended import JWTManager
+from .auth import auth_v1_bp
+from .models import Role, User, Profile
+
+
+db = MongoEngine()
+jwt = JWTManager()
+
+def create_app():
+    app = Flask(__name__)
+    app.config.from_mapping(
+        MONGODB_SETTINGS = { "host": os.getenv("MONGO_URI") },
+
+        SECRET_KEY = os.getenv("SECURITY_KEY"),
+        JWT_SECRET_KEY = os.getenv('JWT_SECRET_KEY')
+        SECURITY_REGISTERABLE = True,
+        SECURITY_SEND_REGISTER_EMAIL = False,
+        
+        # Oauth Client Creds:
+        OAUTH_GOOGLE_CLIENT_ID=os.getenv("GOOGLE_ID"),
+        OAUTH_GOOGLE_CLIENT_SECRET=os.getenv("GOOGLE_SECRET"),
+        OAUTH_MICROSOFT_CLIENT_ID=os.getenv("MS_ID"),
+        OAUTH_MICROSOFT_CLIENT_SECRET=os.getenv("MS_SECRET"),
+        OAUTH_AZUREAD_CLIENT_ID=os.getenv("AAD_ID"),
+        OAUTH_AZUREAD_CLIENT_SECRET=os.getenv("AAD_SECRET"),
+        OAUTH_AZUREAD_TENANT=os.getenv("AAD_TENANT"),
+        
+        # Plan to send emails later:
+        # MAIL_SERVER=…,
+        # MAIL_USERNAME=…,
+        # MAIL_PASSWORD=…,
+    )
+    
+    db.init_app(app)
+    jwt.init_app(app)
+    Security(app, MongoEngineUserDatastore(db, User, Role))
+    app.register_blueprint(auth_v1_bp, url_prefix="/api/v1/auth")
+    return app
+
+
+
+if __name__ == "__main__":
+    create_app().run(debug=True)
