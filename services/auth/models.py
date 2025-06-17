@@ -5,6 +5,7 @@ from mongoengine import *
 from passlib.hash import argon2
 from passlib.context import CryptContext
 from flask_security import UserMixin, RoleMixin
+import uuid
 
 pwd_ctx = CryptContext(
     schemes=["argon2"],
