@@ -3,9 +3,12 @@ from flask import Flask, request
 from flask_mongoengine import MongoEngine
 from flask_security import Security, MongoEngineUserDatastore
 from flask_jwt_extended import JWTManager
+from dotenv import load_dotenv
 from auth import auth_v1_bp
 from models import Role, User, Profile
 
+
+load_dotenv()
 
 db = MongoEngine()
 jwt = JWTManager()
