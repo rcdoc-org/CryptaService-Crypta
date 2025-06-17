@@ -1,5 +1,4 @@
-import os
-from flask import Flask, request
+import flask
 try:
     # older Flask
     from flask.json import JSONEncoder
@@ -10,6 +9,8 @@ except ImportError:
 # inject it so `from flask.json import JSONEncoder` works again
 flask.json.JSONEncoder = JSONEncoder
 
+import os
+from flask import Flask, request
 from flask_mongoengine import MongoEngine
 from flask_security import Security, MongoEngineUserDatastore
 from flask_jwt_extended import JWTManager
