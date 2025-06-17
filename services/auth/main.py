@@ -11,6 +11,7 @@ flask.json.JSONEncoder = JSONEncoder
 
 import os
 from flask import Flask, request
+from flask_cors import CORS
 from flask_mongoengine import MongoEngine
 from flask_security import Security, MongoEngineUserDatastore
 from flask_jwt_extended import JWTManager
@@ -56,6 +57,7 @@ def create_app():
     return app
 
 app = create_app()
+CORS(app, supports_credentials=True)
 
 if __name__ == "__main__":
     app.run(debug=True)
