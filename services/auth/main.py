@@ -25,9 +25,9 @@ def create_app():
         OAUTH_GOOGLE_CLIENT_SECRET=os.getenv("GOOGLE_SECRET"),
         OAUTH_MICROSOFT_CLIENT_ID=os.getenv("MS_ID"),
         OAUTH_MICROSOFT_CLIENT_SECRET=os.getenv("MS_SECRET"),
-        OAUTH_AZUREAD_CLIENT_ID=os.getenv("AAD_ID"),
-        OAUTH_AZUREAD_CLIENT_SECRET=os.getenv("AAD_SECRET"),
-        OAUTH_AZUREAD_TENANT=os.getenv("AAD_TENANT"),
+        OAUTH_AZUREAD_CLIENT_ID=os.getenv("AAD-NFP_ID"),
+        OAUTH_AZUREAD_CLIENT_SECRET=os.getenv("AAD-NFP_SECRET"),
+        OAUTH_AZUREAD_TENANT=os.getenv("AAD-NFP_TENANT"),
         
         # Plan to send emails later:
         # MAIL_SERVER=…,
