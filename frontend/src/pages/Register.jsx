@@ -29,7 +29,7 @@ const Register = () => {
     <Card className="login-card text-center rounded-4 shadow p-4">
       <img src={logo} alt="Company Logo" className="login-logo mb-4" />
       <h4 className="mb-4">Register</h4>
-      <form method="post" className="text-start">
+      <form method="post" onSubmit={handleSubmit} className="text-start">
         <div className="mb-3">
           <label htmlFor="email" className="form-label">Email</label>
           <input 
