@@ -1,5 +1,5 @@
 import React from 'react';
-import '../styles/changeLog.css';
+import '../styles/ChangeLog.css';
 import Card from '../components/Card';
 
 const ChangeLog = () => (
