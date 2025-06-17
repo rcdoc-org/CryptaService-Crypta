@@ -24,6 +24,9 @@ class User(Document, UserMixin):
     created_at = DateTimeField(default=lambda: datetime.now(timezone.utc))
     last_login = DateTimeField()
 
+    fs_uniquifier = UUIDField(binary=False, default=uuid.uuid4, unique=True)
+
+
     meta = {
       "indexes": [
           {"fields": ["email"], "unique": True},
