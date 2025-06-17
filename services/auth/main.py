@@ -16,7 +16,7 @@ def create_app():
         MONGODB_SETTINGS = { "host": os.getenv("MONGO_URI") },
 
         SECRET_KEY = os.getenv("SECURITY_KEY"),
-        JWT_SECRET_KEY = os.getenv('JWT_SECRET_KEY')
+        JWT_SECRET_KEY = os.getenv('JWT_SECRET_KEY'),
         SECURITY_REGISTERABLE = True,
         SECURITY_SEND_REGISTER_EMAIL = False,
         
