@@ -1,9 +1,9 @@
 import axios from 'axios';
-import { ACCESS_TOKEN } from './constants';
+import { ACCESS_TOKEN } from '../../constants';
 
 const api = axios.create({
-    baseURL: import.meta.env.GATEWAY_URL,
-})
+    baseURL: import.meta.env.VITE_GATEWAY_URL || 'http://host.minikube.internal:3000',
+});
 
 api.interceptors.request.use(
     (config) => {
@@ -16,7 +16,6 @@ api.interceptors.request.use(
     (error) => {
         return Promise.reject(error);
     }
-)
+);
 
 export default api;
-// Compare this snippet from Auth/frontend/src/constants.js:

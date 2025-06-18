@@ -17,6 +17,14 @@ def login():
         return token
     else:
         return err
+
+@server.route("/register", methods=["POST"])
+def register():
+    resp, err = access.register(request)
+    if not err:
+        return resp
+    else:
+        return err
     
 @server.route("/validate", methods=["POST"])
 def validate():

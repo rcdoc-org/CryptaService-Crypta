@@ -41,6 +41,18 @@ def login():
         return "bad credentials", 401
     return createJWT(auth.username, JWT_SECRET, user.roles, user.admin)
 
+@server.route("/api/v1/auth/register", methods=["POST"])
+def register():
+    data = request.get_json()
+    if not data or not data.get("email") or not data.get("password"):
+        return "missing credentials", 400
+    if User.objects(email=data["email"]).first():
+        return "user exists", 409
+    user = User(email=data["email"])
+    user.set_password(data["password"])
+    user.save()
+    return "", 201
+
 @server.route("/api/v1/auth/validate", methods=["POST"])
 def validate():
     encoded_jwt = request.headers["Authorization"]
