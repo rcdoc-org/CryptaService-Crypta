@@ -1,20 +1,20 @@
-# services/auth-api/Dockerfile
 FROM python:3.12-slim
 
-# Ensure output is shown immediately and no pycache
 ENV PYTHONUNBUFFERED=1
+
+RUN apt-get update && \
+    apt-get install -y pkg-config default-libmysqlclient-dev build-essential && \
+    rm -rf /var/lib/apt/lists/* && \
+    pip install --no-cache-dir --upgrade pip
 
 WORKDIR /app
 
-# Install dependencies
-COPY requirements.txt ./
-RUN pip install --no-cache-dir -r requirements.txt
+COPY ./requirements.txt /app/
 
-# Copy application code
-COPY . .
+RUN pip install --no-cache-dir -r /app/requirements.txt
 
-# Expose FastAPI port
+COPY . /app/
+
 EXPOSE 8002
 
-# Start the auth service
-CMD ["gunicorn", "main:app", "--bind", "0.0.0.0:8002"]
+CMD [ "python3", "server.py"]

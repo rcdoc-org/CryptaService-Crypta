@@ -16,7 +16,7 @@ from flask_mongoengine import MongoEngine
 from flask_security import Security, MongoEngineUserDatastore
 from flask_jwt_extended import JWTManager
 from dotenv import load_dotenv
-from auth import auth_v1_bp
+from crypta.services.auth.depr_auth import auth_v1_bp
 from models import Role, User, Profile
 
 

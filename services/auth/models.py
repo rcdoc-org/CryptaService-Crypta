@@ -24,6 +24,7 @@ class User(Document, UserMixin):
     roles      = ListField(ReferenceField(Role), default=[])
     created_at = DateTimeField(default=lambda: datetime.now(timezone.utc))
     last_login = DateTimeField()
+    is_admin = BooleanField(default=False)
 
     fs_uniquifier = UUIDField(binary=False, default=uuid.uuid4, unique=True)
 
