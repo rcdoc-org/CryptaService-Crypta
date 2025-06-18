@@ -49,6 +49,7 @@ def create_app():
         # MAIL_USERNAME=…,
         # MAIL_PASSWORD=…,
     )
+    CORS(app, resources={r"/api/*": {"origins": "*"}})
     
     db.init_app(app)
     jwt.init_app(app)
@@ -57,14 +58,6 @@ def create_app():
     return app
 
 app = create_app()
-
-# allow cross-origin requests from the front-end dev server
-frontend_origin = os.getenv("FRONTEND_ORIGIN", "http://localhost:3000")
-CORS(
-    app,
-    origins=[frontend_origin],
-    supports_credentials=True,
-)
 
 if __name__ == "__main__":
     app.run(debug=True)
