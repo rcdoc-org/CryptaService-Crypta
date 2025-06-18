@@ -57,7 +57,14 @@ def create_app():
     return app
 
 app = create_app()
-CORS(app, supports_credentials=True)
+
+# allow cross-origin requests from the front-end dev server
+frontend_origin = os.getenv("FRONTEND_ORIGIN", "http://localhost:5173")
+CORS(
+    app,
+    origins=[frontend_origin],
+    supports_credentials=True,
+)
 
 if __name__ == "__main__":
     app.run(debug=True)
