@@ -41,7 +41,7 @@ def login():
         return "bad credentials", 401
     return createJWT(auth.username, JWT_SECRET, user.roles, user.admin)
 
-@server.route("/validate", method=["POST"])
+@server.route("/api/v1/auth/validate", methods=["POST"])
 def validate():
     encoded_jwt = request.headers["Authorization"]
     
