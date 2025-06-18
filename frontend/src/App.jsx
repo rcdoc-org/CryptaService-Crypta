@@ -1,6 +1,7 @@
 import React from 'react';
 import { Routes, Route, BrowserRouter, Navigate } from 'react-router-dom';
 import Layout from './components/Layout';
+import ProtectedRoute from './components/ProtectedRoute';
 import Home from './pages/Home';
 import SearchResults from './pages/SearchResults';
 import Details from './pages/Details';
@@ -25,14 +26,17 @@ const App = () => {
             <Route path='/login' element={<Login />} />
             <Route path='/register' element={<Register />} />
 
-            <Route element={<Layout />}>
-                <Route path='/' element={<Home />} />
-                <Route path='/database' element={<Database />} />
-                <Route path='/search' element={<SearchResults />} />
-                <Route path='/details/:base/:id' element={<Details />} />
-                <Route path='/change-log' element={<ChangeLog />} />
-                <Route path='*' element={<NotFound />} />
+            <Route element={<ProtectedRoute />}>
+                <Route element={<Layout />}>
+                    <Route path='/' element={<Home />} />
+                    <Route path='/database' element={<Database />} />
+                    <Route path='/search' element={<SearchResults />} />
+                    <Route path='/details/:base/:id' element={<Details />} />
+                    <Route path='/change-log' element={<ChangeLog />} />
+                    <Route path='*' element={<NotFound />} />
+                </Route>
             </Route>
+            
         </Routes>
     </BrowserRouter>
     )
