@@ -21,3 +21,13 @@ def login():
 @server.route("/validate", methods=["POST"])
 def validate():
     access, err = validate.token(request)
+    
+    if not err:
+        return access
+    else:
+        return err
+
+if __name__ == "__main__":
+    server.run(host="0.0.0.0", port=3000)
+
+
