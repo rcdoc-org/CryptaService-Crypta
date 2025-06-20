@@ -9,6 +9,7 @@ init.sql
 tmp
 .DS_Store
 *.env
+media
 # Logs
 logs
 *.log

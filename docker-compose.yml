@@ -22,7 +22,6 @@ services:
 
   auth-api:
     build: ./services/auth
-    command: python3 manage.py runserver 0.0.0.0:8002
     ports:
       - "8002:8002"
     env_file:
@@ -30,7 +29,6 @@ services:
 
   gateway:
     build: ./services/gateway
-    command: uvicorn server:server --host 0.0.0.0 --port 3000
     ports:
       - "3000:3000"
     env_file:
