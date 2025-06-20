@@ -28,8 +28,8 @@ const Login = () => {
       const { data } = await login(email, password);
       localStorage.setItem(ACCESS_TOKEN, data);
       window.location.href = '/';
-    } catch {
-      setError('Invalid Credentials');
+    } catch (err) {
+      setError(`Invalid Credentials: ${err}`);
     }
   };
 
