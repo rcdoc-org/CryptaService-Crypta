@@ -1,7 +1,12 @@
 import axios from 'axios';
 
 const authApi = axios.create({
-    baseURL: import.meta.env.VITE_GATEWAY_URL || 'http://host.minikube.internal:3000',
+    // Allow overriding the API gateway URL via environment variable. Fall back
+    // to localhost when running the services locally so that registration and
+    // login work without a Kubernetes setup.
+    baseURL:
+        import.meta.env.VITE_GATEWAY_URL ||
+        'http://localhost:3000',
     headers: { 'Content-Type': 'application/json' },
 });
 
