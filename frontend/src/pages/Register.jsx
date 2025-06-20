@@ -19,8 +19,8 @@ const Register = () => {
     try {
       await register({ email, password });
       window.location.href = '/login';
-    } catch {
-      setError('Unable to register');
+    } catch (err) {
+      setError(`Unable to register${err}`);
     }
   };
 
