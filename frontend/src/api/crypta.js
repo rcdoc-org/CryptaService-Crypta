@@ -1,7 +1,11 @@
 import axios from 'axios';
 
 const apiClient = axios.create({
-    baseURL: import.meta.env.VITE_GATEWAY_URL || 'http://host.minikube.internal:3000',
+    // Allow the gateway URL to be configured via environment variable. Fall
+    // back to localhost for local development environments.
+    baseURL:
+        import.meta.env.VITE_GATEWAY_URL ||
+        'http://localhost:3000',
     headers: { 'Content-Type': 'application/json' },
 });
 

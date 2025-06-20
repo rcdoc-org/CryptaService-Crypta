@@ -2,7 +2,12 @@ import axios from 'axios';
 import { ACCESS_TOKEN } from '../../constants';
 
 const api = axios.create({
-    baseURL: import.meta.env.VITE_GATEWAY_URL || 'http://host.minikube.internal:3000',
+    // Use the API gateway URL from the environment when provided. Default to
+    // localhost so the frontend works during local development without
+    // Kubernetes/minikube.
+    baseURL:
+        import.meta.env.VITE_GATEWAY_URL ||
+        'http://localhost:3000',
 });
 
 api.interceptors.request.use(
