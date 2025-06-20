@@ -6,12 +6,12 @@ from models import User
 
 load_dotenv()
 
-server = Flask(__name__)
-mongodb = MongoEngine(server)
+app = Flask(__name__)
+mongodb = MongoEngine(app)
 
 JWT_SECRET = os.environ.get("JWT_SECRET_KEY")
 
-server.config["MONGODB_SETTINGS"] = os.environ.get('MONGO_URI')
+app.config["MONGODB_SETTINGS"] = os.environ.get('MONGO_URI')
 
 def createJWT(username: str, secret: str, roles: dict, admin: bool):
     return jwt.encode(
@@ -74,4 +74,4 @@ def validate():
     return decoded, 200
 
 if __name__ == "__main__":
-    server.run(host="0.0.0.0",port=8002)
+    app.run(host="0.0.0.0",port=8002)
