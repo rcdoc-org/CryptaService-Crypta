@@ -27,7 +27,7 @@ def createJWT(username: str, secret: str, roles: dict, admin: bool):
         algorithm="HS256"
     )
 
-@server.route("/api/v1/auth/login", methods=["POST"])
+@app.route("/api/v1/auth/login", methods=["POST"])
 def login():
     auth = request.authorization
     if not auth:
@@ -41,7 +41,7 @@ def login():
         return "bad credentials", 401
     return createJWT(auth.username, JWT_SECRET, user.roles, user.admin)
 
-@server.route("/api/v1/auth/register", methods=["POST"])
+@app.route("/api/v1/auth/register", methods=["POST"])
 def register():
     data = request.get_json()
     if not data or not data.get("email") or not data.get("password"):
@@ -53,7 +53,7 @@ def register():
     user.save()
     return "", 201
 
-@server.route("/api/v1/auth/validate", methods=["POST"])
+@app.route("/api/v1/auth/validate", methods=["POST"])
 def validate():
     encoded_jwt = request.headers["Authorization"]
     
