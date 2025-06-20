@@ -1,11 +1,14 @@
 import axios from 'axios';
 
+// Determine the gateway URL from the current host, falling back to an
+// environment variable if provided.  This keeps API calls working when the UI
+// is accessed via a remote IP.
+const gatewayUrl =
+    import.meta.env.VITE_GATEWAY_URL ||
+    `${window.location.protocol}//${window.location.hostname}:3000`;
+
 const apiClient = axios.create({
-    // Allow the gateway URL to be configured via environment variable. Fall
-    // back to localhost for local development environments.
-    baseURL:
-        import.meta.env.VITE_GATEWAY_URL ||
-        'http://localhost:3000',
+    baseURL: gatewayUrl,
     headers: { 'Content-Type': 'application/json' },
 });
 
