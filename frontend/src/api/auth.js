@@ -1,12 +1,14 @@
 import axios from 'axios';
 
+// Derive the gateway URL dynamically so the frontend works whether it is served
+// locally or from another host.  An environment variable can still override
+// this when needed.
+const gatewayUrl =
+    import.meta.env.VITE_GATEWAY_URL ||
+    `${window.location.protocol}//${window.location.hostname}:3000`;
+
 const authApi = axios.create({
-    // Allow overriding the API gateway URL via environment variable. Fall back
-    // to localhost when running the services locally so that registration and
-    // login work without a Kubernetes setup.
-    baseURL:
-        import.meta.env.VITE_GATEWAY_URL ||
-        'http://localhost:3000',
+    baseURL: gatewayUrl,
     headers: { 'Content-Type': 'application/json' },
 });
 

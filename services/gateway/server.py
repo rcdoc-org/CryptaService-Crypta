@@ -1,11 +1,19 @@
-import os, json
+import os
+import json
 from flask import Flask, request
 from flask_pymongo import PyMongo
+from flask_cors import CORS
 from auth import validate
 from auth_svc import access
 
 server = Flask(__name__)
 server.config["MONGO_URI"] = "mongodb://host.minikube.internal:27017/docs"
+
+# Enable Cross-Origin Resource Sharing so the frontend can call the gateway from
+# different origins (e.g. when the UI is served from a separate container or
+# host).  "supports_credentials" allows cookies/authorization headers to be
+# passed through when present.
+CORS(server, supports_credentials=True)
 
 mongo = PyMongo(server)
 

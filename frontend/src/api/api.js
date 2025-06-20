@@ -1,13 +1,15 @@
 import axios from 'axios';
 import { ACCESS_TOKEN } from '../../constants';
 
+// Compute the gateway URL based on the current page host so the frontend works
+// when accessed remotely.  This can be overridden with the VITE_GATEWAY_URL
+// environment variable for special cases.
+const gatewayUrl =
+    import.meta.env.VITE_GATEWAY_URL ||
+    `${window.location.protocol}//${window.location.hostname}:3000`;
+
 const api = axios.create({
-    // Use the API gateway URL from the environment when provided. Default to
-    // localhost so the frontend works during local development without
-    // Kubernetes/minikube.
-    baseURL:
-        import.meta.env.VITE_GATEWAY_URL ||
-        'http://localhost:3000',
+    baseURL: gatewayUrl,
 });
 
 api.interceptors.request.use(
