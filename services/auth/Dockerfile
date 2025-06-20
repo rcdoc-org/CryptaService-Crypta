@@ -17,4 +17,4 @@ COPY . /app/
 
 EXPOSE 8002
 
-CMD [ "python3", "server.py"]
+CMD [ "uvicorn", "auth.server:app", "--host", "0.0.0.0", "--port", "8002"]
