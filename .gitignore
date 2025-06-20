@@ -9,7 +9,6 @@ init.sql
 tmp
 .DS_Store
 *.env
-docker-compose.yml
 # Logs
 logs
 *.log
