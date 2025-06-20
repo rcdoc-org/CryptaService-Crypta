@@ -12,4 +12,4 @@ COPY . /app
 
 EXPOSE 3000
 
-CMD ["python3", "server.py"]
+CMD ["uvicorn", "gateway.server:app", "--host", "0.0.0.0", "--port", "3000"]
