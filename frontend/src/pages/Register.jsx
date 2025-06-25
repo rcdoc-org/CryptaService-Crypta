@@ -12,12 +12,14 @@ const Register = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    
     if (password !== confirm) {
       setError('Passwords do not match');
       return;
     }
     try {
-      await register({ email, password });
+      let username = email
+      await register({ username, email, password });
       window.location.href = '/login';
     } catch (err) {
       setError(`Unable to register${err}`);
