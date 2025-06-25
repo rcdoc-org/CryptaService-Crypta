@@ -4,6 +4,8 @@ from unittest.mock import patch, MagicMock
 from django.urls import reverse
 from rest_framework.test import APITestCase
 
+REGISTER_URL = os.getenv('AUTH_REGISTER_URL', 'http://localhost:8002/api/v1/user/register/')
+
 class RegisterViewTests(APITestCase):
     """Used for testing registration of users."""
     @patch('api.views.requests.post')
@@ -23,7 +25,12 @@ class RegisterViewTests(APITestCase):
         response = self.client.post(url, data)
 
         self.assertEqual(response.status_code, 201)
-        mock_post.assert_called_once_with(
-            os.getenv('AUTH_REGISTER_URL', 'http://localhost:8002/api/v1/user/register/'),
-            data=data,
-        )
+        # mock_post.assert_called_once_with(
+        #     REGISTER_URL,
+        #     data=data,
+        # )
+        mock_post.assert_called_once()
+        args, kwargs = mock_post.call_args
+        self.assertEqual(args[0], REGISTER_URL)
+        flat_data = {k: v[0] if isinstance(v, list) else v for k, v in kwargs['data'].items()}
+        self.assertEqual(flat_data, data)

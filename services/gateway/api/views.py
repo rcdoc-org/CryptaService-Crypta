@@ -20,7 +20,7 @@ class CreateUserView_v1(APIView):
         try:
             logger.debug('Forwarding data to auth service at %s', AUTH_REGISTER_URL)
             logger.debug('data: %s', request.data)
-            resp = requests.post(AUTH_REGISTER_URL, data=request.data.dict())
+            resp = requests.post(AUTH_REGISTER_URL, data=request.data)
             logger.info('Auth service returned status %s', resp.status_code)
             content_type = resp.headers.get('Content-Type', '')
             data = resp.json() if content_type.startswith('application/json') else resp.text
