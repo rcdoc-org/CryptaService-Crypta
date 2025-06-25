@@ -6,7 +6,7 @@ import { ACCESS_TOKEN } from '../../constants';
 // environment variable for special cases.
 const gatewayUrl =
     import.meta.env.VITE_GATEWAY_URL ||
-    `${window.location.protocol}//${window.location.hostname}:3000`;
+    'http://localhost:3000';
 
 const api = axios.create({
     baseURL: gatewayUrl,

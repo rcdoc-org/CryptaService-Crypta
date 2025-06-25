@@ -5,7 +5,7 @@ import axios from 'axios';
 // is accessed via a remote IP.
 const gatewayUrl =
     import.meta.env.VITE_GATEWAY_URL ||
-    `${window.location.protocol}//${window.location.hostname}:3000`;
+    'http://localhost:3000';
 
 const apiClient = axios.create({
     baseURL: gatewayUrl,
