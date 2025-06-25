@@ -1,9 +1,9 @@
 import os
 import requests
 import logging
-import rest_framework.views import APIView
-import rest_framework.response import Response
-import rest_framework import status, permissions
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import status, permissions
 
 logger = logging.getLogger('api')
 
