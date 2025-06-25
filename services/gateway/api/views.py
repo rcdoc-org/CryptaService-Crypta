@@ -19,6 +19,7 @@ class CreateUserView_v1(APIView):
         logger.debug('Recieved registration request')
         try:
             logger.debug('Forwarding data to auth service at %s', AUTH_REGISTER_URL)
+            logger.debug('data: %s', request.data)
             resp = requests.post(AUTH_REGISTER_URL, data=request.data.dict())
             logger.info('Auth service returned status %s', resp.status_code)
             content_type = resp.headers.get('Content-Type', '')

@@ -15,7 +15,7 @@ class RegisterViewTests(APITestCase):
         mock_post.return_value = mock_response
 
         data = {
-            'username': 'testuser',
+            'username': 'user@example.com',
             'password': 'pass',
             'email': 'user@example.com'
         }
