@@ -3,7 +3,7 @@ import '../styles/Login.css';
 import Card from '../components/Card';
 import logo from '../assets/images/logo.png';
 import { login } from '../api/auth';
-import { ACCESS_TOKEN } from '../../constants';
+import { ACCESS_TOKEN, REFRESH_TOKEN } from '../../constants';
 
 const Login = () => {
   const [email, setEmail] = useState('');
@@ -25,9 +25,9 @@ const Login = () => {
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
-      let username = email
-      const { data } = await login(username, email, password);
-      localStorage.setItem(ACCESS_TOKEN, data);
+      const { data } = await login({ username: email, password });
+      localStorage.setItem(ACCESS_TOKEN, data.access);
+      localStorage.setItem(REFRESH_TOKEN, data.refresh);
       window.location.href = '/';
     } catch (err) {
       setError(`Invalid Credentials: ${err}`);

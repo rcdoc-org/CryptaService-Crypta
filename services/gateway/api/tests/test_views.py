@@ -34,7 +34,7 @@ class RegisterViewTests(APITestCase):
         mock_post.assert_called_once()
         args, kwargs = mock_post.call_args
         self.assertEqual(args[0], REGISTER_URL)
-        flat_data = {k: v[0] if isinstance(v, list) else v for k, v in kwargs['data'].items()}
+        flat_data = kwargs['json']
         self.assertEqual(flat_data, data)
 
 class LoginViewTests(APITestCase):
@@ -59,7 +59,7 @@ class LoginViewTests(APITestCase):
         mock_post.assert_called_once()
         args, kwargs = mock_post.call_args
         self.assertEqual(args[0], LOGIN_URL)
-        flat_data = {k: v[0] if isinstance(v, list) else v for k, v in kwargs['data'].items()}
+        flat_data = kwargs['json']
         self.assertEqual(flat_data, data)
 
 
@@ -82,5 +82,5 @@ class TokenRefreshViewTests(APITestCase):
         mock_post.assert_called_once()
         args, kwargs = mock_post.call_args
         self.assertEqual(args[0], REFRESH_URL)
-        flat_data = {k: v[0] if isinstance(v, list) else v for k, v in kwargs['data'].items()}
+        flat_data = kwargs['json']
         self.assertEqual(flat_data, data)
