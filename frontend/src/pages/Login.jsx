@@ -25,7 +25,8 @@ const Login = () => {
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
-      const { data } = await login(email, password);
+      let username = email
+      const { data } = await login(username, email, password);
       localStorage.setItem(ACCESS_TOKEN, data);
       window.location.href = '/';
     } catch (err) {
