@@ -7,7 +7,7 @@ from rest_framework import status, permissions
 
 logger = logging.getLogger('api')
 
-AUTH_REGISTER_URL = os.getenv('AUTH_REGISTER_URL', 'http://localhost:8002/api/v1/user/register')
+AUTH_REGISTER_URL = os.getenv('AUTH_REGISTER_URL', 'http://localhost:8002/api/v1/user/register/')
 
 # Create your views here.
 class CreateUserView_v1(APIView):
