@@ -21,6 +21,11 @@ const Header = () => {
       return () => document.removeEventListener("click", handleClickOutside);
     }, [menuOpen])
 
+    const handleLogout = () => {
+      localStorage.clear();
+      navigate('/login');
+    };
+
     return (
     <header className="custom-header fixed-top w-100 shadow-sm">
       <div className="container-fluid">
@@ -140,7 +145,9 @@ const Header = () => {
                 </li>
                 <li><hr className="dropdown-divider"/></li>
                 <li>
-                  <Link className="dropdown-item" to="/logout">Log Out</Link>
+                  <button className="dropdown-item" onClick={handleLogout}>
+                    Log Out 
+                  </button>
                 </li>
               </ul>
             </div>
