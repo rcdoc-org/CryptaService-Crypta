@@ -10,6 +10,7 @@ tmp
 .DS_Store
 *.env
 media
+db.sqlite3
 # Logs
 *.log
 npm-debug.log*
