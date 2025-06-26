@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import '../styles/Login.css';
 import Card from '../components/Card';
 import logo from '../assets/images/logo.png';
-import { register, oauthLogin } from '../api/auth';
+import { register } from '../api/auth';
 
 const Register = () => {
   const [email, setEmail] = useState('');
@@ -69,13 +69,6 @@ const Register = () => {
           </div>
           {error && <div className="text-danger mb-2">{error}</div>}
           <button type="submit" className="btn btn-primary w-100 btn-login mb-3">Register</button>
-          <div className="text-center my-3">—or sign up with—</div>
-          <button type="button" className="btn btn-light w-100 mb-2 oauth-btn oauth-google" onClick={() => oauthLogin('google')}>
-            <img src="/assets/images/google-logo.png" alt="Google Logo" className="oauth-logo me-2" />Google
-          </button>
-          <button type="button" className="btn btn-light w-100 oauth-btn oauth-microsoft" onClick={() => oauthLogin('microsoft')}>
-            <img src="/assets/images/microsoft-logo.png" alt="Microsoft Logo" className="oauth-logo me-2" />
-          </button>
           <button
             type="button"
             className="btn btn-primary w-100 btn-login mt-3"
