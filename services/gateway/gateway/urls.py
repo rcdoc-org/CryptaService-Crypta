@@ -21,6 +21,8 @@ from api.views import CreateUserView_v1, LoginView_v1, TokenRefreshView_v1
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('users/register/', CreateUserView_v1.as_view(), name='register'),
+    path('api/v1/users/register/', CreateUserView_v1.as_view(), name='register'),
     path('users/login/', LoginView_v1.as_view(), name='login'),
+    path('api/v1/tokens/retrieve/', LoginView_v1.as_view(), name='get_token'),
     path('tokens/refresh/', TokenRefreshView_v1.as_view(), name='token_refresh')
 ]
