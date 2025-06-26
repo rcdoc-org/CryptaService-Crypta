@@ -45,6 +45,30 @@ const columnsMap = {
     { title: 'User', field: 'user' },
     { title: 'Type', field: 'type' },
     { title: 'Revoked', field: 'revoked' }
+  ],
+  organization: [
+    { title: 'ID', field: 'id' },
+    { title: 'Name', field: 'name' },
+    { title: 'Location Reference', field:'ref_location' }
+  ],
+  login_attempts: [
+    { title: 'ID', field: 'id' },
+    { title: 'Email', field: 'email' },
+    { title: 'Time', field: 'time' },
+    { title: 'Successful', field: 'successful' },
+    { title: 'IP Address', field: 'ip_address' }
+  ],
+  cryptaGroup: [
+    { title: 'ID', field: 'id' },
+    { title: 'Name', field: 'name'}
+  ],
+  queryPermission: [
+    { title: 'ID', field: 'id' },
+    { title: 'Group Name', field: 'group__name' },
+    { title: 'Resource Type', field: 'resource_type' },
+    { title: 'Access Type', field: 'access_type' },
+    { title: 'View Limit', field: 'view_limits' },
+    { title: "Filter Conditions", field: 'filter_conditions' }
   ]
 };
 
