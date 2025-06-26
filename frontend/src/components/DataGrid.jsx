@@ -1,10 +1,16 @@
 import React, { useMemo } from 'react';
 import { AgGridReact } from 'ag-grid-react';
+import { ModuleRegistry } from 'ag-grid-community';
+import { AllCommunityModule } from 'ag-grid-community';
 import 'ag-grid-community/styles/ag-grid.css';
 import 'ag-grid-community/styles/ag-theme-alpine.css';
 
+// Register all community modules
+ModuleRegistry.registerModules([AllCommunityModule]);
+
 const DataGrid = ({ columns, data, options = {} }) => {
   // turn your column defs into AG-Grid’s format
+  console.log('Data: ', data);
   const columnDefs = useMemo(() =>
     columns.map(col => ({
       headerName: col.title,
