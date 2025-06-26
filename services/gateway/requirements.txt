@@ -1,11 +1,14 @@
 asgiref==3.8.1
 astroid==3.3.10
+certifi==2025.6.15
+charset-normalizer==3.4.2
 dill==0.4.0
 Django==5.2
 django-cors-headers==4.7.0
 djangorestframework==3.16.0
 djangorestframework_simplejwt==5.5.0
 dotenv==0.9.9
+idna==3.10
 isort==6.0.1
 logging==0.4.9.6
 mccabe==0.7.0
@@ -15,5 +18,7 @@ PyJWT==2.9.0
 pylint==3.3.7
 python-dotenv==1.1.0
 pytz==2025.2
+requests==2.32.4
 sqlparse==0.5.3
 tomlkit==0.13.3
+urllib3==2.5.0
