@@ -190,8 +190,6 @@ STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# Use the custom user model from the API App
-AUTH_USER_MODEL = 'api.User'
 
 # CORS settings
 # https://pypi.org/project/django-cors-headers/
