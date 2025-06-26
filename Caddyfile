@@ -1,0 +1,7 @@
+crypta.rcdoc.org {
+  reverse_proxy frontend:80
+}
+
+api.rcdoc.com {
+  reverse_proxy gateway:3000
+}

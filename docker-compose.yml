@@ -1,17 +1,5 @@
 version: "3.8"
 services:
-  #  nginx:
-  # image: nginx:stable
-  # volumes:
-  #   - ./deploy/nginx.conf:/etc/nginx/nginx.conf:ro
-  #   - ./frontend/build:/usr/share/nginx/html:ro
-  # ports:
-  #   - "443:443"
-  # depends_on:
-  #   - frontend
-  #   - auth-api
-  #   - gateway
-
   frontend:
     build: ./frontend
     command: yarn dev         # or `npm start` for hot‐reload
@@ -33,3 +21,20 @@ services:
       - "3000:3000"
     env_file:
       - ./services/gateway/.env
+
+  caddy:
+    image: caddy:alpine
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      - frontend
+      - gateway
+
+volumes:
+  caddy_data:
+  caddy_config:
