@@ -1,8 +1,17 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import '../styles/AuthAdmin.css';
 import AsidePanel from '../components/AsidePanel';
 import Card from '../components/Card';
 import DataGrid from '../components/DataGrid';
+import {
+  fetchUsers,
+  fetchRoles,
+  fetchTokens,
+  fetchOrganizations,
+  fetchLoginAttempts,
+  fetchCryptaGroups,
+  fetchQueryPermissions,
+} from '../api/auth';
 
 const menuItems = [
   { key: 'users', label: 'Users' },
@@ -13,21 +22,6 @@ const menuItems = [
   { key: 'cryptaGroup', label: 'Crypta Groups' },
   { key: 'queryPermission', label: 'Query Controls' }
 ];
-
-const dummyData = {
-  users: [
-    { id: 1, username: 'admin', email: 'admin@example.com' },
-    { id: 2, username: 'jdoe', email: 'jdoe@example.com' }
-  ],
-  roles: [
-    { id: 1, name: 'Administrator' },
-    { id: 2, name: 'Viewer' }
-  ],
-  tokens: [
-    { id: 1, user: 'admin', type: 'access', revoked: false },
-    { id: 2, user: 'jdoe', type: 'refresh', revoked: true }
-  ]
-};
 
 const columnsMap = {
   users: [
@@ -72,11 +66,30 @@ const columnsMap = {
   ]
 };
 
+const fetchMap = {
+  users: fetchUsers,
+  roles: fetchRoles,
+  tokens: fetchTokens,
+  organization: fetchOrganizations,
+  login_attempts: fetchLoginAttempts,
+  cryptaGroup: fetchCryptaGroups,
+  queryPermission: fetchQueryPermissions,
+};
+
 const AuthAdmin = () => {
   const [active, setActive] = useState('users');
+  const [rows, setRows] = useState([]);
 
   const columns = columnsMap[active];
-  const rows = dummyData[active];
+
+  useEffect (() => {
+    const fetchFn = fetchMap[active];
+    if (fetchFn) {
+      fetchFn()
+        .then(res => setRows(res.data))
+        .catch(() => setRows([]));
+    }
+  }, [active]);
 
   return (
     <div className="container-fluid auth-admin-page">

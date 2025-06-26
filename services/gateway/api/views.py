@@ -10,6 +10,13 @@ logger = logging.getLogger('api')
 AUTH_REGISTER_URL = os.getenv('AUTH_REGISTER_URL', 'http://localhost:8002/api/v1/users/register/')
 AUTH_LOGIN_URL = os.getenv('AUTH_LOGIN_URL', 'http://localhost:8002/api/v1/tokens/retrieve/')
 AUTH_REFRESH_URL = os.getenv('AUTH_REFRESH_URL', 'http://localhost:8002/api/v1/tokens/refresh/')
+AUTH_USERS_URL = os.getenv('AUTH_USERS_URL', 'http://localhost:8002/api/v1/users/')
+AUTH_ROLES_URL = os.getenv('AUTH_ROLES_URL', 'http://localhost:8002/api/v1/roles/')
+AUTH_TOKENS_URL = os.getenv('AUTH_TOKENS_URL', 'http://localhost:8002/api/v1/tokens/')
+AUTH_ORGS_URL = os.getenv('AUTH_ORGS_URL', 'http://localhost:8002/api/v1/organizations/')
+AUTH_ATTEMPTS_URL = os.getenv('AUTH_ATTEMPTS_URL', 'http://localhost:8002/api/v1/login_attempts/')
+AUTH_GROUPS_URL = os.getenv('AUTH_GROUPS_URL', 'http://localhost:8002/api/v1/crypta_groups/')
+AUTH_PERMS_URL = os.getenv('AUTH_PERMS_URL', 'http://localhost:8002/api/v1/query_permissions/')
 
 # Create your views here.
 class CreateUserView_v1(APIView):
@@ -80,3 +87,93 @@ class TokenRefreshView_v1(APIView):
                 {'detail': 'Authentication service unavailable'},
                 status=status.HTTP_503_SERVICE_UNAVAILABLE
                 )
+
+class UsersView_v1(APIView):
+    permission_classes = [permissions.AllowAny]
+
+    def get(self, request, *args, **kwargs):
+        try:
+            resp = requests.get(AUTH_USERS_URL)
+            data = resp.json()
+            return Response(data, status=resp.status_code)
+        except requests.RequestException as exc:
+            logger.error('Failed to contact auth service: %s', exc, exc_info=True)
+            return Response({'detail': 'Authentication service unavailable'}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
+
+
+class RolesView_v1(APIView):
+    permission_classes = [permissions.AllowAny]
+
+    def get(self, request, *args, **kwargs):
+        try:
+            resp = requests.get(AUTH_ROLES_URL)
+            data = resp.json()
+            return Response(data, status=resp.status_code)
+        except requests.RequestException as exc:
+            logger.error('Failed to contact auth service: %s', exc, exc_info=True)
+            return Response({'detail': 'Authentication service unavailable'}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
+
+
+class TokensView_v1(APIView):
+    permission_classes = [permissions.AllowAny]
+
+    def get(self, request, *args, **kwargs):
+        try:
+            resp = requests.get(AUTH_TOKENS_URL)
+            data = resp.json()
+            return Response(data, status=resp.status_code)
+        except requests.RequestException as exc:
+            logger.error('Failed to contact auth service: %s', exc, exc_info=True)
+            return Response({'detail': 'Authentication service unavailable'}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
+
+
+class OrganizationsView_v1(APIView):
+    permission_classes = [permissions.AllowAny]
+
+    def get(self, request, *args, **kwargs):
+        try:
+            resp = requests.get(AUTH_ORGS_URL)
+            data = resp.json()
+            return Response(data, status=resp.status_code)
+        except requests.RequestException as exc:
+            logger.error('Failed to contact auth service: %s', exc, exc_info=True)
+            return Response({'detail': 'Authentication service unavailable'}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
+
+
+class LoginAttemptsView_v1(APIView):
+    permission_classes = [permissions.AllowAny]
+
+    def get(self, request, *args, **kwargs):
+        try:
+            resp = requests.get(AUTH_ATTEMPTS_URL)
+            data = resp.json()
+            return Response(data, status=resp.status_code)
+        except requests.RequestException as exc:
+            logger.error('Failed to contact auth service: %s', exc, exc_info=True)
+            return Response({'detail': 'Authentication service unavailable'}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
+
+
+class CryptaGroupsView_v1(APIView):
+    permission_classes = [permissions.AllowAny]
+
+    def get(self, request, *args, **kwargs):
+        try:
+            resp = requests.get(AUTH_GROUPS_URL)
+            data = resp.json()
+            return Response(data, status=resp.status_code)
+        except requests.RequestException as exc:
+            logger.error('Failed to contact auth service: %s', exc, exc_info=True)
+            return Response({'detail': 'Authentication service unavailable'}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
+
+
+class QueryPermissionsView_v1(APIView):
+    permission_classes = [permissions.AllowAny]
+
+    def get(self, request, *args, **kwargs):
+        try:
+            resp = requests.get(AUTH_PERMS_URL)
+            data = resp.json()
+            return Response(data, status=resp.status_code)
+        except requests.RequestException as exc:
+            logger.error('Failed to contact auth service: %s', exc, exc_info=True)
+            return Response({'detail': 'Authentication service unavailable'}, status=status.HTTP_503_SERVICE_UNAVAILABLE)

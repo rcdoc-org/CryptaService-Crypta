@@ -16,12 +16,28 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
-from api.views import CreateUserView
+from api.views import (
+    CreateUserView,
+    UserListView,
+    RoleListView,
+    TokenListView,
+    OrganizationListView,
+    LoginAttemptListView,
+    CryptaGroupListView,
+    QueryPermissionListView,
+)
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/v1/users/register/', CreateUserView.as_view(), name='register'),
+    path('api/v1/users/', UserListView.as_view(), name='user-list'),
+    path('api/v1/roles/', RoleListView.as_view(), name='role-list'),
+    path('api/v1/tokens/', TokenListView.as_view(), name='token-list'),
+    path('api/v1/organizations/', OrganizationListView.as_view(), name='organization-list'),
+    path('api/v1/login_attempts/', LoginAttemptListView.as_view(), name='login-attempt-list'),
+    path('api/v1/crypta_groups/', CryptaGroupListView.as_view(), name='crypta-group-list'),
+    path('api/v1/query_permissions/', QueryPermissionListView.as_view(), name='query-permission-list'),
     path('api/v1/tokens/retrieve/', TokenObtainPairView.as_view(), name='get_token'),
     path('api/v1/tokens/refresh/', TokenRefreshView.as_view(), name='refresh_token'),
     path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),

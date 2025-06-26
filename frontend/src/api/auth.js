@@ -12,7 +12,17 @@ const authApi = axios.create({
     headers: { 'Content-Type': 'application/json' },
 });
 
-export const register = (data) => authApi.post('users/register/', data);
-export const login = (data) => authApi.post('users/login/', data);
+// Login functions
+export const register = (data) => authApi.post('/users/register/', data);
+export const login = (data) => authApi.post('/users/login/', data);
+
+// User Management functions
+export const fetchUsers = () => authApi.get('/users/');
+export const fetchRoles = () => authApi.get('/roles/');
+export const fetchTokens = () => authApi.get('/tokens/');
+export const fetchOrganizations = () => authApi.get('/organizations/');
+export const fetchLoginAttempts = () => authApi.get('/login_attempts/');
+export const fetchCryptaGroups = () => authApi.get('/crypta_groups/');
+export const fetchQueryPermissions = () => authApi.get('/query_permissions/');
 
 export default authApi;

@@ -16,11 +16,29 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
-from api.views import CreateUserView_v1, LoginView_v1, TokenRefreshView_v1
+from api.views import (
+    CreateUserView_v1,
+    LoginView_v1,
+    TokenRefreshView_v1,
+    UsersView_v1,
+    RolesView_v1,
+    TokensView_v1,
+    OrganizationsView_v1,
+    LoginAttemptsView_v1,
+    CryptaGroupsView_v1,
+    QueryPermissionsView_v1,
+)
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('users/register/', CreateUserView_v1.as_view(), name='register'),
+    path('users/', UsersView_v1.as_view(), name='users'),
+    path('roles/', RolesView_v1.as_view(), name='roles'),
+    path('tokens/', TokensView_v1.as_view(), name='tokens'),
+    path('organizations/', OrganizationsView_v1.as_view(), name='organizations'),
+    path('login_attempts/', LoginAttemptsView_v1.as_view(), name='login_attempts'),
+    path('crypta_groups/', CryptaGroupsView_v1.as_view(), name='crypta_groups'),
+    path('query_permissions/', QueryPermissionsView_v1.as_view(), name='query_permissions'),
     path('api/v1/users/register/', CreateUserView_v1.as_view(), name='register'),
     path('users/login/', LoginView_v1.as_view(), name='login'),
     path('api/v1/tokens/retrieve/', LoginView_v1.as_view(), name='get_token'),
