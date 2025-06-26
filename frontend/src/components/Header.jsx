@@ -60,6 +60,9 @@ const Header = () => {
                   <Link className="nav-link" to="/change-log">Change Log</Link>
                 </li>
                 <li className="nav-item">
+                  <Link className="nav-link" to="/auth-admin">User Admin</Link>
+                </li>
+                <li className="nav-item">
                   <a 
                     className="nav-link" 
                     href="https://nimbus.rcdoc.org/" 
