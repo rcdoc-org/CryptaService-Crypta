@@ -92,8 +92,11 @@ class UsersView_v1(APIView):
     permission_classes = [permissions.AllowAny]
 
     def get(self, request, *args, **kwargs):
+        logger.debug('Received users request')
         try:
+            logger.debug('Requesting %s', AUTH_USERS_URL)
             resp = requests.get(AUTH_USERS_URL)
+            logger.info('Auth Service returned status %s', resp.status_code)
             data = resp.json()
             return Response(data, status=resp.status_code)
         except requests.RequestException as exc:
@@ -105,8 +108,11 @@ class RolesView_v1(APIView):
     permission_classes = [permissions.AllowAny]
 
     def get(self, request, *args, **kwargs):
+        logger.debug('Received roles request')
         try:
+            logger.debug('Requesting %s', AUTH_ROLES_URL)
             resp = requests.get(AUTH_ROLES_URL)
+            logger.info('Auth Service returned status %s', resp.status_code)
             data = resp.json()
             return Response(data, status=resp.status_code)
         except requests.RequestException as exc:
@@ -118,8 +124,11 @@ class TokensView_v1(APIView):
     permission_classes = [permissions.AllowAny]
 
     def get(self, request, *args, **kwargs):
+        logger.debug('Received tokens request')
         try:
+            logger.debug('Requesting %s', AUTH_TOKENS_URL)
             resp = requests.get(AUTH_TOKENS_URL)
+            logger.info('Auth Service returned status %s', resp.status_code)
             data = resp.json()
             return Response(data, status=resp.status_code)
         except requests.RequestException as exc:
@@ -131,8 +140,11 @@ class OrganizationsView_v1(APIView):
     permission_classes = [permissions.AllowAny]
 
     def get(self, request, *args, **kwargs):
+        logger.debug('Received organizations request')
         try:
+            logger.debug('Requesting %s', AUTH_ORGS_URL)
             resp = requests.get(AUTH_ORGS_URL)
+            logger.info('Auth Service returned status %s', resp.status_code)
             data = resp.json()
             return Response(data, status=resp.status_code)
         except requests.RequestException as exc:
@@ -144,8 +156,11 @@ class LoginAttemptsView_v1(APIView):
     permission_classes = [permissions.AllowAny]
 
     def get(self, request, *args, **kwargs):
+        logger.debug('Received login attempts request')
         try:
+            logger.debug('Requesting %s', AUTH_ATTEMPTS_URL)
             resp = requests.get(AUTH_ATTEMPTS_URL)
+            logger.info('Auth Service returned status %s', resp.status_code)
             data = resp.json()
             return Response(data, status=resp.status_code)
         except requests.RequestException as exc:
@@ -153,12 +168,16 @@ class LoginAttemptsView_v1(APIView):
             return Response({'detail': 'Authentication service unavailable'}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
 
 
+
 class CryptaGroupsView_v1(APIView):
     permission_classes = [permissions.AllowAny]
 
     def get(self, request, *args, **kwargs):
+        logger.debug('Received crypta groups request')
         try:
+            logger.debug('Requesting %s', AUTH_GROUPS_URL)
             resp = requests.get(AUTH_GROUPS_URL)
+            logger.info('Auth Service returned status %s', resp.status_code)
             data = resp.json()
             return Response(data, status=resp.status_code)
         except requests.RequestException as exc:
@@ -170,8 +189,11 @@ class QueryPermissionsView_v1(APIView):
     permission_classes = [permissions.AllowAny]
 
     def get(self, request, *args, **kwargs):
+        logger.debug('Received query permissions request')
         try:
+            logger.debug('Requesting %s', AUTH_PERMS_URL)
             resp = requests.get(AUTH_PERMS_URL)
+            logger.info('Auth Service returned status %s', resp.status_code)
             data = resp.json()
             return Response(data, status=resp.status_code)
         except requests.RequestException as exc:
