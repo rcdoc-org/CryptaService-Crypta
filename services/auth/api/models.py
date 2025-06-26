@@ -66,7 +66,7 @@ class UserProfile(models.Model):
     mfa_secret_hash = models.CharField(max_length=255)
     mfa_verified_at = models.DateTimeField()
     secret_question_1 = models.CharField(
-        max_legnth=255, choices=SecretQuestions.choices, blank=True
+        max_length=255, choices=SecretQuestions.choices, blank=True
     )
     secret_answer_1_hash = models.CharField(max_length=255)
     secret_question_2 = models.CharField(
