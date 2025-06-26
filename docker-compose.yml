@@ -3,21 +3,21 @@ services:
   frontend:
     build: ./frontend
     command: yarn dev         # or `npm start` for hot‐reload
-    ports:
+    expose:
       - "80:80"
     environment:
       - CHOKIDAR_USEPOLLING=true  # on Linux for webpack
 
   auth-api:
     build: ./services/auth
-    ports:
+    expose:
       - "8002:8002"
     env_file:
       - ./services/auth/.env
 
   gateway:
     build: ./services/gateway
-    ports:
+    expose:
       - "3000:3000"
     env_file:
       - ./services/gateway/.env
