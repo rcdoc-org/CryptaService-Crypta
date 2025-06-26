@@ -8,6 +8,6 @@ export default defineConfig({
     host: '0.0.0.0',
     port: 80,
     strictPort: true,
-    allowedHosts: ['crypta.rcdoc.org'],
+    allowedHosts: ['crypta-dev.rcdoc.org'],
   }
 })
