@@ -9,7 +9,17 @@ class UserSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = models.User
-        fields = ['id','username','email', 'password']
+        fields = [
+            'id',
+            'username',
+            'email',
+            'password', 
+            'is_active',
+            'is_staff',
+            'suspend',
+            'date_joined',
+            'ref_person_id',
+            ]
     
     # def create(self, validated_data):
     #     user = User (
@@ -27,6 +37,7 @@ class UserSerializer(serializers.ModelSerializer):
         user.set_password(password)
         user.save()
         return user
+    
 
 class UserProfileSerializer(serializers.ModelSerializer):
     class Meta:

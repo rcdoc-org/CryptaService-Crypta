@@ -1,5 +1,6 @@
 import logging
 from rest_framework import generics
+from rest_framework.response import Response
 from rest_framework.permissions import AllowAny
 from django.contrib.auth import get_user_model
 
@@ -48,8 +49,19 @@ class UserListView(generics.ListAPIView):
     def get(self, request, *args, **kwargs):
         logger.debug('User list requested')
         response = super().get(request, *args, **kwargs)
+
+        users = list(response.data)
+        
+        for user in users:
+            if 'date_joined' in user and user['date_joined']:
+                try:
+                    user['date_joined'] = user['date_joined'].split('T')[0]
+                except AtrributeError:
+                    user['date_joined'] = user['date_joined'].date().isoformat()
+                    
         logger.info('Returned %d users', len(response.data))
-        return response
+        logger.debug('Returned Data: %s', response.data)
+        return Response(users)
     
 class RoleListView(generics.ListAPIView):
     queryset = Role.objects.all()
