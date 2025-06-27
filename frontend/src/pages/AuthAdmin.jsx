@@ -155,7 +155,17 @@ const AuthAdmin = () => {
       }
       fn(data).then(loadRows);
     }
-    setShowCreate(false);
+    const modalEl = document.getElementById('createModal');
+    if (modalEl) {
+      const instance = bootstrap.Modal.getInstance(modalEl);
+      if (instance) {
+        instance.hide();
+      } else {
+        setShowCreate(false);
+      }
+    } else {
+      setShowCreate(false);
+    }
   };
 
   useEffect(() => {
