@@ -38,6 +38,13 @@ const DataGrid = ({ columns, data, options = {} }) => {
         defaultColDef={defaultColDef}
         pagination={true}
         paginationPageSize={options.paginationSize ?? 20}
+        rowSelection="single"
+        onSelectionChanged={event => {
+          if (options.onSelect) {
+            const row = event.api.getSelectedRows()[0] || null;
+            options.onSelect(row);
+          }
+        }}
         onRowClicked={event => {
           if (options.rowClick) {
             // mimic your old (e, row) API
