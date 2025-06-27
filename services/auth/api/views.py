@@ -1,15 +1,15 @@
 import logging
 from rest_framework import generics
 from rest_framework.permissions import AllowAny
+from django.contrib.auth import get_user_model
 
 from .models import ( 
-    User,
     Role,
     Token,
     Organization,
     LoginAttempt,
     CryptaGroup,
-    QueryPermission,   
+    QueryPermission,
 )
 from .serializers import (
     UserSerializer,
@@ -22,6 +22,8 @@ from .serializers import (
 )
 
 logger = logging.getLogger("api")
+
+User = get_user_model()
 
 
 # Create your views here.

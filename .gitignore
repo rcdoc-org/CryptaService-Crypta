@@ -11,6 +11,7 @@ tmp
 *.env
 media
 db.sqlite3
+*/db.sqlite3
 # Logs
 *.log
 npm-debug.log*
