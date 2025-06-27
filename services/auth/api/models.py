@@ -287,7 +287,7 @@ class UserStatusLog(models.Model):
         on_delete=models.PROTECT,
         related_name='status_changes_made')
     reason = models.CharField(max_length=255)
-    timestamp = models.DateTimeField(timezone.now)
+    timestamp = models.DateTimeField(default=timezone.now)
 
     def __str__(self):  # pragma: no cover - simple representation
         return f"{self.user.username}-{self.status}"
