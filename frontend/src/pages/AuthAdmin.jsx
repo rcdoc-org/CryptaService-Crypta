@@ -39,7 +39,6 @@ const menuItems = [
 const columnsMap = {
   users: [
     { title: 'ID', field: 'id' },
-    { title: 'Username', field: 'username' },
     { title: 'Email', field: 'email' },
     { title: 'Active', field: 'is_active'},
     { title: 'Date Joined', field: 'date_joined'},
@@ -132,7 +131,11 @@ const AuthAdmin = () => {
 
   const openCreate = () => {
     const init = {};
-    columnsMap[active].forEach(col => { init[col.field] = ''; });
+    columnsMap[active]
+      .filter(col => col.field !== 'id')
+      .forEach(col => {
+        init[col.field] = '';
+      });
     setFormData(init);
     setShowCreate(true);
   };
@@ -207,7 +210,9 @@ const AuthAdmin = () => {
               <Modal id="createModal" title={`Create ${active}`}
                 footer={<Button onClick={handleCreate}>Save</Button>}
               >
-                {columnsMap[active].map(col => (
+                {columnsMap[active]
+                  .filter(col => col.field !== 'id')
+                  .map(col => (
                   <div className="mb-3" key={col.field}>
                     <label className="form-label">{col.title}</label>
                     <input
