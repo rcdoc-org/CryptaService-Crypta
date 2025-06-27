@@ -81,6 +81,12 @@ const columnsMap = {
   ]
 };
 
+const booleanFields = ['is_active', 'is_staff', 'suspend', 'revoked', 'successful', 'is_primary'];
+
+const createFieldsMap = {
+  users: ['email', 'password'],
+};
+
 const fetchMap = {
   users: fetchUsers,
   roles: fetchRoles,
@@ -131,11 +137,11 @@ const AuthAdmin = () => {
 
   const openCreate = () => {
     const init = {};
-    columnsMap[active]
-      .filter(col => col.field !== 'id')
-      .forEach(col => {
-        init[col.field] = '';
-      });
+    const fields = createFieldsMap[active] ||
+      columnsMap[active].filter(col => col.field !== 'id').map(col => col.field);
+    fields.forEach(field => {
+      init[field] = booleanFields.includes(field) ? false : '';
+    });
     setFormData(init);
     setShowCreate(true);
   };
@@ -143,7 +149,11 @@ const AuthAdmin = () => {
   const handleCreate = () => {
     const fn = createMap[active];
     if (fn) {
-      fn(formData).then(loadRows);
+      const data = { ...formData };
+      if (active === 'users') {
+        data.username = formData.email;
+      }
+      fn(data).then(loadRows);
     }
     setShowCreate(false);
   };
@@ -210,18 +220,31 @@ const AuthAdmin = () => {
               <Modal id="createModal" title={`Create ${active}`}
                 footer={<Button onClick={handleCreate}>Save</Button>}
               >
-                {columnsMap[active]
-                  .filter(col => col.field !== 'id')
-                  .map(col => (
-                  <div className="mb-3" key={col.field}>
-                    <label className="form-label">{col.title}</label>
-                    <input
-                      className="form-control"
-                      value={formData[col.field]}
-                      onChange={e => setFormData({ ...formData, [col.field]: e.target.value })}
-                    />
-                  </div>
-                ))}
+                {(createFieldsMap[active] ||
+                    columnsMap[active].filter(c => c.field !== 'id').map(c => c.field))
+                  .map(field => {
+                    const col = columnsMap[active].find(c => c.field === field) || { title: field };
+                    return (
+                      <div className="mb-3" key={field}>
+                        <label className="form-label">{col.title}</label>
+                        {booleanFields.includes(field) ? (
+                          <input
+                            type="checkbox"
+                            className="form-check-input"
+                            checked={formData[field]}
+                            onChange={e => setFormData({ ...formData, [field]: e.target.checked })}
+                          />
+                        ) : (
+                          <input
+                            type={field === 'password' ? 'password' : 'text'}
+                            className="form-control"
+                            value={formData[field]}
+                            onChange={e => setFormData({ ...formData, [field]: e.target.value })}
+                          />
+                        )}
+                      </div>
+                    );
+                  })}
               </Modal>
             )}
           </Card>
