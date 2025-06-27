@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import * as bootstrap from 'bootstrap';
 import '../styles/AuthAdmin.css';
 import AsidePanel from '../components/AsidePanel';
 import Button from '../components/Button';
@@ -143,6 +144,18 @@ const AuthAdmin = () => {
     }
     setShowCreate(false);
   };
+
+  useEffect(() => {
+    if (showCreate) {
+      const modalEl = document.getElementById('createModal');
+      if (modalEl) {
+        const instance = bootstrap.Modal.getOrCreateInstance(modalEl);
+        const hideHandler = () => setShowCreate(false);
+        modalEl.addEventListener('hidden.bs.modal', hideHandler, { once: true });
+        instance.show();
+      }
+    }
+  }, [showCreate])
 
   const handleDelete = () => {
     if (!selectedRow) return;
