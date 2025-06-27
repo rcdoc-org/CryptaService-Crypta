@@ -63,16 +63,20 @@ class UserListView(generics.ListAPIView):
         logger.debug('Returned Data: %s', response.data)
         return Response(users)
     
-class RoleListView(generics.ListAPIView):
+class RoleListCreateView(generics.ListCreateAPIView):
     queryset = Role.objects.all()
     serializer_class = RoleSerializer
     permission_classes = [AllowAny]
-    
+
     def get(self, request, *args, **kwargs):
         logger.debug('Role list requested')
         response = super().get(request, *args, **kwargs)
         logger.info('Returned %d roles', len(response.data))
         return response
+
+    def post(self, request, *args, **kwargs):
+        logger.debug('Create role request')
+        return super().post(request, *args, **kwargs)
 
 
 class TokenListView(generics.ListAPIView):
@@ -87,16 +91,20 @@ class TokenListView(generics.ListAPIView):
         return response
 
 
-class OrganizationListView(generics.ListAPIView):
+class OrganizationListCreateView(generics.ListCreateAPIView):
     queryset = Organization.objects.all()
     serializer_class = OrganizationSerializer
     permission_classes = [AllowAny]
-    
+
     def get(self, request, *args, **kwargs):
         logger.debug('Organization list requested')
         response = super().get(request, *args, **kwargs)
         logger.info('Returned %d organizations', len(response.data))
         return response
+
+    def post(self, request, *args, **kwargs):
+        logger.debug('Create organization request')
+        return super().post(request, *args, **kwargs)
 
 
 class LoginAttemptListView(generics.ListAPIView):
@@ -111,25 +119,64 @@ class LoginAttemptListView(generics.ListAPIView):
         return response
 
 
-class CryptaGroupListView(generics.ListAPIView):
+
+class QueryPermissionListCreateView(generics.ListCreateAPIView):
+    queryset = QueryPermission.objects.all()
+    serializer_class = QueryPermissionSerializer
+    permission_classes = [AllowAny]
+
+    def get(self, request, *args, **kwargs):
+        logger.debug('Query permission list requested')
+        response = super().get(request, *args, **kwargs)
+        logger.info('Returned %d permissions', len(response.data))
+        return response
+
+    def post(self, request, *args, **kwargs):
+        logger.debug('Create permission request')
+        return super().post(request, *args, **kwargs)
+
+
+class RoleDetailView(generics.RetrieveDestroyAPIView):
+    queryset = Role.objects.all()
+    serializer_class = RoleSerializer
+    permission_classes = [AllowAny]
+
+
+class OrganizationDetailView(generics.RetrieveDestroyAPIView):
+    queryset = Organization.objects.all()
+    serializer_class = OrganizationSerializer
+    permission_classes = [AllowAny]
+
+
+class CryptaGroupListCreateView(generics.ListCreateAPIView):
     queryset = CryptaGroup.objects.all()
     serializer_class = CryptaGroupSerializer
     permission_classes = [AllowAny]
-    
+
     def get(self, request, *args, **kwargs):
         logger.debug('Crypta group list requested')
         response = super().get(request, *args, **kwargs)
         logger.info('Returned %d groups', len(response.data))
         return response
 
+    def post(self, request, *args, **kwargs):
+        logger.debug('Create group request')
+        return super().post(request, *args, **kwargs)
 
-class QueryPermissionListView(generics.ListAPIView):
+
+class CryptaGroupDetailView(generics.RetrieveDestroyAPIView):
+    queryset = CryptaGroup.objects.all()
+    serializer_class = CryptaGroupSerializer
+    permission_classes = [AllowAny]
+
+
+class QueryPermissionDetailView(generics.RetrieveDestroyAPIView):
     queryset = QueryPermission.objects.all()
     serializer_class = QueryPermissionSerializer
     permission_classes = [AllowAny]
-    
-    def get(self, request, *args, **kwargs):
-        logger.debug('Query permission list requested')
-        response = super().get(request, *args, **kwargs)
-        logger.info('Returned %d permissions', len(response.data))
-        return response
+
+
+class UserDetailView(generics.RetrieveDestroyAPIView):
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+    permission_classes = [AllowAny]

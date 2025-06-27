@@ -4,6 +4,7 @@ import AsidePanel from '../components/AsidePanel';
 import Button from '../components/Button';
 import Card from '../components/Card';
 import DataGrid from '../components/DataGrid';
+import Modal from '../components/Modal';
 import {
   fetchUsers,
   fetchRoles,
@@ -12,6 +13,16 @@ import {
   fetchLoginAttempts,
   fetchCryptaGroups,
   fetchQueryPermissions,
+  createUser,
+  deleteUser,
+  createRole,
+  deleteRole,
+  createOrganization,
+  deleteOrganization,
+  createCryptaGroup,
+  deleteCryptaGroup,
+  createQueryPermission,
+  deleteQueryPermission,
 } from '../api/auth';
 
 const menuItems = [
@@ -83,17 +94,66 @@ const fetchMap = {
 const AuthAdmin = () => {
   const [active, setActive] = useState('users');
   const [rows, setRows] = useState([]);
+  const [selectedRow, setSelectedRow] = useState(null);
+  const [showCreate, setShowCreate] = useState(false);
+  const [formData, setFormData] = useState({});
+
+  const createMap = {
+    users: createUser,
+    roles: createRole,
+    organization: createOrganization,
+    cryptaGroup: createCryptaGroup,
+    queryPermission: createQueryPermission,
+  };
+
+  const deleteMap = {
+    users: deleteUser,
+    roles: deleteRole,
+    organization: deleteOrganization,
+    cryptaGroup: deleteCryptaGroup,
+    queryPermission: deleteQueryPermission,
+  };
 
   const columns = columnsMap[active];
 
-  useEffect (() => {
+  const loadRows = () => {
     const fetchFn = fetchMap[active];
     if (fetchFn) {
       fetchFn()
         .then(res => setRows(res.data))
         .catch(() => setRows([]));
     }
+  };
+
+  useEffect(() => {
+    loadRows();
   }, [active]);
+
+  const openCreate = () => {
+    const init = {};
+    columnsMap[active].forEach(col => { init[col.field] = ''; });
+    setFormData(init);
+    setShowCreate(true);
+  };
+
+  const handleCreate = () => {
+    const fn = createMap[active];
+    if (fn) {
+      fn(formData).then(loadRows);
+    }
+    setShowCreate(false);
+  };
+
+  const handleDelete = () => {
+    if (!selectedRow) return;
+    const fn = deleteMap[active];
+    if (fn) {
+      fn(selectedRow.id).then(() => {
+        setSelectedRow(null);
+        loadRows();
+      });
+    }
+  };
 
   return (
     <div className="container-fluid auth-admin-page">
@@ -117,24 +177,35 @@ const AuthAdmin = () => {
             <row className='button-row'>
                 <Button
                   className="Create mb-2 action-btn rounded-4"
-                  onClick=''
+                  onClick={openCreate}
                 >
                   Create
                 </Button>
                 <Button
                   className="Create mb-2 action-btn rounded-4"
-                  onClick=''
-                >
-                  Modify
-                </Button>
-                <Button
-                  className="Create mb-2 action-btn rounded-4"
-                  onClick=''
+                  disabled={!selectedRow}
+                  onClick={handleDelete}
                 >
                   Delete
                 </Button>
             </row>
-            <DataGrid columns={columns} data={rows} />
+            <DataGrid columns={columns} data={rows} options={{onSelect: setSelectedRow}} />
+            {showCreate && (
+              <Modal id="createModal" title={`Create ${active}`}
+                footer={<Button onClick={handleCreate}>Save</Button>}
+              >
+                {columnsMap[active].map(col => (
+                  <div className="mb-3" key={col.field}>
+                    <label className="form-label">{col.title}</label>
+                    <input
+                      className="form-control"
+                      value={formData[col.field]}
+                      onChange={e => setFormData({ ...formData, [col.field]: e.target.value })}
+                    />
+                  </div>
+                ))}
+              </Modal>
+            )}
           </Card>
         </main>
       </div>
