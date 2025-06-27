@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import '../styles/AuthAdmin.css';
 import AsidePanel from '../components/AsidePanel';
+import Button from '../components/Button';
 import Card from '../components/Card';
 import DataGrid from '../components/DataGrid';
 import {
@@ -113,6 +114,26 @@ const AuthAdmin = () => {
         </AsidePanel>
         <main className="col-md-8 p-4 bg-light">
           <Card title={menuItems.find(m => m.key === active).label}>
+            <row className='button-row'>
+                <Button
+                  className="Create mb-2 action-btn rounded-4"
+                  onClick=''
+                >
+                  Create
+                </Button>
+                <Button
+                  className="Create mb-2 action-btn rounded-4"
+                  onClick=''
+                >
+                  Modify
+                </Button>
+                <Button
+                  className="Create mb-2 action-btn rounded-4"
+                  onClick=''
+                >
+                  Delete
+                </Button>
+            </row>
             <DataGrid columns={columns} data={rows} />
           </Card>
         </main>
