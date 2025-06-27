@@ -1,0 +1,18 @@
+.custom-close {
+    filter: none !important;
+    opacity: 1 !important;
+    width: 1.5rem;
+    height: 1.5rem;
+}
+
+.custom-close::before {
+    content: "x";
+    font-size: 1.5rem;
+    color: black;
+    font-weight: 400;
+    line-height: 1;
+}
+
+.custom-close:hover::before {
+    color: white;
+}
