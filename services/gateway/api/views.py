@@ -206,7 +206,7 @@ class OrganizationDetailView_v1(APIView):
     def post(self, request, *args, **kwargs):
         logger.debug('Create organization request')
         try:
-            resp = requests.post(AUTH_ORGS_URL, json=request.data)
+            resp = requests.post(f'{AUTH_ORGS_URL}create/', json=request.data)
             logger.info('Auth Service returned status %s', resp.status_code)
             data = resp.json() if resp.text else ''
             return Response(data, status=resp.status_code)
@@ -265,7 +265,7 @@ class CryptaGroupDetailView_v1(APIView):
     def post(self, request, *args, **kwargs):
         logger.debug('Create crypta group request')
         try:
-            resp = requests.post(AUTH_GROUPS_URL, json=request.data)
+            resp = requests.post(f'{AUTH_GROUPS_URL}create/', json=request.data)
             logger.info('Auth Service returned status %s', resp.status_code)
             data = resp.json() if resp.text else ''
             return Response(data, status=resp.status_code)
@@ -307,7 +307,7 @@ class QueryPermissionDetailView_v1(APIView):
     def post(self, request, *args, **kwargs):
         logger.debug('Create query permission request')
         try:
-            resp = requests.post(AUTH_PERMS_URL, json=request.data)
+            resp = requests.post(f'{AUTH_PERMS_URL}create/', json=request.data)
             logger.info('Auth Service returned status %s', resp.status_code)
             data = resp.json() if resp.text else ''
             return Response(data, status=resp.status_code)
