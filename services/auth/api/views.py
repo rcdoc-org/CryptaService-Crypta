@@ -76,6 +76,7 @@ class RoleListCreateView(generics.ListCreateAPIView):
 
     def post(self, request, *args, **kwargs):
         logger.debug('Create role request')
+        logger.debug('Data: %s', request.data)
         return super().post(request, *args, **kwargs)
 
 
@@ -104,6 +105,8 @@ class OrganizationListCreateView(generics.ListCreateAPIView):
 
     def post(self, request, *args, **kwargs):
         logger.debug('Create organization request')
+        request.data['ref_location'] = int(request.data['ref_location'])
+        logger.debug('Data: %s', request.data)
         return super().post(request, *args, **kwargs)
 
 
