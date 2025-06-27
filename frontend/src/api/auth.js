@@ -28,16 +28,16 @@ export const fetchQueryPermissions = () => authApi.get('/query_permissions/');
 export const createUser = (data) => authApi.post('/users/register/', data);
 export const deleteUser = (id) => authApi.delete(`/users/${id}/`);
 
-export const createRole = (data) => authApi.post('/roles/', data);
+export const createRole = (data) => authApi.post('/roles/create/', data);
 export const deleteRole = (id) => authApi.delete(`/roles/${id}/`);
 
-export const createOrganization = (data) => authApi.post('/organizations/', data);
+export const createOrganization = (data) => authApi.post('/organizations/create/', data);
 export const deleteOrganization = (id) => authApi.delete(`/organizations/${id}/`);
 
-export const createCryptaGroup = (data) => authApi.post('/crypta_groups/', data);
+export const createCryptaGroup = (data) => authApi.post('/crypta_groups/create/', data);
 export const deleteCryptaGroup = (id) => authApi.delete(`/crypta_groups/${id}/`);
 
-export const createQueryPermission = (data) => authApi.post('/query_permissions/', data);
+export const createQueryPermission = (data) => authApi.post('/query_permissions/create/', data);
 export const deleteQueryPermission = (id) => authApi.delete(`/query_permissions/${id}/`);
 
 export default authApi;

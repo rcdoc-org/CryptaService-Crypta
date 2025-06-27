@@ -148,7 +148,7 @@ class RoleDetailView_v1(APIView):
     def post(self, request, *args, **kwargs):
         logger.debug('Create role request')
         try:
-            resp = requests.post(AUTH_ROLES_URL, json=request.data)
+            resp = requests.post(f'{AUTH_ROLES_URL}create/', json=request.data)
             logger.info('Auth Service returned status %s', resp.status_code)
             data = resp.json() if resp.text else ''
             return Response(data, status=resp.status_code)
