@@ -27,7 +27,10 @@ const columnsMap = {
   users: [
     { title: 'ID', field: 'id' },
     { title: 'Username', field: 'username' },
-    { title: 'Email', field: 'email' }
+    { title: 'Email', field: 'email' },
+    { title: 'Active', field: 'is_active'},
+    { title: 'Date Joined', field: 'date_joined'},
+    { title: 'Suspended', field: 'suspend'}
 
   ],
   roles: [
