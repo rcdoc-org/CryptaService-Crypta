@@ -10,13 +10,18 @@ const Login = () => {
   const [password, setPassword] = useState('');
   const [step, setStep] = useState(1);
   const [error, setError] = useState(null);
+  const [otp, setOtp] = useState('');
 
   const handleEmailSubmit = (e) => {
     e.preventDefault();
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (emailRegex.test(email)) {
       setError(null);
-      setStep(2);
+      if (step === 1) {
+        setStep(2);
+      } else {
+        setStep(3);
+      }
     } else {
       setError('Please enter a valid email address');
     }
@@ -25,7 +30,7 @@ const Login = () => {
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
-      const { data } = await login({ username: email, password });
+      const { data } = await login({ username: email, password, otp });
       localStorage.setItem(ACCESS_TOKEN, data.access);
       localStorage.setItem(REFRESH_TOKEN, data.refresh);
       window.location.href = '/';
@@ -39,7 +44,7 @@ const Login = () => {
       <Card className="login-card text-center rounded-4 shadow p-4">
         <img src={logo} alt="Company Logo" className="login-logo mb-4" />
         <h4 className="mb-4">Sign in to Your Account</h4>
-        <form onSubmit={step === 1 ? handleEmailSubmit : handleLogin} className="text-start">
+        <form onSubmit={step === 3 ? handleLogin : handleEmailSubmit} className="text-start">
           <div className="mb-4">
             <label htmlFor="email" className="form-label">Email</label>
             <input
@@ -67,11 +72,32 @@ const Login = () => {
               {error && <div className="text-danger mb-2">{error}</div>}
             </>
           )}
+          {step === 3 && (
+            <>
+              <div className="mb-4">
+                <label htmlFor="otp" className="form-label">One-Time Password</label>
+                <input
+                  type="text"
+                  className="form-control"
+                  id="otp"
+                  value={otp}
+                  onChange={(e) => setOtp(e.target.value)}
+                  required
+                />
+              </div>
+              {error && <div className="text-danger mb-2">{error}</div>}
+            </>
+          )}
           <button type="submit" className="btn btn-primary w-100 btn-login mb-3">
-            {step === 1 ? 'Next' : 'Sign In'}
+            {step === 1 ? 'Next' : step === 2 ? 'Next' : 'Sign In'}
           </button>
           {step === 2 && (
             <button type="button" className="btn btn-link w-100 mb-3" onClick={() => setStep(1)}>
+              Back
+            </button>
+          )}
+          {step === 3 && (
+            <button type="button" className="btn btn-link w-100 mb-3" onClick={() => setStep(2)}>
               Back
             </button>
           )}

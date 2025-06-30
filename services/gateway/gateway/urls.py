@@ -31,6 +31,7 @@ from api.views import (
     CryptaGroupDetailView_v1,
     QueryPermissionsView_v1,
     QueryPermissionDetailView_v1,
+    VerifyMfaView_v1,
 )
 
 urlpatterns = [
@@ -53,6 +54,7 @@ urlpatterns = [
     path('query_permissions/create/', QueryPermissionDetailView_v1.as_view(), name='query_permission-detail'),
     path('query_permissions/<int:pk>/', QueryPermissionDetailView_v1.as_view(), name='query_permission-detail'),
     path('api/v1/users/register/', CreateUserView_v1.as_view(), name='register'),
+    path('users/verify_mfa/', VerifyMfaView_v1.as_view(), name='verify_mfa'),
     path('users/login/', LoginView_v1.as_view(), name='login'),
     path('api/v1/tokens/retrieve/', LoginView_v1.as_view(), name='get_token'),
     path('tokens/refresh/', TokenRefreshView_v1.as_view(), name='token_refresh')

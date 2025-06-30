@@ -17,6 +17,7 @@ AUTH_ORGS_URL = os.getenv('AUTH_ORGS_URL', 'http://localhost:8002/api/v1/organiz
 AUTH_ATTEMPTS_URL = os.getenv('AUTH_ATTEMPTS_URL', 'http://localhost:8002/api/v1/login_attempts/')
 AUTH_GROUPS_URL = os.getenv('AUTH_GROUPS_URL', 'http://localhost:8002/api/v1/crypta_groups/')
 AUTH_PERMS_URL = os.getenv('AUTH_PERMS_URL', 'http://localhost:8002/api/v1/query_permissions/')
+AUTH_VERIFY_MFA_URL = os.getenv('AUTH_VERIFY_MFA_URL', 'http://localhost:8002/api/v1/users/verify_mfa/')
 
 # Create your views here.
 class CreateUserView_v1(APIView):
@@ -310,6 +311,25 @@ class QueryPermissionDetailView_v1(APIView):
             resp = requests.post(f'{AUTH_PERMS_URL}create/', json=request.data)
             logger.info('Auth Service returned status %s', resp.status_code)
             data = resp.json() if resp.text else ''
+            return Response(data, status=resp.status_code)
+        except requests.RequestException as exc:
+            logger.error('Failed to contact auth service: %s', exc, exc_info=True)
+            return Response({'detail': 'Authentication service unavailable'}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
+
+
+class VerifyMfaView_v1(APIView):
+    """Proxy MFA verification to the authentication service."""
+
+    permission_classes = [permissions.AllowAny]
+
+    def post(self, request, *args, **kwargs):
+        logger.debug('Verify MFA request')
+        try:
+            logger.debug('Forwarding data to auth service at %s', AUTH_VERIFY_MFA_URL)
+            resp = requests.post(AUTH_VERIFY_MFA_URL, json=request.data)
+            logger.info('Auth Service returned status %s', resp.status_code)
+            content_type = resp.headers.get('Content-Type', '')
+            data = resp.json() if content_type.startswith('application/json') else resp.text
             return Response(data, status=resp.status_code)
         except requests.RequestException as exc:
             logger.error('Failed to contact auth service: %s', exc, exc_info=True)

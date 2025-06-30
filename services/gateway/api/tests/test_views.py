@@ -7,6 +7,7 @@ from rest_framework.test import APITestCase
 REGISTER_URL = os.getenv('AUTH_REGISTER_URL', 'http://localhost:8002/api/v1/user/register/')
 LOGIN_URL = os.getenv('AUTH_LOGIN_URL', 'http://localhost:8002/api/v1/token/')
 REFRESH_URL = os.getenv('AUTH_REFRESH_URL', 'http://localhost:8002/api/v1/token/refresh/')
+VERIFY_URL = os.getenv('AUTH_VERIFY_MFA_URL', 'http://localhost:8002/api/v1/users/verify_mfa/')
 
 class RegisterViewTests(APITestCase):
     """Used for testing registration of users."""
@@ -82,5 +83,28 @@ class TokenRefreshViewTests(APITestCase):
         mock_post.assert_called_once()
         args, kwargs = mock_post.call_args
         self.assertEqual(args[0], REFRESH_URL)
+        flat_data = kwargs['json']
+        self.assertEqual(flat_data, data)
+
+
+class VerifyMfaViewTests(APITestCase):
+    """Used for testing MFA verification."""
+
+    @patch('api.views.requests.post')
+    def test_verify_route_calls_auth_service(self, mock_post):
+        mock_response = MagicMock()
+        mock_response.status_code = 200
+        mock_response.headers = {'Content-Type': 'application/json'}
+        mock_response.json.return_value = {'detail': 'MFA verified'}
+        mock_post.return_value = mock_response
+
+        data = {'user_id': 1, 'otp': '123456'}
+        url = reverse('verify_mfa')
+        response = self.client.post(url, data)
+
+        self.assertEqual(response.status_code, 200)
+        mock_post.assert_called_once()
+        args, kwargs = mock_post.call_args
+        self.assertEqual(args[0], VERIFY_URL)
         flat_data = kwargs['json']
         self.assertEqual(flat_data, data)
