@@ -1,9 +1,10 @@
 import logging
 from datetime import datetime
 from django.utils import timezone
-from rest_framework import generics
+import pyotp
+from rest_framework import generics, serializers
 from rest_framework.response import Response
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework_simplejwt.tokens import RefreshToken
@@ -36,6 +37,8 @@ User = get_user_model()
 # Create your views here.
 class LoggingTokenObtainPairSerializer(TokenObtainPairSerializer):
     """Serializer that logs login attempts and stores issued tokens."""
+    
+    otp = serializers.CharField(write_only=True, required=False)
 
     def validate(self, attrs):
         request = self.context.get('request')
@@ -47,6 +50,8 @@ class LoggingTokenObtainPairSerializer(TokenObtainPairSerializer):
                 user_obj = User.objects.get(username=username)
             except User.DoesNotExist:
                 user_obj = None
+        
+        otp_code = attrs.get('otp')
 
         try:
             data = super().validate(attrs)
@@ -59,6 +64,26 @@ class LoggingTokenObtainPairSerializer(TokenObtainPairSerializer):
                     ip_address=ip_address,
                 )
             raise
+            
+        profile = getattr(self.user, 'profile', None)
+        if profile and profile.mfa_enabled:
+            if not otp_code:
+                LoginAttempt.objects.create(
+                    user=self.user,
+                    time=timezone.now(),
+                    successful=False,
+                    ip_address=ip_address
+                )
+                raise AuthenticationFailed('MFA code required')
+            totp = pyotp.TOTP(profile.mfa_secret_hash)
+            if not totp.verify(otp_code):
+                LoginAttempt.objects.create(
+                    user=self.user,
+                    time=timezone.now(),
+                    successful=False,
+                    ip_address=ip_address
+                )
+                raise AuthenticationFailed('Invalid MFA code')
 
         # Successful login
         LoginAttempt.objects.create(
@@ -251,3 +276,43 @@ class UserDetailView(generics.RetrieveDestroyAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
     permission_classes = [AllowAny]
+
+
+class EnableMFAView(generics.GenericAPIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, *args, **kwargs):
+        profile = request.user.profile
+        secret = pyotp.random_base32()
+        profile.mfa_secret_hash = secret
+        profile.mfa_method = profile.MfaMethod.AUTHENTICATOR
+        profile.mfa_enabled = False
+        profile.save()
+        return Response({'secret': secret})
+
+class VerifyMFAView(generics.GenericAPIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, *args, **kwargs):
+        otp_code = request.data.get('otp')
+        profile = request.user.profile
+        if not otp_code:
+            return Response({'detail': 'OTP required'}, status=400)
+        totp = pyotp.TOTP(profile.mfa_secret_hash)
+        if totp.verify(otp_code):
+            profile.mfa_enabled = True
+            profile.mfa_verified_at = timezone.now()
+            profile.save()
+            return Response({'detail': 'MFA enabled'})
+        return Response({'detail': 'Invalid code'}, status=400)
+
+
+class DisableMFAView(generics.GenericAPIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, *args, **kwargs):
+        profile = request.user.profile
+        profile.mfa_enabled = False
+        profile.mfa_secret_hash = ''
+        profile.save()
+        return Response({'detail': 'MFA disabled'})

@@ -31,6 +31,9 @@ from api.views import (
     QueryPermissionListCreateView,
     QueryPermissionDetailView,
     LoggingTokenObtainPairView,
+    EnableMFAView,
+    VerifyMFAView,
+    DisableMFAView,
 )
 from rest_framework_simplejwt.views import TokenRefreshView
 
@@ -62,5 +65,8 @@ urlpatterns = [
     # path('api/v1/tokens/retrieve/', TokenObtainPairView.as_view(), name='get_token'),
     path('api/v1/tokens/retrieve/', LoggingTokenObtainPairView.as_view(), name='get_token'),
     path('api/v1/tokens/refresh/', TokenRefreshView.as_view(), name='refresh_token'),
+    path('api/v1/mfa/enable/', EnableMFAView.as_view(), name='mfa-enable'),
+    path('api/v1/mfa/verify/', VerifyMFAView.as_view(), name='mfa-verify'),
+    path('api/v1/mfa/disable/', DisableMFAView.as_view(), name='mfa-disable'),
     path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),
 ]
