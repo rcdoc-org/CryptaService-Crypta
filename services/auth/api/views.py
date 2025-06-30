@@ -41,6 +41,7 @@ class LoggingTokenObtainPairSerializer(TokenObtainPairSerializer):
 
     def validate(self, attrs):
         request = self.context.get('request')
+        logger.debug('Login attempt for %s', attrs.get('username'))
         ip_address = request.META.get('REMOTE_ADDR') if request else ''
         otp = attrs.pop('otp', None)
         username = attrs.get('username')
@@ -54,6 +55,7 @@ class LoggingTokenObtainPairSerializer(TokenObtainPairSerializer):
         try:
             data = super().validate(attrs)
         except AuthenticationFailed:
+            logger.warning('Authentication failed for %s', username)
             if user_obj:
                 LoginAttempt.objects.create(
                     user=user_obj,
@@ -66,6 +68,7 @@ class LoggingTokenObtainPairSerializer(TokenObtainPairSerializer):
         profile = self.user.profile
         totp = pyotp.TOTP(profile.mfa_secret_hash)
         if not otp or not totp.verify(otp):
+            logger.warning('Invalid OTP for %s', username)
             LoginAttempt.objects.create(
                 user=self.user,
                 time=timezone.now(),
@@ -75,6 +78,7 @@ class LoggingTokenObtainPairSerializer(TokenObtainPairSerializer):
             raise AuthenticationFailed('Invalid OTP')
 
         # Successful login
+        logger.info('Successful login for %s', username)
         LoginAttempt.objects.create(
             user=self.user,
             time=timezone.now(),
@@ -108,6 +112,10 @@ class LoggingTokenObtainPairView(TokenObtainPairView):
     """View that uses ``LoggingTokenObtainPairSerializer``."""
 
     serializer_class = LoggingTokenObtainPairSerializer
+
+    def post(self, request, *args, **kwargs):
+        logger.debug('Token obtain request received')
+        return super().post(request, *args, **kwargs)
 
 class CreateUserView(generics.CreateAPIView):
     queryset = User.objects.all()
@@ -241,11 +249,27 @@ class RoleDetailView(generics.RetrieveDestroyAPIView):
     serializer_class = RoleSerializer
     permission_classes = [AllowAny]
 
+    def get(self, request, *args, **kwargs):
+        logger.debug('Retrieve role %s', kwargs.get('pk'))
+        return super().get(request, *args, **kwargs)
+
+    def delete(self, request, *args, **kwargs):
+        logger.debug('Delete role %s', kwargs.get('pk'))
+        return super().delete(request, *args, **kwargs)
+
 
 class OrganizationDetailView(generics.RetrieveDestroyAPIView):
     queryset = Organization.objects.all()
     serializer_class = OrganizationSerializer
     permission_classes = [AllowAny]
+
+    def get(self, request, *args, **kwargs):
+        logger.debug('Retrieve organization %s', kwargs.get('pk'))
+        return super().get(request, *args, **kwargs)
+
+    def delete(self, request, *args, **kwargs):
+        logger.debug('Delete organization %s', kwargs.get('pk'))
+        return super().delete(request, *args, **kwargs)
 
 
 class CryptaGroupListCreateView(generics.ListCreateAPIView):
@@ -269,17 +293,41 @@ class CryptaGroupDetailView(generics.RetrieveDestroyAPIView):
     serializer_class = CryptaGroupSerializer
     permission_classes = [AllowAny]
 
+    def get(self, request, *args, **kwargs):
+        logger.debug('Retrieve crypta group %s', kwargs.get('pk'))
+        return super().get(request, *args, **kwargs)
+
+    def delete(self, request, *args, **kwargs):
+        logger.debug('Delete crypta group %s', kwargs.get('pk'))
+        return super().delete(request, *args, **kwargs)
+
 
 class QueryPermissionDetailView(generics.RetrieveDestroyAPIView):
     queryset = QueryPermission.objects.all()
     serializer_class = QueryPermissionSerializer
     permission_classes = [AllowAny]
 
+    def get(self, request, *args, **kwargs):
+        logger.debug('Retrieve permission %s', kwargs.get('pk'))
+        return super().get(request, *args, **kwargs)
+
+    def delete(self, request, *args, **kwargs):
+        logger.debug('Delete permission %s', kwargs.get('pk'))
+        return super().delete(request, *args, **kwargs)
+
 
 class UserDetailView(generics.RetrieveDestroyAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
     permission_classes = [AllowAny]
+
+    def get(self, request, *args, **kwargs):
+        logger.debug('Retrieve user %s', kwargs.get('pk'))
+        return super().get(request, *args, **kwargs)
+
+    def delete(self, request, *args, **kwargs):
+        logger.debug('Delete user %s', kwargs.get('pk'))
+        return super().delete(request, *args, **kwargs)
 
 
 class VerifyMfaView(generics.GenericAPIView):
@@ -290,19 +338,23 @@ class VerifyMfaView(generics.GenericAPIView):
     def post(self, request, *args, **kwargs):
         user_id = request.data.get('user_id')
         otp = request.data.get('otp')
+        logger.debug('Verify MFA for user %s', user_id)
         if not user_id or not otp:
             return Response({'detail': 'Invalid request'}, status=status.HTTP_400_BAD_REQUEST)
         try:
             user = User.objects.get(id=user_id)
             profile = user.profile
         except (User.DoesNotExist, UserProfile.DoesNotExist):
+            logger.warning('User %s not found during MFA verify', user_id)
             return Response({'detail': 'User not found'}, status=status.HTTP_400_BAD_REQUEST)
 
         totp = pyotp.TOTP(profile.mfa_secret_hash)
         if not totp.verify(otp):
+            logger.warning('Invalid OTP for user %s', user_id)
             return Response({'detail': 'Invalid OTP'}, status=status.HTTP_400_BAD_REQUEST)
 
         profile.mfa_enabled = True
         profile.mfa_verified_at = timezone.now()
         profile.save()
+        logger.info('MFA verified for user %s', user_id)
         return Response({'detail': 'MFA verified'}, status=status.HTTP_200_OK)
