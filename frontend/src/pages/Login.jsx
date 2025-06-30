@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import '../styles/Login.css';
 import Card from '../components/Card';
 import logo from '../assets/images/logo.png';
-import { login } from '../api/auth';
+import { login, gatewayUrl } from '../api/auth';
 import { ACCESS_TOKEN, REFRESH_TOKEN } from '../../constants';
 
 const Login = () => {
@@ -10,6 +10,8 @@ const Login = () => {
   const [password, setPassword] = useState('');
   const [step, setStep] = useState(1);
   const [error, setError] = useState(null);
+  const [otp, setOtp] = useState('');
+  const [needsOtp, setNeedsOtp] = useState(false);
 
   const handleEmailSubmit = (e) => {
     e.preventDefault();
@@ -25,12 +27,21 @@ const Login = () => {
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
-      const { data } = await login({ username: email, password });
+      // const { data } = await login({ username: email, password });
+      const payload = { username: email, password };
+      if (needsOtp) payload.otp = otp;
+      const { data } = await login(payload);
       localStorage.setItem(ACCESS_TOKEN, data.access);
       localStorage.setItem(REFRESH_TOKEN, data.refresh);
       window.location.href = '/';
     } catch (err) {
-      setError(`Invalid Credentials: ${err}`);
+      // setError(`Invalid Credentials: ${err}`);
+      if (err.response && err.response.data && err.response.data.detail === 'MFA code required') {
+        setNeedsOtp(true);
+        setError('MFA code required');
+      } else {
+        setError(`Invalid Credentials: ${err}`);
+      }
     }
   };
 
@@ -64,6 +75,18 @@ const Login = () => {
                   required
                 />
               </div>
+              {needsOtp && (
+                <div className='mb-4'>
+                  <label htmlFor='otp' className='form-label'>Authentication Code</label>
+                  <input
+                    type='text'
+                    className='form-control'
+                    id='otp'
+                    value={otp}
+                    onChange={(e) => setOtp(e.target.value)}
+                    />
+                </div>
+              )}
               {error && <div className="text-danger mb-2">{error}</div>}
             </>
           )}

@@ -11,6 +11,7 @@ import Login from './pages/Login';
 import NotFound from './pages/NotFound';
 import Register from './pages/Register';
 import AuthAdmin from './pages/AuthAdmin';
+import Account from './pages/Account'
 import './styles/App.css';
 
 function Logout() {
@@ -35,6 +36,7 @@ const App = () => {
                     <Route path='/details/:base/:id' element={<Details />} />
                     <Route path='/change-log' element={<ChangeLog />} />
                     <Route path='/auth-admin' element={<AuthAdmin />} />
+                    <Route path='/account' element={<Account />} />
                     <Route path='*' element={<NotFound />} />
                 </Route>
             </Route>

@@ -15,6 +15,9 @@ const authApi = axios.create({
 // Login functions
 export const register = (data) => authApi.post('/users/register/', data);
 export const login = (data) => authApi.post('/users/login/', data);
+export const enableMFA = () => authApi.post('/mfa/enable/');
+export const verifyMFA = (data) => authApi.post('/mfa/verify/');
+export const disableMFA = () => authApi.post('/mfa/disable/');
 
 // User Management functions
 export const fetchUsers = () => authApi.get('/users/');
@@ -40,4 +43,5 @@ export const deleteCryptaGroup = (id) => authApi.delete(`/crypta_groups/${id}/`)
 export const createQueryPermission = (data) => authApi.post('/query_permissions/create/', data);
 export const deleteQueryPermission = (id) => authApi.delete(`/query_permissions/${id}/`);
 
+export { gatewayUrl }
 export default authApi;
