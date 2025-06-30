@@ -103,6 +103,17 @@ class UsersView_v1(APIView):
             logger.error('Failed to contact auth service: %s', exc, exc_info=True)
             return Response({'detail': 'Authentication service unavailable'}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
 
+    def delete(self, request, pk, *args, **kwargs):
+        logger.debug('Delete user %s request', pk)
+        try:
+            resp = requests.delete(f"{AUTH_USERS_URL}{pk}/")
+            logger.info('Auth Service returned status %s', resp.status_code)
+            data = resp.json() if resp.text else ''
+            return Response(data, status=resp.status_code)
+        except requests.RequestException as exc:
+            logger.error('Failed to contact auth service: %s', exc, exc_info=True)
+            return Response({'detail': 'Authentication service unavailable'}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
+
 
 class RolesView_v1(APIView):
     permission_classes = [permissions.AllowAny]
@@ -114,6 +125,32 @@ class RolesView_v1(APIView):
             resp = requests.get(AUTH_ROLES_URL)
             logger.info('Auth Service returned status %s', resp.status_code)
             data = resp.json()
+            return Response(data, status=resp.status_code)
+        except requests.RequestException as exc:
+            logger.error('Failed to contact auth service: %s', exc, exc_info=True)
+            return Response({'detail': 'Authentication service unavailable'}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
+
+
+class RoleDetailView_v1(APIView):
+    permission_classes = [permissions.AllowAny]
+
+    def delete(self, request, pk, *args, **kwargs):
+        logger.debug('Delete role %s request', pk)
+        try:
+            resp = requests.delete(f"{AUTH_ROLES_URL}{pk}/")
+            logger.info('Auth Service returned status %s', resp.status_code)
+            data = resp.json() if resp.text else ''
+            return Response(data, status=resp.status_code)
+        except requests.RequestException as exc:
+            logger.error('Failed to contact auth service: %s', exc, exc_info=True)
+            return Response({'detail': 'Authentication service unavailable'}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
+
+    def post(self, request, *args, **kwargs):
+        logger.debug('Create role request')
+        try:
+            resp = requests.post(f'{AUTH_ROLES_URL}create/', json=request.data)
+            logger.info('Auth Service returned status %s', resp.status_code)
+            data = resp.json() if resp.text else ''
             return Response(data, status=resp.status_code)
         except requests.RequestException as exc:
             logger.error('Failed to contact auth service: %s', exc, exc_info=True)
@@ -146,6 +183,32 @@ class OrganizationsView_v1(APIView):
             resp = requests.get(AUTH_ORGS_URL)
             logger.info('Auth Service returned status %s', resp.status_code)
             data = resp.json()
+            return Response(data, status=resp.status_code)
+        except requests.RequestException as exc:
+            logger.error('Failed to contact auth service: %s', exc, exc_info=True)
+            return Response({'detail': 'Authentication service unavailable'}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
+
+
+class OrganizationDetailView_v1(APIView):
+    permission_classes = [permissions.AllowAny]
+
+    def delete(self, request, pk, *args, **kwargs):
+        logger.debug('Delete organization %s request', pk)
+        try:
+            resp = requests.delete(f"{AUTH_ORGS_URL}{pk}/")
+            logger.info('Auth Service returned status %s', resp.status_code)
+            data = resp.json() if resp.text else ''
+            return Response(data, status=resp.status_code)
+        except requests.RequestException as exc:
+            logger.error('Failed to contact auth service: %s', exc, exc_info=True)
+            return Response({'detail': 'Authentication service unavailable'}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
+
+    def post(self, request, *args, **kwargs):
+        logger.debug('Create organization request')
+        try:
+            resp = requests.post(f'{AUTH_ORGS_URL}create/', json=request.data)
+            logger.info('Auth Service returned status %s', resp.status_code)
+            data = resp.json() if resp.text else ''
             return Response(data, status=resp.status_code)
         except requests.RequestException as exc:
             logger.error('Failed to contact auth service: %s', exc, exc_info=True)
@@ -185,6 +248,32 @@ class CryptaGroupsView_v1(APIView):
             return Response({'detail': 'Authentication service unavailable'}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
 
 
+class CryptaGroupDetailView_v1(APIView):
+    permission_classes = [permissions.AllowAny]
+
+    def delete(self, request, pk, *args, **kwargs):
+        logger.debug('Delete crypta group %s request', pk)
+        try:
+            resp = requests.delete(f"{AUTH_GROUPS_URL}{pk}/")
+            logger.info('Auth Service returned status %s', resp.status_code)
+            data = resp.json() if resp.text else ''
+            return Response(data, status=resp.status_code)
+        except requests.RequestException as exc:
+            logger.error('Failed to contact auth service: %s', exc, exc_info=True)
+            return Response({'detail': 'Authentication service unavailable'}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
+
+    def post(self, request, *args, **kwargs):
+        logger.debug('Create crypta group request')
+        try:
+            resp = requests.post(f'{AUTH_GROUPS_URL}create/', json=request.data)
+            logger.info('Auth Service returned status %s', resp.status_code)
+            data = resp.json() if resp.text else ''
+            return Response(data, status=resp.status_code)
+        except requests.RequestException as exc:
+            logger.error('Failed to contact auth service: %s', exc, exc_info=True)
+            return Response({'detail': 'Authentication service unavailable'}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
+
+
 class QueryPermissionsView_v1(APIView):
     permission_classes = [permissions.AllowAny]
 
@@ -195,6 +284,32 @@ class QueryPermissionsView_v1(APIView):
             resp = requests.get(AUTH_PERMS_URL)
             logger.info('Auth Service returned status %s', resp.status_code)
             data = resp.json()
+            return Response(data, status=resp.status_code)
+        except requests.RequestException as exc:
+            logger.error('Failed to contact auth service: %s', exc, exc_info=True)
+            return Response({'detail': 'Authentication service unavailable'}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
+
+
+class QueryPermissionDetailView_v1(APIView):
+    permission_classes = [permissions.AllowAny]
+
+    def delete(self, request, pk, *args, **kwargs):
+        logger.debug('Delete query permission %s request', pk)
+        try:
+            resp = requests.delete(f"{AUTH_PERMS_URL}{pk}/")
+            logger.info('Auth Service returned status %s', resp.status_code)
+            data = resp.json() if resp.text else ''
+            return Response(data, status=resp.status_code)
+        except requests.RequestException as exc:
+            logger.error('Failed to contact auth service: %s', exc, exc_info=True)
+            return Response({'detail': 'Authentication service unavailable'}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
+
+    def post(self, request, *args, **kwargs):
+        logger.debug('Create query permission request')
+        try:
+            resp = requests.post(f'{AUTH_PERMS_URL}create/', json=request.data)
+            logger.info('Auth Service returned status %s', resp.status_code)
+            data = resp.json() if resp.text else ''
             return Response(data, status=resp.status_code)
         except requests.RequestException as exc:
             logger.error('Failed to contact auth service: %s', exc, exc_info=True)

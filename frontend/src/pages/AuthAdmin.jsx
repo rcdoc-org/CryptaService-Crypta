@@ -1,8 +1,11 @@
 import React, { useState, useEffect } from 'react';
+import * as bootstrap from 'bootstrap';
 import '../styles/AuthAdmin.css';
 import AsidePanel from '../components/AsidePanel';
+import Button from '../components/Button';
 import Card from '../components/Card';
 import DataGrid from '../components/DataGrid';
+import Modal from '../components/Modal';
 import {
   fetchUsers,
   fetchRoles,
@@ -11,6 +14,16 @@ import {
   fetchLoginAttempts,
   fetchCryptaGroups,
   fetchQueryPermissions,
+  createUser,
+  deleteUser,
+  createRole,
+  deleteRole,
+  createOrganization,
+  deleteOrganization,
+  createCryptaGroup,
+  deleteCryptaGroup,
+  createQueryPermission,
+  deleteQueryPermission,
 } from '../api/auth';
 
 const menuItems = [
@@ -26,8 +39,10 @@ const menuItems = [
 const columnsMap = {
   users: [
     { title: 'ID', field: 'id' },
-    { title: 'Username', field: 'username' },
-    { title: 'Email', field: 'email' }
+    { title: 'Email', field: 'email' },
+    { title: 'Active', field: 'is_active'},
+    { title: 'Date Joined', field: 'date_joined'},
+    { title: 'Suspended', field: 'suspend'}
 
   ],
   roles: [
@@ -66,6 +81,12 @@ const columnsMap = {
   ]
 };
 
+const booleanFields = ['is_active', 'is_staff', 'suspend', 'revoked', 'successful', 'is_primary'];
+
+const createFieldsMap = {
+  users: ['email', 'password'],
+};
+
 const fetchMap = {
   users: fetchUsers,
   roles: fetchRoles,
@@ -79,17 +100,96 @@ const fetchMap = {
 const AuthAdmin = () => {
   const [active, setActive] = useState('users');
   const [rows, setRows] = useState([]);
+  const [selectedRow, setSelectedRow] = useState(null);
+  const [showCreate, setShowCreate] = useState(false);
+  const [formData, setFormData] = useState({});
+
+  const createMap = {
+    users: createUser,
+    roles: createRole,
+    organization: createOrganization,
+    cryptaGroup: createCryptaGroup,
+    queryPermission: createQueryPermission,
+  };
+
+  const deleteMap = {
+    users: deleteUser,
+    roles: deleteRole,
+    organization: deleteOrganization,
+    cryptaGroup: deleteCryptaGroup,
+    queryPermission: deleteQueryPermission,
+  };
 
   const columns = columnsMap[active];
 
-  useEffect (() => {
+  const loadRows = () => {
     const fetchFn = fetchMap[active];
     if (fetchFn) {
       fetchFn()
         .then(res => setRows(res.data))
         .catch(() => setRows([]));
     }
+  };
+
+  useEffect(() => {
+    loadRows();
   }, [active]);
+
+  const openCreate = () => {
+    const init = {};
+    const fields = createFieldsMap[active] ||
+      columnsMap[active].filter(col => col.field !== 'id').map(col => col.field);
+    fields.forEach(field => {
+      init[field] = booleanFields.includes(field) ? false : '';
+    });
+    setFormData(init);
+    setShowCreate(true);
+  };
+
+  const handleCreate = () => {
+    const fn = createMap[active];
+    if (fn) {
+      const data = { ...formData };
+      if (active === 'users') {
+        data.username = formData.email;
+      }
+      fn(data).then(loadRows);
+    }
+    const modalEl = document.getElementById('createModal');
+    if (modalEl) {
+      const instance = bootstrap.Modal.getInstance(modalEl);
+      if (instance) {
+        instance.hide();
+      } else {
+        setShowCreate(false);
+      }
+    } else {
+      setShowCreate(false);
+    }
+  };
+
+  useEffect(() => {
+    if (showCreate) {
+      const modalEl = document.getElementById('createModal');
+      if (modalEl) {
+        const instance = bootstrap.Modal.getOrCreateInstance(modalEl);
+        const hideHandler = () => setShowCreate(false);
+        modalEl.addEventListener('hidden.bs.modal', hideHandler, { once: true });
+        instance.show();
+      }
+    }
+  }, [showCreate])
+
+  const handleDelete = () => {
+    if (!selectedRow) return;
+    const fn = deleteMap[active];
+    if (fn) {
+      fn(selectedRow.id).then(() => {
+        setSelectedRow(null);
+        loadRows();
+      });
+    }
+  };
 
   return (
     <div className="container-fluid auth-admin-page">
@@ -110,7 +210,53 @@ const AuthAdmin = () => {
         </AsidePanel>
         <main className="col-md-8 p-4 bg-light">
           <Card title={menuItems.find(m => m.key === active).label}>
-            <DataGrid columns={columns} data={rows} />
+            <row className='button-row'>
+                <Button
+                  className="Create mb-2 action-btn rounded-4"
+                  onClick={openCreate}
+                >
+                  Create
+                </Button>
+                <Button
+                  className="Create mb-2 action-btn rounded-4"
+                  disabled={!selectedRow}
+                  onClick={handleDelete}
+                >
+                  Delete
+                </Button>
+            </row>
+            <DataGrid columns={columns} data={rows} options={{onSelect: setSelectedRow}} />
+            {showCreate && (
+              <Modal id="createModal" title={`Create ${active}`}
+                footer={<Button onClick={handleCreate}>Save</Button>}
+              >
+                {(createFieldsMap[active] ||
+                    columnsMap[active].filter(c => c.field !== 'id').map(c => c.field))
+                  .map(field => {
+                    const col = columnsMap[active].find(c => c.field === field) || { title: field };
+                    return (
+                      <div className="mb-3" key={field}>
+                        <label className="form-label">{col.title}</label>
+                        {booleanFields.includes(field) ? (
+                          <input
+                            type="checkbox"
+                            className="form-check-input"
+                            checked={formData[field]}
+                            onChange={e => setFormData({ ...formData, [field]: e.target.checked })}
+                          />
+                        ) : (
+                          <input
+                            type={field === 'password' ? 'password' : 'text'}
+                            className="form-control"
+                            value={formData[field]}
+                            onChange={e => setFormData({ ...formData, [field]: e.target.value })}
+                          />
+                        )}
+                      </div>
+                    );
+                  })}
+              </Modal>
+            )}
           </Card>
         </main>
       </div>

@@ -1,0 +1,10 @@
+.card-body small {
+    display: block;
+    text-align: left !important;
+}
+.card-body .button-row {
+    display:flex;
+    justify-content: flex-start;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}

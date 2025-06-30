@@ -133,7 +133,7 @@ class LoginAttempt(models.Model):
 
 
 class Organization(models.Model):
-    name = models.BigIntegerField()
+    name = models.CharField(max_length=255, null=False)
     ref_location_id = models.BigIntegerField()
 
     def __str__(self):  # pragma: no cover - simple representation
@@ -141,7 +141,7 @@ class Organization(models.Model):
 
 
 class Role(models.Model):
-    name = models.BigIntegerField()
+    name = models.CharField(max_length=255, null=False)
 
     def __str__(self):  # pragma: no cover - simple representation
         return str(self.name)
