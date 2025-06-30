@@ -109,7 +109,7 @@ class UserProfile(models.Model):
     secret_question_2 = models.CharField(
         max_length=255, choices=SecretQuestions.choices, blank=True
     )
-    secret_question_2_hash = models.CharField()
+    secret_question_2_hash = models.CharField(max_length=255)
     failed_logins = models.BigIntegerField(default=0)
     locked_until = models.DateTimeField(null=True, blank=True)
 
