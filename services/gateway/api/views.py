@@ -17,6 +17,9 @@ AUTH_ORGS_URL = os.getenv('AUTH_ORGS_URL', 'http://localhost:8002/api/v1/organiz
 AUTH_ATTEMPTS_URL = os.getenv('AUTH_ATTEMPTS_URL', 'http://localhost:8002/api/v1/login_attempts/')
 AUTH_GROUPS_URL = os.getenv('AUTH_GROUPS_URL', 'http://localhost:8002/api/v1/crypta_groups/')
 AUTH_PERMS_URL = os.getenv('AUTH_PERMS_URL', 'http://localhost:8002/api/v1/query_permissions/')
+AUTH_MFA_ENABLE_URL = os.getenv('AUTH_MFA_ENABLE_URL', 'http://localhost:8002/api/v1/mfa/enable/')
+AUTH_MFA_VERIFY_URL = os.getenv('AUTH_MFA_VERIFY_URL', 'http://localhost:8002/api/v1/mfa/verify/')
+AUTH_MFA_DISABLE_URL = os.getenv('AUTH_MFA_DISABLE_URL', 'http://localhost:8002/api/v1/mfa/disable/')
 
 # Create your views here.
 class CreateUserView_v1(APIView):
@@ -310,6 +313,54 @@ class QueryPermissionDetailView_v1(APIView):
             resp = requests.post(f'{AUTH_PERMS_URL}create/', json=request.data)
             logger.info('Auth Service returned status %s', resp.status_code)
             data = resp.json() if resp.text else ''
+            return Response(data, status=resp.status_code)
+        except requests.RequestException as exc:
+            logger.error('Failed to contact auth service: %s', exc, exc_info=True)
+            return Response({'detail': 'Authentication service unavailable'}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
+
+
+class EnableMFAView_v1(APIView):
+    permission_classes = [permissions.AllowAny]
+
+    def post(self, request, *args, **kwargs):
+        logger.debug('Forwarding enable MFA request')
+        try:
+            resp = requests.post(AUTH_MFA_ENABLE_URL, json=request.data)
+            logger.info('Auth Service returned status %s', resp.status_code)
+            content_type = resp.headers.get('Content-Type', '')
+            data = resp.json() if content_type.startswith('application/json') else resp.text
+            return Response(data, status=resp.status_code)
+        except requests.RequestException as exc:
+            logger.error('Failed to contact auth service: %s', exc, exc_info=True)
+            return Response({'detail': 'Authentication service unavailable'}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
+
+
+class VerifyMFAView_v1(APIView):
+    permission_classes = [permissions.AllowAny]
+
+    def post(self, request, *args, **kwargs):
+        logger.debug('Forwarding verify MFA request')
+        try:
+            resp = requests.post(AUTH_MFA_VERIFY_URL, json=request.data)
+            logger.info('Auth Service returned status %s', resp.status_code)
+            content_type = resp.headers.get('Content-Type', '')
+            data = resp.json() if content_type.startswith('application/json') else resp.text
+            return Response(data, status=resp.status_code)
+        except requests.RequestException as exc:
+            logger.error('Failed to contact auth service: %s', exc, exc_info=True)
+            return Response({'detail': 'Authentication service unavailable'}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
+
+
+class DisableMFAView_v1(APIView):
+    permission_classes = [permissions.AllowAny]
+
+    def post(self, request, *args, **kwargs):
+        logger.debug('Forwarding disable MFA request')
+        try:
+            resp = requests.post(AUTH_MFA_DISABLE_URL, json=request.data)
+            logger.info('Auth Service returned status %s', resp.status_code)
+            content_type = resp.headers.get('Content-Type', '')
+            data = resp.json() if content_type.startswith('application/json') else resp.text
             return Response(data, status=resp.status_code)
         except requests.RequestException as exc:
             logger.error('Failed to contact auth service: %s', exc, exc_info=True)
