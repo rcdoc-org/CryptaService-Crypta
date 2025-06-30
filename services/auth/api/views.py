@@ -1,7 +1,13 @@
 import logging
+from datetime import datetime
+from django.utils import timezone
 from rest_framework import generics
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+from rest_framework_simplejwt.views import TokenObtainPairView
+from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework.exceptions import AuthenticationFailed
 from django.contrib.auth import get_user_model
 
 from .models import ( 
@@ -28,6 +34,67 @@ User = get_user_model()
 
 
 # Create your views here.
+class LoggingTokenObtainPairSerializer(TokenObtainPairSerializer):
+    """Serializer that logs login attempts and stores issued tokens."""
+
+    def validate(self, attrs):
+        request = self.context.get('request')
+        ip_address = request.META.get('REMOTE_ADDR') if request else ''
+        username = attrs.get('username')
+        user_obj = None
+        if username:
+            try:
+                user_obj = User.objects.get(username=username)
+            except User.DoesNotExist:
+                user_obj = None
+
+        try:
+            data = super().validate(attrs)
+        except AuthenticationFailed:
+            if user_obj:
+                LoginAttempt.objects.create(
+                    user=user_obj,
+                    time=timezone.now(),
+                    successful=False,
+                    ip_address=ip_address,
+                )
+            raise
+
+        # Successful login
+        LoginAttempt.objects.create(
+            user=self.user,
+            time=timezone.now(),
+            successful=True,
+            ip_address=ip_address,
+        )
+
+        refresh = self.get_token(self.user)
+        access = refresh.access_token
+
+        Token.objects.create(
+            user=self.user,
+            token=refresh["jti"],
+            type=Token.TokenType.REFRESH,
+            expiration=datetime.fromtimestamp(refresh["exp"], tz=timezone.get_default_timezone())
+        )
+
+        Token.objects.create(
+            user=self.user,
+            token=access["jti"],
+            type=Token.TokenType.ACCESS,
+            expiration=datetime.fromtimestamp(access["exp"], tz=timezone.get_default_timezone()),
+        )
+
+        data["refresh"] = str(refresh)
+        data["access"] = str(access)
+        return data
+
+
+class LoggingTokenObtainPairView(TokenObtainPairView):
+    """View that uses ``LoggingTokenObtainPairSerializer``."""
+
+    serializer_class = LoggingTokenObtainPairSerializer
+
 class CreateUserView(generics.CreateAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
@@ -88,6 +155,7 @@ class TokenListView(generics.ListAPIView):
     def get(self, request, *args, **kwargs):
         logger.debug('Token list requested')
         response = super().get(request, *args, **kwargs)
+        logger.debug('Data: %s', response.data)
         logger.info('Returned %d tokens', len(response.data))
         return response
 

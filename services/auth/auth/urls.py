@@ -30,8 +30,9 @@ from api.views import (
     CryptaGroupDetailView,
     QueryPermissionListCreateView,
     QueryPermissionDetailView,
+    LoggingTokenObtainPairView,
 )
-from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
+from rest_framework_simplejwt.views import TokenRefreshView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -58,7 +59,8 @@ urlpatterns = [
     path('api/v1/query_permissions/', QueryPermissionListCreateView.as_view(), name='query-permission-list'),
     path('api/v1/query_permissions/create/', QueryPermissionListCreateView.as_view(), name='query-permission-list'),
     path('api/v1/query_permissions/<int:pk>/', QueryPermissionDetailView.as_view(), name='query-permission-detail'),
-    path('api/v1/tokens/retrieve/', TokenObtainPairView.as_view(), name='get_token'),
+    # path('api/v1/tokens/retrieve/', TokenObtainPairView.as_view(), name='get_token'),
+    path('api/v1/tokens/retrieve/', LoggingTokenObtainPairView.as_view(), name='get_token'),
     path('api/v1/tokens/refresh/', TokenRefreshView.as_view(), name='refresh_token'),
     path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),
 ]
