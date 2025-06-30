@@ -1,7 +1,7 @@
 import logging
 from datetime import datetime
 from django.utils import timezone
-from rest_framework import generics
+from rest_framework import generics, status
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
@@ -9,14 +9,16 @@ from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.exceptions import AuthenticationFailed
 from django.contrib.auth import get_user_model
+import pyotp
 
-from .models import ( 
+from .models import (
     Role,
     Token,
     Organization,
     LoginAttempt,
     CryptaGroup,
     QueryPermission,
+    UserProfile,
 )
 from .serializers import (
     UserSerializer,
@@ -40,6 +42,7 @@ class LoggingTokenObtainPairSerializer(TokenObtainPairSerializer):
     def validate(self, attrs):
         request = self.context.get('request')
         ip_address = request.META.get('REMOTE_ADDR') if request else ''
+        otp = attrs.pop('otp', None)
         username = attrs.get('username')
         user_obj = None
         if username:
@@ -59,6 +62,17 @@ class LoggingTokenObtainPairSerializer(TokenObtainPairSerializer):
                     ip_address=ip_address,
                 )
             raise
+
+        profile = self.user.profile
+        totp = pyotp.TOTP(profile.mfa_secret_hash)
+        if not otp or not totp.verify(otp):
+            LoginAttempt.objects.create(
+                user=self.user,
+                time=timezone.now(),
+                successful=False,
+                ip_address=ip_address,
+            )
+            raise AuthenticationFailed('Invalid OTP')
 
         # Successful login
         LoginAttempt.objects.create(
@@ -106,7 +120,22 @@ class CreateUserView(generics.CreateAPIView):
 
     def create(self, request, *args, **kwargs):
         logger.debug('Creating user %s', request.data.get('username'))
-        return super().create(request, *args, **kwargs)
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        user = serializer.save()
+
+        secret = pyotp.random_base32()
+        UserProfile.objects.create(
+            user=user,
+            name_first='',
+            name_last='',
+            mfa_method=UserProfile.MfaMethod.AUTHENTICATOR,
+            mfa_secret_hash=secret,
+            secret_answer_1_hash='',
+            secret_answer_2_hash='',
+        )
+        headers = self.get_success_headers(serializer.data)
+        return Response({'id': user.id, 'mfa_secret': secret}, status=status.HTTP_201_CREATED, headers=headers)
 
 class UserListView(generics.ListAPIView):
     queryset = User.objects.all()
@@ -251,3 +280,29 @@ class UserDetailView(generics.RetrieveDestroyAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
     permission_classes = [AllowAny]
+
+
+class VerifyMfaView(generics.GenericAPIView):
+    """Verify MFA OTP for a user during registration."""
+
+    permission_classes = [AllowAny]
+
+    def post(self, request, *args, **kwargs):
+        user_id = request.data.get('user_id')
+        otp = request.data.get('otp')
+        if not user_id or not otp:
+            return Response({'detail': 'Invalid request'}, status=status.HTTP_400_BAD_REQUEST)
+        try:
+            user = User.objects.get(id=user_id)
+            profile = user.profile
+        except (User.DoesNotExist, UserProfile.DoesNotExist):
+            return Response({'detail': 'User not found'}, status=status.HTTP_400_BAD_REQUEST)
+
+        totp = pyotp.TOTP(profile.mfa_secret_hash)
+        if not totp.verify(otp):
+            return Response({'detail': 'Invalid OTP'}, status=status.HTTP_400_BAD_REQUEST)
+
+        profile.mfa_enabled = True
+        profile.mfa_verified_at = timezone.now()
+        profile.save()
+        return Response({'detail': 'MFA verified'}, status=status.HTTP_200_OK)

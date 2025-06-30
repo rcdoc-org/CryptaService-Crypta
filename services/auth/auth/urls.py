@@ -31,12 +31,14 @@ from api.views import (
     QueryPermissionListCreateView,
     QueryPermissionDetailView,
     LoggingTokenObtainPairView,
+    VerifyMfaView,
 )
 from rest_framework_simplejwt.views import TokenRefreshView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/v1/users/register/', CreateUserView.as_view(), name='register'),
+    path('api/v1/users/verify_mfa/', VerifyMfaView.as_view(), name='verify-mfa'),
     path('api/v1/users/', UserListView.as_view(), name='user-list'),
     path('api/v1/users/<int:pk>/', UserDetailView.as_view(), name='user-detail'),
 

@@ -101,7 +101,7 @@ class UserProfile(models.Model):
         max_length=20, choices=MfaMethod.choices, default=MfaMethod.NONE
     )
     mfa_secret_hash = models.CharField(max_length=255)
-    mfa_verified_at = models.DateTimeField()
+    mfa_verified_at = models.DateTimeField(null=True, blank=True)
     secret_question_1 = models.CharField(
         max_length=255, choices=SecretQuestions.choices, blank=True
     )
