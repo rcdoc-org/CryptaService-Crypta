@@ -5,7 +5,7 @@ cffi==1.17.1
 charset-normalizer==3.4.2
 cryptography==45.0.4
 dill==0.4.0
-Django==5.2
+Django==5.0.14
 django-cors-headers==4.7.0
 djangorestframework==3.16.0
 djangorestframework_simplejwt==5.5.0
@@ -15,11 +15,13 @@ isort==6.0.1
 logging==0.4.9.6
 mccabe==0.7.0
 msal==1.32.3
+mssql-django==1.5
 platformdirs==4.3.8
 psycopg2-binary==2.9.10
 pycparser==2.22
 PyJWT==2.9.0
 pylint==3.3.7
+pyodbc==5.2.0
 pyotp==2.9.0
 python-dotenv==1.1.0
 pytz==2025.2

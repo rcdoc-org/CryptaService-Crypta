@@ -99,10 +99,10 @@ class UserProfile(models.Model):
     name_last = models.CharField(max_length=255)
     mfa_enabled = models.BooleanField(default=False)
     mfa_method = models.CharField(
-        max_length=20, choices=MfaMethod.choices, default=MfaMethod.NONE
+        max_length=20, choices=MfaMethod.choices, default="none", null=True, blank=True
     )
     mfa_secret_hash = models.CharField(max_length=255)
-    mfa_verified_at = models.DateTimeField(default=timezone.now(), null=True, blank=True)
+    mfa_verified_at = models.DateTimeField(default=timezone.now, null=True, blank=True)
     secret_question_1 = models.CharField(
         max_length=255, choices=SecretQuestions.choices, blank=True
     )
