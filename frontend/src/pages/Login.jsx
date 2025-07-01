@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import '../styles/Login.css';
 import Card from '../components/Card';
 import logo from '../assets/images/logo.png';
-import { login } from '../api/auth';
+import { login, ssoCallback } from '../api/auth';
 import { ACCESS_TOKEN, REFRESH_TOKEN } from '../../constants';
 import microsoftLogo from '../assets/images/microsoft.svg';
 
@@ -12,6 +12,27 @@ const Login = () => {
   const [step, setStep] = useState(1);
   const [error, setError] = useState(null);
   const [otp, setOtp] = useState('');
+
+  const handleSsoLogin = () => {
+    window.location.href= '/sso/login/';
+  };
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const code = params.get('code');
+    if (code) {
+      (async () => {
+        try {
+          const { data } = await ssoCallback({ code });
+          localStorage.setItem(ACCESS_TOKEN, data.access);
+          localStorage.setItem(REFRESH_TOKEN, data.refresh);
+          window.location.href = '/';
+        } catch (err) {
+          setError('SSO login failed');
+        }
+      })();
+    }
+  }, []);
 
   const handleEmailSubmit = (e) => {
     e.preventDefault();
@@ -117,7 +138,7 @@ const Login = () => {
             <button
               type='button'
               className='btn btn-primary w-100 btn-login'
-              onClick={() => { window.location.href = '/sso/login/'; }}
+              onClick={handleSsoLogin}
               >
                 <img src={microsoftLogo} alt='Microsoft' width="20" className='me-2' />
                 Sign in with Microsoft

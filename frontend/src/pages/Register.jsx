@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import QRCode from 'react-qr-code';
 import '../styles/Login.css';
 import Card from '../components/Card';
 import logo from '../assets/images/logo.png';
-import { register, verifyMfa } from '../api/auth';
+import { register, verifyMfa, ssoCallback } from '../api/auth';
 import microsoftLogo from '../assets/images/microsoft.svg';
 
 const Register = () => {
@@ -15,6 +15,27 @@ const Register = () => {
   const [secret, setSecret] = useState('');
   const [userId, setUserId] = useState(null);
   const [error, setError] = useState('');
+
+  const handleSsoLogin = () => {
+    window.location.href = '/sso/login/';
+  };
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const code = params.get('code');
+    if (code) {
+      (async () => {
+        try {
+          const { data } = await ssoCallback({ code });
+          localStorage.setItem(ACCESS_TOKEN, data.access);
+          localStorage.setItem(REFRESH_TOKEN, data.refresh);
+          window.location.href = '/';
+        } catch (err) {
+          setError('SSO login failed');
+        }
+      })();
+    }
+  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -116,7 +137,7 @@ const Register = () => {
               <button
                 type='button'
                 className='btn btn-primary w-100 btn-login'
-                onClick={() => { window.location.href = '/sso/login/'; }}
+                onClick={handleSsoLogin}
                 >
                   <img src={microsoftLogo} alt='Microsoft' width='20' className='me-2' />
                   Register with Microsoft
