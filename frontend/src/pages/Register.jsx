@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import QRCode from 'react-qr-code';
 import '../styles/Login.css';
 import Card from '../components/Card';
 import logo from '../assets/images/logo.png';
@@ -89,7 +90,10 @@ const Register = () => {
           {step === 2 && (
             <>
               <p className="mb-3">Scan the secret below in your authenticator app and enter the code to verify.</p>
-              <pre className="mb-3">{secret}</pre>
+              <div className='d-flex justify-content-center mb-3'>
+                <QRCode value={`otpauth://totp/Crypta:${email}?secret=${secret}&issuer=Crypta`} />
+              </div>
+              {/* <pre className="mb-3">{secret}</pre> */}
               <div className="mb-4">
                 <label htmlFor="otp" className="form-label">One-Time Password</label>
                 <input
