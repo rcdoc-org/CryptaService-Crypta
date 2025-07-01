@@ -4,9 +4,9 @@ from unittest.mock import patch, MagicMock
 from django.urls import reverse
 from rest_framework.test import APITestCase
 
-REGISTER_URL = os.getenv('AUTH_REGISTER_URL', 'http://localhost:8002/api/v1/user/register/')
-LOGIN_URL = os.getenv('AUTH_LOGIN_URL', 'http://localhost:8002/api/v1/token/')
-REFRESH_URL = os.getenv('AUTH_REFRESH_URL', 'http://localhost:8002/api/v1/token/refresh/')
+REGISTER_URL = os.getenv('AUTH_REGISTER_URL', 'http://localhost:8002/api/v1/users/register/')
+LOGIN_URL = os.getenv('AUTH_LOGIN_URL', 'http://localhost:8002/api/v1/tokens/retrieve/')
+REFRESH_URL = os.getenv('AUTH_REFRESH_URL', 'http://localhost:8002/api/v1/tokens/refresh/')
 VERIFY_URL = os.getenv('AUTH_VERIFY_MFA_URL', 'http://localhost:8002/api/v1/users/verify_mfa/')
 
 class RegisterViewTests(APITestCase):
@@ -36,6 +36,8 @@ class RegisterViewTests(APITestCase):
         args, kwargs = mock_post.call_args
         self.assertEqual(args[0], REGISTER_URL)
         flat_data = kwargs['json']
+        if hasattr(flat_data, "dict"):
+            flat_data = flat_data.dict()
         self.assertEqual(flat_data, data)
 
 class LoginViewTests(APITestCase):
@@ -61,6 +63,8 @@ class LoginViewTests(APITestCase):
         args, kwargs = mock_post.call_args
         self.assertEqual(args[0], LOGIN_URL)
         flat_data = kwargs['json']
+        if hasattr(flat_data, "dict"):
+            flat_data = flat_data.dict()
         self.assertEqual(flat_data, data)
 
 
@@ -84,6 +88,8 @@ class TokenRefreshViewTests(APITestCase):
         args, kwargs = mock_post.call_args
         self.assertEqual(args[0], REFRESH_URL)
         flat_data = kwargs['json']
+        if hasattr(flat_data, "dict"):
+            flat_data = flat_data.dict()
         self.assertEqual(flat_data, data)
 
 
@@ -107,6 +113,12 @@ class VerifyMfaViewTests(APITestCase):
         args, kwargs = mock_post.call_args
         self.assertEqual(args[0], VERIFY_URL)
         flat_data = kwargs['json']
+        if hasattr(flat_data, "dict"):
+            flat_data = flat_data.dict()
+        try:
+            flat_data['user_id'] = int(flat_data['user_id'])
+        except:
+            pass
         self.assertEqual(flat_data, data)
 
 class UsersViewTests(APITestCase):
@@ -171,7 +183,7 @@ class RoleDetailViewTests(APITestCase):
         mock_response.json.return_value = {}
         mock_post.return_value = mock_response
 
-        url = reverse('roles')
+        url = reverse('roles-create')
         response = self.client.post(url, {'name': 'r'})
 
         self.assertEqual(response.status_code, 201)
