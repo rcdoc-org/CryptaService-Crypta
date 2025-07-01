@@ -344,7 +344,8 @@ class SSOLoginView_v1(APIView):
     def get(self, request, *args, **kwargs):
         logger.debug('Proxy SSO login request')
         try:
-            resp = requests.get(AUTH_SSO_LOGIN_URL)
+            # Don't follow redirects so the frontend can handle them
+            resp = requests.get(AUTH_SSO_LOGIN_URL, allow_redirects=False)
             logger.info('Auth Service returned status %s', resp.status_code)
             data = resp.json() if resp.headers.get('Content-Type', '').startswith('application/json') else resp.text
             headers = {}

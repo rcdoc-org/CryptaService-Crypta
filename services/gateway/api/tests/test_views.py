@@ -136,8 +136,7 @@ class SSOLoginViewTests(APITestCase):
         response = self.client.get(url)
 
         self.assertEqual(response.status_code, 302)
-        mock_get.assert_called_once_with(SSO_LOGIN_URL)
-
+        mock_get.assert_called_once_with(SSO_LOGIN_URL, allow_redirects=False)
 
 class SSOCallbackViewTests(APITestCase):
     @patch('api.views.requests.get')
