@@ -54,7 +54,8 @@ class DetailViewTests(APITestCase):
 
     def test_user_detail_get_delete(self):
         url = reverse("user-detail", args=[self.user.pk])
-        self.client.force_authenticate(self.user)
+        admin_user = User.objects.create_user(username="admin", email="admin@example.com", password="pass")
+        self.client.force_authenticate(admin_user)
         resp = self.client.get(url)
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
         resp = self.client.delete(url)
@@ -66,10 +67,11 @@ class VerifyMfaViewTests(APITestCase):
         secret = pyotp.random_base32()
         self.profile = UserProfile.objects.create(
             user=self.user,
-            name_first="",
-            name_last="",
+            name_first="test",
+            name_last="user",
             mfa_secret_hash=secret,
         )
+        self.user.refresh_from_db()
 
     def test_verify_mfa(self):
         totp = pyotp.TOTP(self.profile.mfa_secret_hash)

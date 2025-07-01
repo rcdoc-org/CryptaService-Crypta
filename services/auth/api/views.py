@@ -349,7 +349,7 @@ class VerifyMfaView(generics.GenericAPIView):
             return Response({'detail': 'User not found'}, status=status.HTTP_400_BAD_REQUEST)
 
         totp = pyotp.TOTP(profile.mfa_secret_hash)
-        if not totp.verify(otp):
+        if not totp.verify(otp, valid_window=1):
             logger.warning('Invalid OTP for user %s', user_id)
             return Response({'detail': 'Invalid OTP'}, status=status.HTTP_400_BAD_REQUEST)
 
