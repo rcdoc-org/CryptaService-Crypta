@@ -197,3 +197,9 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # https://pypi.org/project/django-cors-headers/
 CORS_ALLOW_ALL_ORIGINS = True
 CORS_ALLOW_CREDENTIALS = True
+
+# Microsoft SSO Config
+MICROSOFT_CLIENT_ID = os.getenv('MICROSOFT_CLIENT_ID')
+MICROSOFT_CLIENT_SECRET = os.getenv('MICROSOFT_CLIENT_SECRET')
+MICROSOFT_TENANT_ID = os.getenv('MICROSOFT_TENANT_ID')
+MICROSOFT_REDIRECT_URI = os.getenv('MICROSOFT_REDIRECT_URI', 'http://localhost/login')

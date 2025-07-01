@@ -32,6 +32,8 @@ from api.views import (
     QueryPermissionDetailView,
     LoggingTokenObtainPairView,
     VerifyMfaView,
+    MicrosoftLoginView,
+    MicrosoftCallbackView,
 )
 from rest_framework_simplejwt.views import TokenRefreshView
 
@@ -64,5 +66,7 @@ urlpatterns = [
     # path('api/v1/tokens/retrieve/', TokenObtainPairView.as_view(), name='get_token'),
     path('api/v1/tokens/retrieve/', LoggingTokenObtainPairView.as_view(), name='get_token'),
     path('api/v1/tokens/refresh/', TokenRefreshView.as_view(), name='refresh_token'),
+    path('api/v1/sso/login/', MicrosoftLoginView.as_view(), name='sso-login'),
+    path('api/v1/sso/callback/', MicrosoftCallbackView.as_view(), name='sso-callback'),
     path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),
 ]

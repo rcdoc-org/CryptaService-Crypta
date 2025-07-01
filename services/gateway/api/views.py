@@ -18,6 +18,8 @@ AUTH_ATTEMPTS_URL = os.getenv('AUTH_ATTEMPTS_URL', 'http://localhost:8002/api/v1
 AUTH_GROUPS_URL = os.getenv('AUTH_GROUPS_URL', 'http://localhost:8002/api/v1/crypta_groups/')
 AUTH_PERMS_URL = os.getenv('AUTH_PERMS_URL', 'http://localhost:8002/api/v1/query_permissions/')
 AUTH_VERIFY_MFA_URL = os.getenv('AUTH_VERIFY_MFA_URL', 'http://localhost:8002/api/v1/users/verify_mfa/')
+AUTH_SSO_LOGIN_URL = os.getenv('AUTH_SSO_LOGIN_URL', 'http://localhost:8002/api/v1/sso/login/')
+AUTH_SSO_CALLBACK_URL = os.getenv('AUTH_SSO_CALLBACK_URL', 'http://localhost:8002/api/v1/sso/callback/')
 
 # Create your views here.
 class CreateUserView_v1(APIView):
@@ -330,6 +332,40 @@ class VerifyMfaView_v1(APIView):
             logger.info('Auth Service returned status %s', resp.status_code)
             content_type = resp.headers.get('Content-Type', '')
             data = resp.json() if content_type.startswith('application/json') else resp.text
+            return Response(data, status=resp.status_code)
+        except requests.RequestException as exc:
+            logger.error('Failed to contact auth service: %s', exc, exc_info=True)
+            return Response({'detail': 'Authentication service unavailable'}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
+
+
+class SSOLoginView_v1(APIView):
+    permission_classes = [permissions.AllowAny]
+
+    def get(self, request, *args, **kwargs):
+        logger.debug('Proxy SSO login request')
+        try:
+            # Don't follow redirects so the frontend can handle them
+            resp = requests.get(AUTH_SSO_LOGIN_URL, allow_redirects=False)
+            logger.info('Auth Service returned status %s', resp.status_code)
+            data = resp.json() if resp.headers.get('Content-Type', '').startswith('application/json') else resp.text
+            headers = {}
+            if 'Location' in resp.headers:
+                headers['Location'] = resp.headers['Location']
+            return Response(data, status=resp.status_code, headers=headers)
+        except requests.RequestException as exc:
+            logger.error('Failed to contact auth service: %s', exc, exc_info=True)
+            return Response({'detail': 'Authentication service unavailable'}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
+
+
+class SSOCallbackView_v1(APIView):
+    permission_classes = [permissions.AllowAny]
+
+    def get(self, request, *args, **kwargs):
+        logger.debug('Proxy SSO callback request')
+        try:
+            resp = requests.get(AUTH_SSO_CALLBACK_URL, params=request.query_params)
+            logger.info('Auth Service returned status %s', resp.status_code)
+            data = resp.json() if resp.headers.get('Content-Type', '').startswith('application/json') else resp.text
             return Response(data, status=resp.status_code)
         except requests.RequestException as exc:
             logger.error('Failed to contact auth service: %s', exc, exc_info=True)

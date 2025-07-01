@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import QRCode from 'react-qr-code';
 import '../styles/Login.css';
 import Card from '../components/Card';
 import logo from '../assets/images/logo.png';
-import { register, verifyMfa } from '../api/auth';
+import { register, verifyMfa, ssoCallback, ssoLogin, AUTH_SSO_LOGIN_URL } from '../api/auth';
+import microsoftLogo from '../assets/images/microsoft.svg';
 
 const Register = () => {
   const [step, setStep] = useState(1);
@@ -14,6 +15,40 @@ const Register = () => {
   const [secret, setSecret] = useState('');
   const [userId, setUserId] = useState(null);
   const [error, setError] = useState('');
+
+  // const handleSsoLogin = async () => {
+  //   try {
+  //     const response = await ssoLogin();
+  //     const redirectURL = response.request.responseURL; // fallback
+  //     const locationHeader = response.headers['location']
+
+  //     // redirect
+  //     window.location.href = locationHeader || redirectURL;
+  //   } catch (err) {
+  //     console.error('SSO Login initiation failed:', err);
+  //     setError('Unable to start SSO Login.');
+  //   }
+  // };
+  const handleSsoLogin = () => {
+    window.location.href = AUTH_SSO_LOGIN_URL;
+  };
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const code = params.get('code');
+    if (code) {
+      (async () => {
+        try {
+          const { data } = await ssoCallback({ code });
+          localStorage.setItem(ACCESS_TOKEN, data.access);
+          localStorage.setItem(REFRESH_TOKEN, data.refresh);
+          window.location.href = '/';
+        } catch (err) {
+          setError('SSO login failed');
+        }
+      })();
+    }
+  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -109,6 +144,19 @@ const Register = () => {
           )}
           {error && <div className="text-danger mb-2">{error}</div>}
           <button type="submit" className="btn btn-primary w-100 btn-login mb-3">{step === 1 ? 'Register' : 'Verify'}</button>
+          {step === 1 && (
+            <div className='text-center mt-2'>
+              <div className='mb-1'>RCDOC SSO</div>
+              <button
+                type='button'
+                className='btn btn-primary w-100 btn-login'
+                onClick={handleSsoLogin}
+                >
+                  <img src={microsoftLogo} alt='Microsoft' width='20' className='me-2' />
+                  Register with Microsoft
+                </button>
+            </div>
+          )}
           {step === 1 && (
             <button
               type="button"

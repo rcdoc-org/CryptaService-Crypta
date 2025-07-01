@@ -13,11 +13,12 @@ class UserSerializer(serializers.ModelSerializer):
             'id',
             'username',
             'email',
-            'password', 
+            'password',
             'is_active',
             'is_staff',
             'suspend',
             'date_joined',
+            'sso_id',
             'ref_person_id',
             ]
     

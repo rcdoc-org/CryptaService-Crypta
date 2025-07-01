@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import '../styles/Login.css';
 import Card from '../components/Card';
 import logo from '../assets/images/logo.png';
-import { login } from '../api/auth';
+import { login, ssoCallback, ssoLogin, AUTH_SSO_LOGIN_URL } from '../api/auth';
 import { ACCESS_TOKEN, REFRESH_TOKEN } from '../../constants';
+import microsoftLogo from '../assets/images/microsoft.svg';
 
 const Login = () => {
   const [email, setEmail] = useState('');
@@ -11,6 +12,42 @@ const Login = () => {
   const [step, setStep] = useState(1);
   const [error, setError] = useState(null);
   const [otp, setOtp] = useState('');
+
+  // const handleSsoLogin = async () => {
+  //   try {
+  //     const response = await ssoLogin();
+  //     const redirectURL = response.request.responseURL; // fallback
+  //     const locationHeader = response.headers['location']
+
+  //     // redirect
+  //     window.location.href = locationHeader || redirectURL;
+  //   } catch (err) {
+  //     console.error('SSO Login initiation failed:', err);
+  //     setError('Unable to start SSO Login.');
+  //   }
+  // };
+  const handleSsoLogin = () => {
+    const { data} = window.location.href = AUTH_SSO_LOGIN_URL;
+    localStorage.setItem(ACCESS_TOKEN, data.access);
+    localStorage.setItem(REFRESH_TOKEN, data.refresh);
+  };
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const code = params.get('code');
+    if (code) {
+      (async () => {
+        try {
+          const { data } = await ssoCallback({ code });
+          localStorage.setItem(ACCESS_TOKEN, data.access);
+          localStorage.setItem(REFRESH_TOKEN, data.refresh);
+          window.location.href = '/';
+        } catch (err) {
+          setError('SSO login failed');
+        }
+      })();
+    }
+  }, []);
 
   const handleEmailSubmit = (e) => {
     e.preventDefault();
@@ -111,6 +148,17 @@ const Login = () => {
           >
             Register
           </button>
+          <div className='text-center mt-2'>
+            <div className='mb-1'>RCDOC SSO</div>
+            <button
+              type='button'
+              className='btn btn-primary w-100 btn-login'
+              onClick={handleSsoLogin}
+              >
+                <img src={microsoftLogo} alt='Microsoft' width="20" className='me-2' />
+                Sign in with Microsoft
+              </button>
+          </div>
         </form>
         <small className="text-muted d-block mt-4">Need help? Contact <a href="mailto:helpdesk@rcdoc.org">helpdesk@rcdoc.org</a></small>
       </Card>
