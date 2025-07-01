@@ -1,6 +1,7 @@
 from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APITestCase
+from unittest.mock import patch
 import pyotp
 
 from api.models import Role, Organization, CryptaGroup, QueryPermission, User, UserProfile
@@ -80,3 +81,20 @@ class VerifyMfaViewTests(APITestCase):
         resp = self.client.post(url, data)
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
 
+class MicrosoftCallbackViewTests(APITestCase):
+    def test_callback_creates_user(self):
+        with patch('api.views.msal.ConfidentialClientApplication') as mock_app:
+            instance = mock_app.return_value
+            instance.acquire_token_by_authorization_code.return_value = {
+                'id_token_claims': {
+                    'oid': '123',
+                    'preferred_username': 'user@example.com',
+                    'given_name': 'Test',
+                    'family_name': 'User',
+                    'department': 'IT',
+                }
+            }
+            url = reverse('sso-callback')
+            resp = self.client.get(url, {'code': 'abc'})
+            self.assertEqual(resp.status_code, status.HTTP_200_OK)
+            self.assertTrue(User.objects.filter(sso_id='123').exists())

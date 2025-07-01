@@ -1,4 +1,6 @@
 import logging
+import os
+import secrets
 from datetime import datetime
 from django.utils import timezone
 from rest_framework import generics, status, serializers
@@ -9,7 +11,9 @@ from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.exceptions import AuthenticationFailed
 from django.contrib.auth import get_user_model
+from django.conf import settings
 import pyotp
+import msal
 
 from .models import (
     Role,
@@ -374,3 +378,96 @@ class VerifyMfaView(generics.GenericAPIView):
         profile.save()
         logger.info('MFA verified for user %s', user_id)
         return Response({'detail': 'MFA verified'}, status=status.HTTP_200_OK)
+
+class MicrosoftLoginView(generics.GenericAPIView):
+    permission_classes = [AllowAny]
+
+    def get(self, request, *args, **kwargs):
+        logger.debug('Initiate Microsoft SSO login')
+        auth_url = (
+            f"https://login.microsoftonline.com/{settings.MICROSOFT_TENANT_ID}/oauth2/v2.0/authorize"
+        )
+        params = {
+            'client_id': settings.MICROSOFT_CLIENT_ID,
+            'response_type': 'code',
+            'redirect_uri': settings.MICROSOFT_REDIRECT_URI,
+            'response_mode': 'query',
+            'scope': 'openid email profile',
+            'state': secrets.token_urlsafe(16),
+        }
+        url = auth_url + '?' + '&'.join(f"{k}={v}" for k, v in params.items())
+        return Response({'url': url}, status=status.HTTP_302_FOUND, headers={'Location': url})
+
+
+class MicrosoftCallbackView(generics.GenericAPIView):
+    permission_classes = [AllowAny]
+
+    def get(self, request, *args, **kwargs):
+        code = request.GET.get('code')
+        if not code:
+            return Response({'detail': 'missing code'}, status=status.HTTP_400_BAD_REQUEST)
+
+        logger.debug('Received SSO callback code')
+        app = msal.ConfidentialClientApplication(
+            settings.MICROSOFT_CLIENT_ID,
+            authority=f"https://login.microsoftonline.com/{settings.MICROSOFT_TENANT_ID}",
+            client_credential=settings.MICROSOFT_CLIENT_SECRET,
+        )
+        result = app.acquire_token_by_authorization_code(
+            code,
+            scopes=['openid', 'email', 'profile'],
+            redirect_uri=settings.MICROSOFT_REDIRECT_URI,
+        )
+
+        claims = result.get('id_token_claims')
+        if not claims:
+            logger.error('Failed to obtain id token: %s', result)
+            return Response({'detail': 'SSO login failed'}, status=status.HTTP_400_BAD_REQUEST)
+
+        oid = claims.get('oid') or claims.get('sub')
+        email = claims.get('preferred_username')
+        first_name = claims.get('given_name', '')
+        last_name = claims.get('family_name', '')
+        department = claims.get('department')
+
+        user, created = User.objects.get_or_create(
+            sso_id=oid,
+            defaults={'username': email, 'email': email}
+        )
+        if created:
+            user.set_password(secrets.token_urlsafe(12))
+            user.save()
+
+        profile, _ = UserProfile.objects.get_or_create(
+            user=user,
+            defaults={
+                'name_first': first_name,
+                'name_last': last_name,
+                'mfa_method': UserProfile.MfaMethod.NONE,
+                'mfa_secret_hash': '',
+                'secret_answer_1_hash': '',
+                'secret_answer_2_hash': '',
+                'department': department,
+            },
+        )
+        if department:
+            profile.department = department
+            profile.save()
+
+        refresh = RefreshToken.for_user(user)
+        access = refresh.access_token
+        Token.objects.create(
+            user=user,
+            token=refresh['jti'],
+            type=Token.TokenType.REFRESH,
+            expiration=datetime.fromtimestamp(refresh['exp'], tz=timezone.get_default_timezone())
+        )
+        Token.objects.create(
+            user=user,
+            token=access['jti'],
+            type=Token.TokenType.ACCESS,
+            expiration=datetime.fromtimestamp(access['exp'], tz=timezone.get_default_timezone()),
+        )
+
+        data = {'refresh': str(refresh), 'access': str(access)}
+        return Response(data)
