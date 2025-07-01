@@ -8,18 +8,26 @@ import '../styles/Header.css';
 const Header = () => {
     const navigate = useNavigate();
     const [menuOpen, setMenuOpen] = useState(false);
+    const [alertsOpen, setAlertsOpen] = useState(false);
+    const [profileMenu, setProfileMenu] = useState(false);
 
     useEffect(() => {
       const handleClickOutside = (event) => {
         const trigger = document.getElementById('menuTrigger');
         const nav = document.getElementById('menuNav');
+        const alerts = document.getElementById('alertsMenu')
+
         if (menuOpen && trigger && nav && !trigger.contains(event.target) && !nav.contains(event.target)) {
           setMenuOpen(false);
         }
+        if (alertsOpen && alerts && !alerts.contains(event.target)) {
+          setAlertsOpen(false);
+        }
+
       };
       document.addEventListener("click", handleClickOutside);
       return () => document.removeEventListener("click", handleClickOutside);
-    }, [menuOpen])
+    }, [menuOpen, alertsOpen])
 
     const handleLogout = () => {
       localStorage.clear();
@@ -87,7 +95,10 @@ const Header = () => {
           />
           <div className="header-icons d-flex align-items-center">
             <a className="header-icon me-3" href="#"><i className="far fa-comment"/></a>
-            <div className="dropdown me-3">
+            <div 
+              className="dropdown me-3" 
+              id='alertsMenu'
+              onClick={() => setMenuOpen(open => !open)}>
               <a
                 className="header-icon position-relative dropdown-toggle"
                 href="#"
