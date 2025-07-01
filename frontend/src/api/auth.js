@@ -16,6 +16,8 @@ const authApi = axios.create({
 export const register = (data) => authApi.post('/users/register/', data);
 export const login = (data) => authApi.post('/users/login/', data);
 export const verifyMfa = (data) => authApi.post('/users/verify_mfa/', data);
+export const ssoLogin = () => authApi.get('/sso/login/');
+export const ssoCallback = (parameters) => authApi.get('/sso/callback/', { parameters })
 
 // User Management functions
 export const fetchUsers = () => authApi.get('/users/');

@@ -4,6 +4,7 @@ import Card from '../components/Card';
 import logo from '../assets/images/logo.png';
 import { login } from '../api/auth';
 import { ACCESS_TOKEN, REFRESH_TOKEN } from '../../constants';
+import microsoftLogo from '../assets/images/microsoft.svg';
 
 const Login = () => {
   const [email, setEmail] = useState('');
@@ -111,6 +112,17 @@ const Login = () => {
           >
             Register
           </button>
+          <div className='text-center mt-2'>
+            <div className='mb-1'>RCDOC SSO</div>
+            <button
+              type='button'
+              className='btn btn-primary w-100 btn-login'
+              onClick={() => { window.location.href = '/sso/login/'; }}
+              >
+                <img src={microsoftLogo} alt='Microsoft' width="20" className='me-2' />
+                Sign in with Microsoft
+              </button>
+          </div>
         </form>
         <small className="text-muted d-block mt-4">Need help? Contact <a href="mailto:helpdesk@rcdoc.org">helpdesk@rcdoc.org</a></small>
       </Card>

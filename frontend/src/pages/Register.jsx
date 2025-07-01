@@ -4,6 +4,7 @@ import '../styles/Login.css';
 import Card from '../components/Card';
 import logo from '../assets/images/logo.png';
 import { register, verifyMfa } from '../api/auth';
+import microsoftLogo from '../assets/images/microsoft.svg';
 
 const Register = () => {
   const [step, setStep] = useState(1);
@@ -109,6 +110,19 @@ const Register = () => {
           )}
           {error && <div className="text-danger mb-2">{error}</div>}
           <button type="submit" className="btn btn-primary w-100 btn-login mb-3">{step === 1 ? 'Register' : 'Verify'}</button>
+          {step === 1 && (
+            <div className='text-center mt-2'>
+              <div className='mb-1'>RCDOC SSO</div>
+              <button
+                type='button'
+                className='btn btn-primary w-100 btn-login'
+                onClick={() => { window.location.href = '/sso/login/'; }}
+                >
+                  <img src={microsoftLogo} alt='Microsoft' width='20' className='me-2' />
+                  Register with Microsoft
+                </button>
+            </div>
+          )}
           {step === 1 && (
             <button
               type="button"
