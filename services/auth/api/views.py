@@ -475,7 +475,9 @@ class MicrosoftCallbackView(generics.GenericAPIView):
             type=Token.TokenType.ACCESS,
             expiration=datetime.fromtimestamp(access['exp'], tz=timezone.get_default_timezone()),
         )
-
         data = {'refresh': str(refresh), 'access': str(access)}
-        # return Response(data)
-        return redirect(GATEWAY_CALLBACK_URL)
+        logger.debug('Data: %s', data)
+        frontend_redirect = f'{GATEWAY_CALLBACK_URL}?access={data['access']}&refresh={data['refresh']}'
+        logger.debug('Redirect URL: %s', frontend_redirect)
+        return Response(data)
+        # return redirect(frontend_redirect)

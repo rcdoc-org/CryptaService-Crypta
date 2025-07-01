@@ -27,7 +27,9 @@ const Login = () => {
   //   }
   // };
   const handleSsoLogin = () => {
-    window.location.href = AUTH_SSO_LOGIN_URL;
+    const { data} = window.location.href = AUTH_SSO_LOGIN_URL;
+    localStorage.setItem(ACCESS_TOKEN, data.access);
+    localStorage.setItem(REFRESH_TOKEN, data.refresh);
   };
 
   useEffect(() => {
