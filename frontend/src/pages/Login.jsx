@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import '../styles/Login.css';
 import Card from '../components/Card';
 import logo from '../assets/images/logo.png';
-import { login, ssoCallback, ssoLogin } from '../api/auth';
+import { login, ssoCallback, ssoLogin, AUTH_SSO_LOGIN_URL } from '../api/auth';
 import { ACCESS_TOKEN, REFRESH_TOKEN } from '../../constants';
 import microsoftLogo from '../assets/images/microsoft.svg';
 
@@ -13,18 +13,21 @@ const Login = () => {
   const [error, setError] = useState(null);
   const [otp, setOtp] = useState('');
 
-  const handleSsoLogin = async () => {
-    try {
-      const response = await ssoLogin();
-      const redirectURL = response.request.responseURL; // fallback
-      const locationHeader = response.headers['location']
+  // const handleSsoLogin = async () => {
+  //   try {
+  //     const response = await ssoLogin();
+  //     const redirectURL = response.request.responseURL; // fallback
+  //     const locationHeader = response.headers['location']
 
-      // redirect
-      window.location.href = locationHeader || redirectURL;
-    } catch (err) {
-      console.error('SSO Login initiation failed:', err);
-      setError('Unable to start SSO Login.');
-    }
+  //     // redirect
+  //     window.location.href = locationHeader || redirectURL;
+  //   } catch (err) {
+  //     console.error('SSO Login initiation failed:', err);
+  //     setError('Unable to start SSO Login.');
+  //   }
+  // };
+  const handleSsoLogin = () => {
+    window.location.href = AUTH_SSO_LOGIN_URL;
   };
 
   useEffect(() => {

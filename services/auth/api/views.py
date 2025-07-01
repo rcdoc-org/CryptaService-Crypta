@@ -37,6 +37,8 @@ from .serializers import (
 
 logger = logging.getLogger("api")
 
+GATEWAY_CALLBACK_URL = os.getenv('GATEWAY_CALLBACK_URL', 'http://localhost')
+
 User = get_user_model()
 
 
@@ -419,7 +421,8 @@ class MicrosoftCallbackView(generics.GenericAPIView):
         )
         result = app.acquire_token_by_authorization_code(
             code,
-            scopes=['openid', 'email', 'profile'],
+            # scopes=['openid', 'email', 'profile'],
+            scopes=['email'],
             redirect_uri=settings.MICROSOFT_REDIRECT_URI,
         )
 
@@ -474,4 +477,5 @@ class MicrosoftCallbackView(generics.GenericAPIView):
         )
 
         data = {'refresh': str(refresh), 'access': str(access)}
-        return Response(data)
+        # return Response(data)
+        return redirect(GATEWAY_CALLBACK_URL)

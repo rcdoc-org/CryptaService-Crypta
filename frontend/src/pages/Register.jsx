@@ -161,7 +161,7 @@ const Register = () => {
             <button
               type="button"
               className="btn btn-primary w-100 btn-login mt-3"
-              onClick={handleSsoLogin}
+              onClick={() => { window.location.href = '/login'; }}
             >
               Sign In
             </button>
