@@ -3,7 +3,7 @@ import QRCode from 'react-qr-code';
 import '../styles/Login.css';
 import Card from '../components/Card';
 import logo from '../assets/images/logo.png';
-import { register, verifyMfa, ssoCallback, ssoLogin } from '../api/auth';
+import { register, verifyMfa, ssoCallback, ssoLogin, AUTH_SSO_LOGIN_URL } from '../api/auth';
 import microsoftLogo from '../assets/images/microsoft.svg';
 
 const Register = () => {
@@ -16,18 +16,21 @@ const Register = () => {
   const [userId, setUserId] = useState(null);
   const [error, setError] = useState('');
 
-  const handleSsoLogin = async () => {
-    try {
-      const response = await ssoLogin();
-      const redirectURL = response.request.responseURL; // fallback
-      const locationHeader = response.headers['location']
+  // const handleSsoLogin = async () => {
+  //   try {
+  //     const response = await ssoLogin();
+  //     const redirectURL = response.request.responseURL; // fallback
+  //     const locationHeader = response.headers['location']
 
-      // redirect
-      window.location.href = locationHeader || redirectURL;
-    } catch (err) {
-      console.error('SSO Login initiation failed:', err);
-      setError('Unable to start SSO Login.');
-    }
+  //     // redirect
+  //     window.location.href = locationHeader || redirectURL;
+  //   } catch (err) {
+  //     console.error('SSO Login initiation failed:', err);
+  //     setError('Unable to start SSO Login.');
+  //   }
+  // };
+  const handleSsoLogin = () => {
+    window.location.href = AUTH_SSO_LOGIN_URL;
   };
 
   useEffect(() => {

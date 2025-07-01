@@ -3,6 +3,7 @@ import os
 import secrets
 from datetime import datetime
 from django.utils import timezone
+from django.shortcuts import redirect
 from rest_framework import generics, status, serializers
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny
@@ -387,6 +388,7 @@ class MicrosoftLoginView(generics.GenericAPIView):
         auth_url = (
             f"https://login.microsoftonline.com/{settings.MICROSOFT_TENANT_ID}/oauth2/v2.0/authorize"
         )
+        logger.debug('Auth Url: %s', auth_url)
         params = {
             'client_id': settings.MICROSOFT_CLIENT_ID,
             'response_type': 'code',
@@ -396,7 +398,9 @@ class MicrosoftLoginView(generics.GenericAPIView):
             'state': secrets.token_urlsafe(16),
         }
         url = auth_url + '?' + '&'.join(f"{k}={v}" for k, v in params.items())
-        return Response({'url': url}, status=status.HTTP_302_FOUND, headers={'Location': url})
+        logger.debug('URL with parameters: %s', url)
+        return redirect(url)
+        # return Response({'url': url}, status=status.HTTP_302_FOUND, headers={'Location': url})
 
 
 class MicrosoftCallbackView(generics.GenericAPIView):
