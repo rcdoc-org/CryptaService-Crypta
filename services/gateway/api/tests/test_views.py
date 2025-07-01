@@ -8,6 +8,8 @@ REGISTER_URL = os.getenv('AUTH_REGISTER_URL', 'http://localhost:8002/api/v1/user
 LOGIN_URL = os.getenv('AUTH_LOGIN_URL', 'http://localhost:8002/api/v1/tokens/retrieve/')
 REFRESH_URL = os.getenv('AUTH_REFRESH_URL', 'http://localhost:8002/api/v1/tokens/refresh/')
 VERIFY_URL = os.getenv('AUTH_VERIFY_MFA_URL', 'http://localhost:8002/api/v1/users/verify_mfa/')
+SSO_LOGIN_URL = os.getenv('AUTH_SSO_LOGIN_URL', 'http://localhost:8002/api/v1/sso/login/')
+SSO_CALLBACK_URL = os.getenv('AUTH_SSO_CALLBACK_URL', 'http://localhost:8002/api/v1/sso/callback/')
 
 class RegisterViewTests(APITestCase):
     """Used for testing registration of users."""
@@ -120,6 +122,37 @@ class VerifyMfaViewTests(APITestCase):
         except:
             pass
         self.assertEqual(flat_data, data)
+
+class SSOLoginViewTests(APITestCase):
+    @patch('api.views.requests.get')
+    def test_sso_login_proxy(self, mock_get):
+        mock_response = MagicMock()
+        mock_response.status_code = 302
+        mock_response.headers = {'Content-Type': 'application/json', 'Location': 'http://microsoft'}
+        mock_response.json.return_value = {'url': 'http://microsoft'}
+        mock_get.return_value = mock_response
+
+        url = reverse('sso_login')
+        response = self.client.get(url)
+
+        self.assertEqual(response.status_code, 302)
+        mock_get.assert_called_once_with(SSO_LOGIN_URL)
+
+
+class SSOCallbackViewTests(APITestCase):
+    @patch('api.views.requests.get')
+    def test_sso_callback_proxy(self, mock_get):
+        mock_response = MagicMock()
+        mock_response.status_code = 200
+        mock_response.headers = {'Content-Type': 'application/json'}
+        mock_response.json.return_value = {'access': 'a', 'refresh': 'r'}
+        mock_get.return_value = mock_response
+
+        url = reverse('sso_callback')
+        response = self.client.get(url, {'code': 'abc'})
+
+        self.assertEqual(response.status_code, 200)
+        mock_get.assert_called_once()
 
 class UsersViewTests(APITestCase):
     @patch('api.views.requests.get')
