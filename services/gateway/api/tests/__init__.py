@@ -1,2 +1,1 @@
-from . import test_models
-from . import test_views
+"""Test package for gateway service."""
