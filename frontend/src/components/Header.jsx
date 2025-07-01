@@ -16,6 +16,7 @@ const Header = () => {
         const trigger = document.getElementById('menuTrigger');
         const nav = document.getElementById('menuNav');
         const alerts = document.getElementById('alertsMenu')
+        const profile = document.getElementById('profileDropdown')
 
         if (menuOpen && trigger && nav && !trigger.contains(event.target) && !nav.contains(event.target)) {
           setMenuOpen(false);
@@ -23,11 +24,13 @@ const Header = () => {
         if (alertsOpen && alerts && !alerts.contains(event.target)) {
           setAlertsOpen(false);
         }
-
+        if (profileMenu && profile && !profile.contains(event.target)) {
+          setProfileMenu(false);
+        }
       };
       document.addEventListener("click", handleClickOutside);
       return () => document.removeEventListener("click", handleClickOutside);
-    }, [menuOpen, alertsOpen])
+    }, [menuOpen, alertsOpen, profileMenu])
 
     const handleLogout = () => {
       localStorage.clear();
@@ -97,15 +100,14 @@ const Header = () => {
             <a className="header-icon me-3" href="#"><i className="far fa-comment"/></a>
             <div 
               className="dropdown me-3" 
-              id='alertsMenu'
-              onClick={() => setMenuOpen(open => !open)}>
+              id='alertsMenu'>
               <a
-                className="header-icon position-relative dropdown-toggle"
+                className="header-icon position-relative"
                 href="#"
                 role="button"
                 id="alertsDropdown"
-                data-bs-toggle="dropdown"
-                aria-expanded="false"
+                aria-expanded={alertsOpen}
+                onClick={(e) => { e.preventDefault(); setAlertsOpen(open => !open); }}
                 >
                 <i className="fas fa-bell"></i>
                 <span
@@ -116,7 +118,7 @@ const Header = () => {
                 </span>
                 </a>
               <ul
-                className="dropdown-menu dropdown-menu-end p-2"
+                className={`dropdown-menu dropdown-menu-end p-2${alertsOpen ? ' show' : ''}`}
                 aria-labelledby="alertsDropdown"
                 style={{ minWidth: '200px'}}
               >
@@ -134,7 +136,8 @@ const Header = () => {
                 className="header-icon dropdown-toggle"
                 id="profileDropdown"
                 data-bs-toggle="dropdown"
-                aria-expanded="false"
+                aria-expanded={profileMenu}
+                onClick={(e) => { e.preventDefault(); setProfileMenu(open => !open); }}
               >
                 <img
                   src={profilePic}
@@ -143,7 +146,7 @@ const Header = () => {
                 />
               </a>
               <ul
-                className="dropdown-menu dropdown-menu-end"
+                className={`dropdown-menu dropdown-menu-end${profileMenu ? ' show' : ''}`}
                 aria-labelledby="profileDropdown"
                 style={{ minWidth: '150px' }}
               >
