@@ -1,7 +1,7 @@
 import logging
 from datetime import datetime
 from django.utils import timezone
-from rest_framework import generics, status
+from rest_framework import generics, status, serializers
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
@@ -38,10 +38,14 @@ User = get_user_model()
 # Create your views here.
 class LoggingTokenObtainPairSerializer(TokenObtainPairSerializer):
     """Serializer that logs login attempts and stores issued tokens."""
+    otp = serializers.CharField(required=True)
 
     def validate(self, attrs):
         request = self.context.get('request')
+        logger.debug('Request data in tokenObtain: %s', attrs)
         logger.debug('Login attempt for %s', attrs.get('username'))
+        logger.debug('User password used: %s', attrs.get('password'))
+        logger.debug('OTP recieved as %s', attrs.get('otp'))
         ip_address = request.META.get('REMOTE_ADDR') if request else ''
         otp = attrs.pop('otp', None)
         username = attrs.get('username')
@@ -66,7 +70,10 @@ class LoggingTokenObtainPairSerializer(TokenObtainPairSerializer):
             raise
 
         profile = self.user.profile
+        logger.debug('Profile: %s', profile)
         totp = pyotp.TOTP(profile.mfa_secret_hash)
+        logger.debug('OTP: %s', otp)
+        logger.debug('TOTP: %s', totp)
         if not otp or not totp.verify(otp):
             logger.warning('Invalid OTP for %s', username)
             LoginAttempt.objects.create(
@@ -88,6 +95,12 @@ class LoggingTokenObtainPairSerializer(TokenObtainPairSerializer):
 
         refresh = self.get_token(self.user)
         access = refresh.access_token
+        
+        # inject custom claims into the JWT payload
+        access['username'] = self.user.username
+        access['email'] = self.user.email
+        # access['roles'] = [role.name for role in self.user.roles.all()]
+        # access['query_permissions'] = [perm.code for perm in self.user.query_permissions.all()]
 
         Token.objects.create(
             user=self.user,
@@ -115,6 +128,7 @@ class LoggingTokenObtainPairView(TokenObtainPairView):
 
     def post(self, request, *args, **kwargs):
         logger.debug('Token obtain request received')
+        logger.debug('Data received: %s', request.data)
         return super().post(request, *args, **kwargs)
 
 class CreateUserView(generics.CreateAPIView):
@@ -132,15 +146,17 @@ class CreateUserView(generics.CreateAPIView):
         serializer.is_valid(raise_exception=True)
         user = serializer.save()
 
+        logger.debug('creating secret')
         secret = pyotp.random_base32()
+        logger.debug('creating user profile')
         UserProfile.objects.create(
             user=user,
             name_first='',
             name_last='',
             mfa_method=UserProfile.MfaMethod.AUTHENTICATOR,
             mfa_secret_hash=secret,
-            secret_answer_1_hash='',
-            secret_answer_2_hash='',
+            # secret_answer_1_hash='',
+            # secret_answer_2_hash='',
         )
         headers = self.get_success_headers(serializer.data)
         return Response({'id': user.id, 'mfa_secret': secret}, status=status.HTTP_201_CREATED, headers=headers)
