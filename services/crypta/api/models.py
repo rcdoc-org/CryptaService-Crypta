@@ -253,9 +253,6 @@ class Person(models.Model):
         ('parish_property', 'Parish Property'),
         ('other', 'Other'),
     ]
-    choice_activeOutsideDOC = [
-        ('__blank__', 'Select an option'),
-    ]
     choice_legalStatus = [
         ('naturalBorn_citizen', 'Natural Born U.S. Citizen'),
         ('naturalized_citizen', 'Naturalized U.S. Citizen'),
@@ -268,7 +265,7 @@ class Person(models.Model):
     personType = models.CharField(max_length=255, choices=choice_personType, null=False)
     prefix = models.CharField(max_length=255, choices=choice_prefix, null=True, blank=True,)
     residencyType = models.CharField(max_length=255, choices=choice_residencyType, null=True, blank=True,)
-    activeOutsideDOC = models.CharField(max_length=255, choices=choice_activeOutsideDOC, null=True, blank=True,)
+    activeOutsideDOC = models.CharField(max_length=255, null=True, blank=True,)
     legalStatus = models.CharField(max_length=255, choices=choice_legalStatus, null=True, blank=True,)
     name_first = models.CharField(max_length=255, null=False)
     name_middle = models.CharField(max_length=255, null=True, blank=True,)
@@ -320,7 +317,7 @@ class Person_FacultiesGrant(models.Model):
     lkp_person_id = models.ForeignKey(Person,
                                     on_delete=models.CASCADE,
                                     null=False)
-    lkp_faultiesGrantType_id = models.ForeignKey(FacultiesGrantType,
+    lkp_facultiesGrantType_id = models.ForeignKey(FacultiesGrantType,
                                         on_delete=models.CASCADE,
                                         null=False,
                                         )
@@ -785,7 +782,6 @@ class Priest_Detail(models.Model):
     is_powerAttorney = models.BooleanField(null=True, blank=True,)
     is_powerAttorneyChanceryFile = models.BooleanField(null=True, blank=True,)
     is_backgroundComplete = models.BooleanField(null=True, blank=True,)
-    date_ordination = models.DateField(null=True, blank=True,)
     date_transitionalDiaconateOrdination = models.DateField(null=True, blank=True,)
     date_priestOrdination = models.DateField(null=True, blank=True,)
     date_episcopalOrdination = models.DateField(null=True, blank=True,)
