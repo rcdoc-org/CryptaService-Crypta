@@ -12,6 +12,7 @@ tmp
 media
 db.sqlite3
 */db.sqlite3
+dataMigration/raw/*
 # Logs
 *.log
 npm-debug.log*
