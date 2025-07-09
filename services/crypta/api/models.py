@@ -818,6 +818,11 @@ class Church_Detail(models.Model):
         ('macs', 'MACS'),
         ('parochial', 'Parochial')
     ]
+    choice_type = [
+        ('mission', 'Mission'),
+        ('parish', 'Parish'),
+        ('apostalate', 'Apostolate'),
+    ]
     lkp_location_id = models.ForeignKey(Location,
                                     on_delete=models.CASCADE,
                                     null=False,
@@ -841,7 +846,13 @@ class Church_Detail(models.Model):
     cityServed = models.CharField(max_length=255, null=True, blank=True,)
     geo_id = models.BigIntegerField(null=True, blank=True,)
     parish_id = models.BigIntegerField(null=False)
-    type_id = models.BigIntegerField(null=True, blank=True,)
+    type = models.CharField(
+        max_length=255,
+        null=True,
+        blank=True,
+        choices=choice_type,
+        default='parish'
+        )
     date_established = models.DateField(null=True, blank=True,)
     date_firstDedication = models.DateField(null=True, blank=True,)
     date_secondDedication = models.DateField(null=True, blank=True,)
@@ -851,7 +862,7 @@ class Church_Detail(models.Model):
                                                 MinValueValidator(0)
                                                 ])
     has_homeschoolProgram = models.BooleanField(default=False, null=False)
-    has_chileCareDayCare = models.BooleanField(default=False, null=False)
+    has_childCareDayCare = models.BooleanField(default=False, null=False)
     has_scoutingProgram = models.BooleanField(default=False, null=False)
     has_chapelOnCampus = models.BooleanField(default=False, null=False)
     has_adorationChapelOnCampus = models.BooleanField(default=False, null=False)
@@ -1165,6 +1176,11 @@ class StatusAnimarum(models.Model):
                                     validators=[
                                         MinValueValidator(0)
                                         ])
+    baptism_infants = models.BigIntegerField(default=0,
+                                             null=False,
+                                             validators=[
+                                                 MinValueValidator(0)
+                                             ])
     baptismAge_1_7 = models.BigIntegerField(default=0,
                                             null=False,
                                             validators=[
