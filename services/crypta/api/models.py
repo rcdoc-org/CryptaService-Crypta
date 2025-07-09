@@ -200,7 +200,7 @@ class DioceseOrder(models.Model):
     """ Used as a lookup table for many to many relationships for priests.
     You must declare which options are orders for lookup purposes."""
     name = models.CharField(max_length=255, null=False)
-    is_order = models.BooleanField(null=False)
+    is_order = models.BooleanField(null=True)
 
     class Meta:
         ordering = ['name']
