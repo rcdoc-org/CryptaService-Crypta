@@ -1,3 +1,7 @@
+"""Used for large scale data import of priests from a csv file into the database.
+This script reads a CSV file containing priest data and imports it into the Django database.
+It handles various fields such as personal information, contact details, assignments, and status.
+It also manages relationships between different models like Person, Address, DioceseOrder, etc."""
 import os
 import sys
 import re
@@ -7,14 +11,14 @@ import django
 
 
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'backend.settings')
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'crypta_service.settings')
 django.setup()
 
 from api.models import (
     Person, Address, DioceseOrder, Priest_Detail, Vicariate, County,
     EmailType, Person_Email, AssignmentType, Assignment, Location, EasternChurch,
     Status, Person_Status, PhoneType, Person_Phone, Title,
-    Person_Title,
+    Person_Title, RelationshipType, Person_Relationship,
 )
 from django.db import transaction
 
@@ -33,7 +37,7 @@ def import_priests(csv_file):
     }
     PHONE_FIELDS = {
         'Cell Phone': 'cell',
-        'Preferred Contact Phone %23': 'preferred'
+        'Preferred Contact Phone %23': 'preferred',
     }
     PARISH_ASSIGNMENT_FIELDS = [
         'Parish 1',
@@ -327,17 +331,29 @@ def import_priests(csv_file):
                 }
             )
 
+            # Emergency Contact 1
+            emergency1 = None
             if pd.notna(row.get('Emergency Contact 1: First Name ')):
+                emerg_address = None
                 if pd.notna(row.get('Emergency Contact 1: Street Address (Line 1)')):
                     emerg_address, _ = Address.objects.get_or_create(
-
+                        address1=row['Emergency Contact 1: Street Address (Line 1)'],
+                        address2=row.get('Emergency Contact 1: Street Address (Line 2)', None),
+                        city=row['Emergency Contact 1: Address City'],
+                        state=row['Emergency Contact 1: State / Province'],
+                        zip_code=row['Emergency Contact 1: ZIP / Postal Code'],
+                        country=row['Emergency Contact 1: Country'],
+                        defaults={
+                            'friendlyName': f"{row['Emergency Contact 1: First Name ']} {row['Emergency Contact 1: Last Name ']} Residence",
+                        }
                     )
                 if emerg_address:
                     emergency1, _ = Person.objects.get_or_create(
                         name_first = row['Emergency Contact 1: First Name '],
                         name_last = row['Emergency Contact 1: Last Name '],
                         defaults={
-
+                            'lkp_residence_id': emerg_address,
+                            'personType': 'lay',
                         }
                     )
                 else:
@@ -345,33 +361,150 @@ def import_priests(csv_file):
                         name_first = row['Emergency Contact 1: First Name '],
                         name_last = row['Emergency Contact 1: Last Name '],
                         defaults={
-
+                            'personType': 'lay',
                         }
                         
                     )
                 if pd.notna(row.get('Emergency Contact 1: Primary Phone Number ')):
                     Person_Phone.objects.update_or_create(
-
+                        lkp_person_id=emergency1,
+                        lkp_phoneType_id=PhoneType.objects.get(name='preferred'),
+                        defaults={
+                            'phone': re.sub(r'[^0-9]', '', str(row['Emergency Contact 1: Primary Phone Number ']).strip()),
+                            'is_primary': True,
+                        }
                     )
                 if pd.notna(row.get('Emergency Contact 1: Secondary Phone Number ')):
                     Person_Phone.objects.update_or_create(
-                        
+                        lkp_person_id=emergency1,
+                        lkp_phoneType_id=PhoneType.objects.get(name='secondary'),
+                        defaults={
+                            'phone': re.sub(r'[^0-9]', '', str(row['Emergency Contact 1: Primary Phone Number ']).strip()),
+                            'is_primary': False,
+                        }
                     )
                 if pd.notna(row.get('Emergency Contact 1: Primary Email Address  ')):
-                    Person_Phone.objects.update_or_create(
-                        
+                    Person_Email.objects.update_or_create(
+                        lkp_person_id=emergency1,
+                        lkp_emailType_id=EmailType.objects.get(name='personal'),
+                        defaults={
+                            'email': re.sub(r'(?i)^mailto:', '', str(row['Emergency Contact 1: Primary Email Address  ']).strip()),
+                            'is_primary': True,
+                        }
                     )
                 if pd.notna(row.get('Emergency Contact 1: Secondary Email Address  ')):
-                    Person_Phone.objects.update_or_create(
+                    Person_Email.objects.update_or_create(
+                        lkp_person_id=emergency1,
+                        lkp_emailType_id=EmailType.objects.get(name='personal'),
+                        defaults={
+                            'email': re.sub(r'(?i)^mailto:', '', str(row['Emergency Contact 1: Primary Email Address  ']).strip()),
+                            'is_primary': False,
+                        }
+                    )
+            
+            if emergency1:
+                # Create relationship for Emergency Contact 1
+                relationship_type, _ = RelationshipType.objects.get_or_create(row.get('Emergency Contact 1: Relationship ', 'Emergency Contact'))
+                Person_Relationship.objects.update_or_create(
+                    lkp_firstPerson_id=person,
+                    lkp_secondPerson_id=emergency1,
+                    lkp_relationshipType_id=relationship_type,
+                    defaults={
+                        'is_emergencyContact': True,
+                    }
+                )
+                
+                    
+            # Emergency Contact 2
+            emergency2 = None
+            if pd.notna(row.get('Emergency Contact 1: First Name ')):
+                emerg_address = None
+                if pd.notna(row.get('Emergency Contact 1: Street Address (Line 1)')):
+                    emerg_address, _ = Address.objects.get_or_create(
+                        address1=row['Emergency Contact 1: Street Address (Line 1)'],
+                        address2=row.get('Emergency Contact 1: Street Address (Line 2)', None),
+                        city=row['Emergency Contact 1: Address City'],
+                        state=row['Emergency Contact 1: State / Province'],
+                        zip_code=row['Emergency Contact 1: ZIP / Postal Code'],
+                        country=row['Emergency Contact 1: Country'],
+                        defaults={
+                            'friendlyName': f"{row['Emergency Contact 1: First Name ']} {row['Emergency Contact 1: Last Name ']} Residence",
+                        }
+                    )
+                if emerg_address:
+                    emergency2, _ = Person.objects.get_or_create(
+                        name_first = row['Emergency Contact 1: First Name '],
+                        name_last = row['Emergency Contact 1: Last Name '],
+                        defaults={
+                            'lkp_physical'
+                        }
+                    )
+                else:
+                    emergency1, _ = Person.objects.get_or_create(
+                        name_first = row['Emergency Contact 1: First Name '],
+                        name_last = row['Emergency Contact 1: Last Name '],
+                        defaults={
+                            'lkp_residence_id': emerg_address,
+                            'personType': 'lay',
+                        }
                         
                     )
+                if pd.notna(row.get('Emergency Contact 1: Primary Phone Number ')):
+                    Person_Phone.objects.update_or_create(
+                        lkp_person_id=emergency1,
+                        lkp_phoneType_id=PhoneType.objects.get(name='preferred'),
+                        defaults={
+                            'phone': re.sub(r'[^0-9]', '', str(row['Emergency Contact 1: Primary Phone Number ']).strip()),
+                            'is_primary': True,
+                        }
+                    )
+                if pd.notna(row.get('Emergency Contact 1: Secondary Phone Number ')):
+                    Person_Phone.objects.update_or_create(
+                        lkp_person_id=emergency1,
+                        lkp_phoneType_id=PhoneType.objects.get(name='secondary'),
+                        defaults={
+                            'phone': re.sub(r'[^0-9]', '', str(row['Emergency Contact 1: Primary Phone Number ']).strip()),
+                            'is_primary': False,
+                        }
+                    )
+                if pd.notna(row.get('Emergency Contact 1: Primary Email Address  ')):
+                    Person_Email.objects.update_or_create(
+                        lkp_person_id=emergency1,
+                        lkp_emailType_id=EmailType.objects.get(name='personal'),
+                        defaults={
+                            'email': re.sub(r'(?i)^mailto:', '', str(row['Emergency Contact 1: Primary Email Address  ']).strip()),
+                            'is_primary': True,
+                        }
+                    )
+                if pd.notna(row.get('Emergency Contact 1: Secondary Email Address  ')):
+                    Person_Email.objects.update_or_create(
+                        lkp_person_id=emergency1,
+                        lkp_emailType_id=EmailType.objects.get(name='personal'),
+                        defaults={
+                            'email': re.sub(r'(?i)^mailto:', '', str(row['Emergency Contact 1: Primary Email Address  ']).strip()),
+                            'is_primary': False,
+                        }
+                    )
+                
+            if emergency2:
+                # Create relationship for Emergency Contact 1
+                relationship_type, _ = RelationshipType.objects.get_or_create(row.get('Emergency Contact 2: Relationship ', 'Emergency Contact'))
+                Person_Relationship.objects.update_or_create(
+                    lkp_firstPerson_id=person,
+                    lkp_secondPerson_id=emergency2,
+                    lkp_relationshipType_id=relationship_type,
+                    defaults={
+                        'is_emergencyContact': True,
+                    }
+                )
+                
     
 
     print("Priest data imported successfully.")
 
 if __name__ == "__main__":
     # Path to the CSV file
-    csv_file = '/Users/kbgreenberg/Documents/Github/CryptaApp/crypta/backend/api/data/Priests (11).csv'
+    csv_file = '/Users/kbgreenberg/Documents/Github/CryptaApp/crypta/services/crypta/dataMigration/raw/Priests(1).csv'
 
     # Run the import function
     import_priests(csv_file)
