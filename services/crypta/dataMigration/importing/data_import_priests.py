@@ -54,6 +54,7 @@ def import_priests(csv_file):
         'Parochial Administrator',
         'Priest in Residence',
         'Rector and Pastor',
+        'Priestly Ministry',
     ]
     OTHER_ASSIGNMENT_FIELDS = [
         'Other 1',
