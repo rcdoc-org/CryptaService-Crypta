@@ -286,6 +286,9 @@ class Person(models.Model):
                                         on_delete=models.CASCADE,
                                         null=True, blank=True,
                                         related_name='person_mailing')
+    temp_assignmentHistory = models.TextField(null=True, blank=True,)
+    temp_additionalLanguages = models.TextField(null=True, blank=True,)
+    temp_professionalDegress = models.TextField(null=True, blank=True,)
 
     @property
     def name(self):

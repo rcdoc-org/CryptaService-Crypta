@@ -55,6 +55,23 @@ def import_priests(csv_file):
         'Priest in Residence',
         'Rector and Pastor',
     ]
+    OTHER_ASSIGNMENT_FIELDS = [
+        'Other 1',
+        'Other 2',
+    ]
+    OTHER_ASSIGNMENT_TITLES = [
+        'Bishop',
+        'Campus Minister',
+        'Campus Minster',
+        'Chaplain',
+        'Formation Faculty',
+        'Ministry',
+        'Priest Secretary',
+        'Priestly Ministry',
+        'Rector',
+        'Spiritual Director',
+        'Vicar General and Chancellor',
+    ]
 
     def parse_date(value):
         if pd.notna(value):
@@ -151,6 +168,9 @@ def import_priests(csv_file):
                     'date_deceased': date_deceased,
                     'date_baptism': date_baptism,
                     'is_paidEmployee': True,
+                    'temp_assignmentHistory': row.get('Assignment History') if pd.notna(row.get('Assignment History')) else None,
+                    'temp_additionalLanguages': row.get('Additional Languages') if pd.notna(row.get('Additional Languages')) else None,
+                    'temp_professionalDegress': row.get('Professional Degrees / Certifications') if pd.notna(row.get('Professional Degrees / Certifications')) else None,
                 }
             )
 
@@ -265,6 +285,30 @@ def import_priests(csv_file):
                             'date_assigned': assigned_date,
                         }
                     )
+            # Handle other assignments
+            if pd.notna(row.get('Position 1')):
+                if row.get('Position 1') in OTHER_ASSIGNMENT_TITLES:
+                    other_at, _ = AssignmentType.objects.get_or_create(
+                        title = row.get('Position 1'),
+                        personType = 'priest'
+                    )
+            
+            for field in OTHER_ASSIGNMENT_FIELDS:
+                loc_name = row.get(field)
+                if loc_name and pd.notna(loc_name):
+                    loc, _ = Location.objects.get_or_create(name=loc_name, defaults={
+                        'type': 'other',
+                        'lkp_vicariate_id': vicariate,
+                        'lkp_county_id': county,
+                    })
+                    Assignment.objects.update_or_create(
+                        lkp_assignmentType_id = other_at,
+                        lkp_location_id = loc,
+                        lkp_person_id = person,
+                        defaults={
+                            'date_assigned': assigned_date,
+                        }
+                    )
             
             # Baptism Location
             baptismLoc = None
@@ -303,6 +347,15 @@ def import_priests(csv_file):
                 incardination_diocese, _ = DioceseOrder.objects.get_or_create(
                         name=row.get('Incardination Diocese/Order', None))
             
+            extern_priest_expected_duration = None
+            if pd.notna(row.get('Extern Priests: Expected duration in DOC')):
+                extern_priest_expected_duration = row.get('Extern Priests: Expected duration in DOC')
+                if extern_priest_expected_duration.isdigit():
+                    extern_priest_expected_duration = int(extern_priest_expected_duration)
+                else:
+                    extern_priest_expected_duration = None
+            
+            # Create or update Priest_Detail
             Priest_Detail.objects.get_or_create(
                 lkp_person_id=person,
                 defaults={
@@ -350,6 +403,7 @@ def import_priests(csv_file):
                     'priestCode': int(row.get('Priest Code')) if pd.notna(row.get('Priest Code')) else None,
                     'misconduct': row.get('Misconduct', None),
                     'otherSkillsCompentencies': row.get('Other Skills/Competencies', None),
+                    'externPriestExpectedDurationMonths': extern_priest_expected_duration,
                 }
             )
 
