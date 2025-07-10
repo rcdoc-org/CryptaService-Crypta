@@ -3,6 +3,7 @@ import sys
 import re
 import ast # Required for string list conversion, social outreach programs
 from datetime import datetime
+from decimal import Decimal, InvalidOperation
 import pandas as pd
 import django
 
@@ -18,7 +19,7 @@ from api.models import (
     Location, Address, Vicariate, County, Church_Detail, Language, Church_Language,
     EmailType, Location_Email, Location_Phone, PhoneType, Status,
     Location_Status, Assignment, AssignmentType, Person, Person_Email, Person_Phone,
-    SocialOutreachProgram,
+    SocialOutreachProgram, Ethnicity
 )
 from django.db import transaction
 
@@ -52,6 +53,20 @@ def import_churches(csv_file):
             return None
         val = str(value).strip().lower()
         return val in ['yes', 'true', '1']
+    
+    def safe_decimal(val):
+        # catch pandas NaN, empty or non-numeric
+        try:
+            # pd.isna will be True for float('nan'), None, pd.NA, etc.
+            if pd.isna(val):
+                return Decimal('0.0')
+            s = str(val).strip()
+            # also guard stray empty‐string or literal ‘nan’
+            if not s or s.lower() in ('nan', 'na'):
+                return Decimal('0.0')
+            return Decimal(s)
+        except (InvalidOperation, TypeError, ValueError):
+            return Decimal('0.0')
 
     with transaction.atomic():
         for _, row in data.iterrows():
@@ -166,7 +181,7 @@ def import_churches(csv_file):
             status = None
             if pd.notna(row.get('Status')):
                 status = row.get('Status').strip().lower()
-                stasus_type, _ = Status.objects.get_or_create(name=status)
+                stasus_type, _ = Status.objects.get_or_create(name=status, type='location')
                 Location_Status.objects.update_or_create(
                     lkp_location_id = location,
                     lkp_status_id = stasus_type,
@@ -206,6 +221,7 @@ def import_churches(csv_file):
                     'has_schoolOnSite': parse_bool(row.get('School On Site')) if pd.notna(row.get('School On Site')) else False,
                     'schoolType': row.get('School Type') if pd.notna(row.get('School Type')) else None,
                     'is_nonParochialSchoolUsingFacilities': parse_bool(row.get('Non-parochial School Using Facilities')),
+                    'lkp_rectoryAddress_id': rectory_address,
                 }
             )
             
@@ -462,17 +478,25 @@ def import_churches(csv_file):
 
             # Create or get languages and mass times
             if pd.notna(row.get('Sunday Masses')):
+                mass_text= row.get('Sunday Masses')
+                saturday, sunday = '', ''
+                if 'Saturday' in mass_text and 'Sunday' in mass_text:
+                    parts = mass_text.split('Sunday', 1)
+                    saturday = parts[0]
+                    sunday = parts[1]
+                elif 'Saturday' in mass_text and 'Sunday' not in mass_text:
+                    saturday = mass_text
+                elif 'Sunday' in mass_text and 'Saturday' not in mass_text:
+                    sunday = mass_text
+                
                 regex_sundayMass = r'((?:[1-9]|1[0-2]):[0-9]{2} [apAP][mM]) *\(([\w\s-]+)\)|((?:[1-9]|1[0-2]) [apAP][mM]) *\(([\w\s-]+)\)'
-                sundayMassTimes = re.findall(regex_sundayMass, row['Sunday Masses'])
-
-                for match in sundayMassTimes:
+                sundayMassTimes = re.findall(regex_sundayMass, sunday)
+                saturdayMassTimes = re.findall(regex_sundayMass, saturday)
+                
+                for match in saturdayMassTimes:
                     # Determine which capture groups are populated
-                    if match[0]:  # First pattern matched
-                        mass_time = match[0]
-                        language_name = match[1]
-                    else:  # Second pattern matched
-                        mass_time = match[2]
-                        language_name = match[3]
+                    mass_time = match[0] or match[2]
+                    language_name = match[1] or match[3]
 
                      # Convert mass_time to 24-hour format
                     try:
@@ -488,12 +512,56 @@ def import_churches(csv_file):
                     church_lang, created = Church_Language.objects.get_or_create(
                         lkp_church_id=location,
                         lkp_language_id=language,
-                        defaults={'massTime': mass_time_24hr}
+                        massTime = mass_time_24hr,
+                        massDay = 'sat',
                     )
                     if not created:
                         church_lang.massTime = mass_time_24hr
                         church_lang.save()
+                        
+                for match in sundayMassTimes:
+                    # Determine which capture groups are populated
+                    mass_time = match[0] or match[2]
+                    language_name = match[1] or match[3]
+
+                     # Convert mass_time to 24-hour format
+                    try:
+                        mass_time_24hr = datetime.strptime(mass_time, "%I:%M %p").time() if ":" in mass_time else datetime.strptime(mass_time, "%I %p").time()
+                    except ValueError:
+                        print(f"Invalid mass time format: {mass_time}")
+                        continue  # Skip this entry if the time format is invalid
+        
+                    # Create or get the language
+                    language, _ = Language.objects.get_or_create(name=language_name.strip().lower())
+
+                    # Create or get the Church_Language entry with massTime
+                    church_lang, created = Church_Language.objects.get_or_create(
+                        lkp_church_id=location,
+                        lkp_language_id=language,
+                        massTime = mass_time_24hr,
+                        massDay = 'sun',
+                    )
+                    if not created:
+                        church_lang.massTime = mass_time_24hr
+                        church_lang.save()
+                
             
+            # Create Ethnicity
+            if pd.notna(row.get('Ethnicity-Census or Estimate')):
+                Ethnicity.objects.get_or_create(
+                    lkp_location_id = location,
+                    year = str(int(row['Year'])),
+                    defaults= {
+                        'percent_african': safe_decimal(row.get('Ethnicity-%African', 0)),
+                        'percent_africanAmerican': safe_decimal(row.get('Ethnicity-%African-American', 0)),
+                        'percent_asian': safe_decimal(row.get('Ethnicity-%Asian', 0)),
+                        'percent_hispanic': safe_decimal(row.get('Ethnicity-%Hispanic', 0)),
+                        'percent_americanIndian': safe_decimal(row.get('Ethnicity-%American Indian', 0)),
+                        'percent_other': safe_decimal(row.get('Ethnicity-%Other', 0)),
+                        'is_censusEstimate': True,
+                    }
+                )
+
             # Create or get social outreach programs
             programs = None
             if pd.notna(row.get('Social Outreach Services')):
@@ -502,7 +570,7 @@ def import_churches(csv_file):
                     for name in programs:
                         name = name.strip().lower()
                         program, _ = SocialOutreachProgram.objects.get_or_create(name=name)
-                        program.church.add(location)
+                        program.location.add(location)
                 except (ValueError, SyntaxError) as e:
                     print(f"Invalid outreach program list format: {row.get('Social Outreach Services')}. Error: {e}")
 

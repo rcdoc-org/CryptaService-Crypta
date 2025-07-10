@@ -1319,7 +1319,7 @@ class RegisteredHousehold(models.Model):
         return f'{self.year}: {self.lkp_church_id.name} - {self.registeredHouseholds}'
 
 class Ethnicity(models.Model):
-    lkp_church_id = models.ForeignKey(Location,
+    lkp_location_id = models.ForeignKey(Location,
                                       on_delete=models.CASCADE,
                                       null=False,
                                       related_name='ethnicity_church')
@@ -1379,11 +1379,11 @@ class Ethnicity(models.Model):
     is_censusEstimate = models.BooleanField(default=False, null=False)
 
     class Meta:
-        ordering = ['year', 'lkp_church_id__name']
+        ordering = ['year', 'lkp_location_id__name']
         db_table = 'ethnicity'
 
     def __str__(self):
-        return f'{self.year}: {self.lkp_church_id.name}'
+        return f'{self.year}: {self.lkp_location_id.name}'
 
 class Offertory(models.Model):
     lkp_church_id = models.ForeignKey(Location,
@@ -1434,7 +1434,7 @@ class OctoberMassCount(models.Model):
 class BuildingOnSite(models.Model):
     name = models.CharField(max_length=255, null=False)
     #Only do this if no other fields required in many to many relationship
-    statusAnimarum = models.ManyToManyField(StatusAnimarum,
+    location = models.ManyToManyField(Location,
                                             related_name='building_on_site')
     class Meta:
         ordering = ['name']
@@ -1446,7 +1446,7 @@ class BuildingOnSite(models.Model):
 class SocialOutreachProgram(models.Model):
     name = models.CharField(max_length=255, null=False)
     #Only do this if no other fields required in many to many relationship
-    church = models.ManyToManyField(Location,
+    location = models.ManyToManyField(Location,
                                             related_name='social_outreach_program')
 
     class Meta:
