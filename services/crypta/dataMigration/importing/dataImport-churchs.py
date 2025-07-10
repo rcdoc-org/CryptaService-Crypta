@@ -6,9 +6,12 @@ from datetime import datetime
 import pandas as pd
 import django
 
-# Set up Django environment
-sys.path.append(os.path.dirname(os.path.abspath(__file__)))
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'backend.settings')
+current_dir = os.path.dirname(os.path.abspath(__file__))
+# Add the project root so ``crypta_service`` can be imported when executing this
+# script directly.
+project_root = os.path.abspath(os.path.join(current_dir, '..', '..'))
+sys.path.append(project_root)
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'crypta_service.settings')
 django.setup()
 
 from api.models import (
@@ -172,7 +175,11 @@ def import_churches(csv_file):
                     }
                 )
                 
-
+            # Set Seating Capacity
+            seating_capacity = 0
+            if pd.notna(row.get('Seating Capacity')):
+                seating_capacity = int(row['Seating Capacity'].replace(',','')) if pd.notna(row.get('Seating Capacity')) else 0
+            
             # Create or get church detail
             Church_Detail.objects.get_or_create(
                 lkp_location_id=location,
@@ -188,15 +195,15 @@ def import_churches(csv_file):
                     'date_firstDedication': parse_date(row.get('First Church Dedication Date')),
                     'date_secondDedication': parse_date(row.get('Second Church Dedication Date')),
                     'type': row.get('Type') if pd.notna(row.get('Type')) else 'parish',
-                    'seatingCapacity': int(row['Seating Capacity']) if pd.notna(row.get('Seating Capacity')) else 0,
-                    'has_homeschoolProgram': parse_bool(row.get('Homeschool Program')),
-                    'has_childCareDayCare': parse_bool(row.get('Child care/Day care')),
-                    'has_scoutingProgram': parse_bool(row.get('Scouting program')),
-                    'has_chapelOnCampus': parse_bool(row.get('Chapel on Campus')),
-                    'has_adorationChapelOnCampus': parse_bool(row.get('Adoration Chapel on Campus')),
-                    'has_columbarium': parse_bool(row.get('Columbarium')),
-                    'has_cemetary': parse_bool(row.get('Cemetery')),
-                    'has_schoolOnSite': parse_bool(row.get('School On Site')),
+                    'seatingCapacity': seating_capacity,
+                    'has_homeschoolProgram': parse_bool(row.get('Homeschool Program')) if pd.notna(row.get('Homeschool Program')) else False,
+                    'has_childCareDayCare': parse_bool(row.get('Child care/Day care')) if pd.notna(row.get('Child care/Day care')) else False,
+                    'has_scoutingProgram': parse_bool(row.get('Scouting program')) if pd.notna(row.get('Scouting program')) else False,
+                    'has_chapelOnCampus': parse_bool(row.get('Chapel on Campus')) if pd.notna(row.get('Chapel on Campus')) else False,
+                    'has_adorationChapelOnCampus': parse_bool(row.get('Adoration Chapel on Campus')) if pd.notna(row.get('Adoration Chapel on Campus')) else False,
+                    'has_columbarium': parse_bool(row.get('Columbarium')) if pd.notna(row.get('Columbarium')) else False,
+                    'has_cemetary': parse_bool(row.get('Cemetery')) if pd.notna(row.get('Cemetery')) else False,
+                    'has_schoolOnSite': parse_bool(row.get('School On Site')) if pd.notna(row.get('School On Site')) else False,
                     'schoolType': row.get('School Type') if pd.notna(row.get('School Type')) else None,
                     'is_nonParochialSchoolUsingFacilities': parse_bool(row.get('Non-parochial School Using Facilities')),
                 }
@@ -210,7 +217,7 @@ def import_churches(csv_file):
                 first_name = name[0] if len(name) > 0 else ''
                 last_name = name[-1] if len(name) > 1 else ''
                 middle_name = name[1] if len(name) > 2 else ''
-                dre = Person.objects.get_or_create(
+                dre, _ = Person.objects.get_or_create(
                     name_first = first_name,
                     name_last = last_name,
                     name_middle = middle_name if middle_name else None,
@@ -220,7 +227,7 @@ def import_churches(csv_file):
                     }
                 )
                 if dre:
-                    assign_type, _ = AssignmentType.objects.get_or_create(name='dre')
+                    assign_type, _ = AssignmentType.objects.get_or_create(title='dre', personType='lay')
                     Assignment.objects.update_or_create(
                         lkp_location_id = location,
                         lkp_assignmentType_id = assign_type,
@@ -257,7 +264,7 @@ def import_churches(csv_file):
                 first_name = name[0] if len(name) > 0 else ''
                 last_name = name[-1] if len(name) > 1 else ''
                 middle_name = name[1] if len(name) > 2 else ''
-                youth_minister = Person.objects.get_or_create(
+                youth_minister, _ = Person.objects.get_or_create(
                     name_first = first_name,
                     name_last = last_name,
                     name_middle = middle_name if middle_name else None,
@@ -267,7 +274,7 @@ def import_churches(csv_file):
                     }
                 )
                 if youth_minister:
-                    assign_type, _ = AssignmentType.objects.get_or_create(name='youth minister')
+                    assign_type, _ = AssignmentType.objects.get_or_create(title='youth minister', personType='lay')
                     Assignment.objects.update_or_create(
                         lkp_location_id = location,
                         lkp_assignmentType_id = assign_type,
@@ -304,7 +311,7 @@ def import_churches(csv_file):
                 first_name = name[0] if len(name) > 0 else ''
                 last_name = name[-1] if len(name) > 1 else ''
                 middle_name = name[1] if len(name) > 2 else ''
-                youth_minister = Person.objects.get_or_create(
+                office_mgr, _ = Person.objects.get_or_create(
                     name_first = first_name,
                     name_last = last_name,
                     name_middle = middle_name if middle_name else None,
@@ -313,7 +320,7 @@ def import_churches(csv_file):
                     }
                 )
                 if office_mgr:
-                    assign_type, _ = AssignmentType.objects.get_or_create(name='office mgr')
+                    assign_type, _ = AssignmentType.objects.get_or_create(title='office mgr', personType='lay')
                     Assignment.objects.update_or_create(
                         lkp_location_id = location,
                         lkp_assignmentType_id = assign_type,
@@ -353,7 +360,7 @@ def import_churches(csv_file):
                     }
                 )
                 
-                financial_council_chair = Person.objects.get_or_create(
+                financial_council_chair, _ = Person.objects.get_or_create(
                     name_first = first_name,
                     name_last = last_name,
                     name_middle = middle_name if middle_name else None,
@@ -363,7 +370,7 @@ def import_churches(csv_file):
                     }
                 )
                 if financial_council_chair:
-                    assign_type, _ = AssignmentType.objects.get_or_create(name='financial council chair')
+                    assign_type, _ = AssignmentType.objects.get_or_create(title='financial council chair', personType='lay')
                     Assignment.objects.update_or_create(
                         lkp_location_id = location,
                         lkp_assignmentType_id = assign_type,
@@ -413,7 +420,7 @@ def import_churches(csv_file):
                     }
                 )
                 
-                pastoral_council_chair = Person.objects.get_or_create(
+                pastoral_council_chair, _ = Person.objects.get_or_create(
                     name_first = first_name,
                     name_last = last_name,
                     name_middle = middle_name if middle_name else None,
@@ -423,7 +430,7 @@ def import_churches(csv_file):
                     }
                 )
                 if pastoral_council_chair:
-                    assign_type, _ = AssignmentType.objects.get_or_create(name='pastoral council chair')
+                    assign_type, _ = AssignmentType.objects.get_or_create(title='pastoral council chair', personType='lay')
                     Assignment.objects.update_or_create(
                         lkp_location_id = location,
                         lkp_assignmentType_id = assign_type,
@@ -502,23 +509,28 @@ def import_churches(csv_file):
     print("Church data imported successfully.")
 
 def missionOf(csv_file):
-   data = pd.read_csv(csv_file) 
+    data = pd.read_csv(csv_file)
 
-   
-   with transaction.atomic():
+
+    with transaction.atomic():
         for _, row in data.iterrows():
             if pd.notna(row.get('Mission Of')):
                 # Get the parish location based on 'Mission Of'
-                parish_location, _ = Location.objects.get(
-                    name = row['Mission Of'],
-                )
+                try:
+                    parish_location = Church_Detail.objects.get(parish_id=int(row.get('Mission Of')))
+                except Location.DoesNotExist:
+                    print(f"Skipping: No church found for Parish_ID {row['Mission Of']}")
+                    continue
                 # Update the mission of location
-                mission_location, _ = Location.objects.update_or_create(
-                    name=row['Parish Unique Name'],
-                    defaults={
-                        'missionOf': parish_location,
-                    }
+                mission_location = Location.objects.get(
+                    name=row['Parish Unique Name']
                 )
+                try:
+                    detail = Church_Detail.objects.get(lkp_location_id=mission_location)
+                    detail.lkp_missionOf_id = parish_location.lkp_location_id
+                    detail.save()
+                except Church_Detail.DoesNotExist:
+                    print(f"Skipping: No Church_detail exists for {mission_location.name}")
 
 def parse_date(date_str):
     """
