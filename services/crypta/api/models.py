@@ -1396,6 +1396,13 @@ class Offertory(models.Model):
                                  validators=[
                                      MinValueValidator(0)
                                  ])
+    
+    class Meta:
+        ordering = ['year', 'lkp_church_id__name']
+        db_table = 'offertory'
+        
+    def __str__(self):
+        return f"{self.year}: {self.lkp_church_id.name}"
 
 class OctoberMassCount(models.Model):
     lkp_church_id = models.ForeignKey(Location,
