@@ -356,7 +356,7 @@ def import_churches(csv_file):
                     zip_code = 'Missing',
                     country = 'US',  # Assuming all addresses are in the USA
                     defaults={
-                        'friendlyName': f"{name} Residence"
+                        'friendlyName': f"{" ".join(name)} Residence"
                     }
                 )
                 
@@ -416,7 +416,7 @@ def import_churches(csv_file):
                     zip_code = 'Missing',
                     country = 'US',  # Assuming all addresses are in the USA
                     defaults={
-                        'friendlyName': f"{name} Residence"
+                        'friendlyName': f"{" ".join(name)} Residence"
                     }
                 )
                 
