@@ -1,6 +1,7 @@
 import os
 import sys
 import re
+import ast # Required for string list conversion, social outreach programs
 from datetime import datetime
 import pandas as pd
 import django
@@ -13,7 +14,8 @@ django.setup()
 from api.models import (
     Location, Address, Vicariate, County, Church_Detail, Language, Church_Language,
     EmailType, Location_Email, Location_Phone, PhoneType, Status,
-    Location_Status, Assignment, AssignmentType, Person, Person_Email, Person_Phone
+    Location_Status, Assignment, AssignmentType, Person, Person_Email, Person_Phone,
+    SocialOutreachProgram,
 )
 from django.db import transaction
 
@@ -453,7 +455,7 @@ def import_churches(csv_file):
 
             # Create or get languages and mass times
             if pd.notna(row.get('Sunday Masses')):
-                regex_sundayMass = r'((?:[1-9]|1[0-2]):[0-9]{2} [apAP][mM]) \(([\w-]+)\)|((?:[1-9]|1[0-2]) [apAP][mM]) \(([\w-]+)\)'
+                regex_sundayMass = r'((?:[1-9]|1[0-2]):[0-9]{2} [apAP][mM]) *\(([\w\s-]+)\)|((?:[1-9]|1[0-2]) [apAP][mM]) *\(([\w\s-]+)\)'
                 sundayMassTimes = re.findall(regex_sundayMass, row['Sunday Masses'])
 
                 for match in sundayMassTimes:
@@ -473,14 +475,29 @@ def import_churches(csv_file):
                         continue  # Skip this entry if the time format is invalid
         
                     # Create or get the language
-                    language, _ = Language.objects.get_or_create(name=language_name.strip())
+                    language, _ = Language.objects.get_or_create(name=language_name.strip().lower())
 
                     # Create or get the Church_Language entry with massTime
-                    Church_Language.objects.get_or_create(
+                    church_lang, created = Church_Language.objects.get_or_create(
                         lkp_church_id=location,
                         lkp_language_id=language,
                         defaults={'massTime': mass_time_24hr}
                     )
+                    if not created:
+                        church_lang.massTime = mass_time_24hr
+                        church_lang.save()
+            
+            # Create or get social outreach programs
+            programs = None
+            if pd.notna(row.get('Social Outreach Services')):
+                try:
+                    programs = ast.literal_eval(row.get('Social Outreach Services').strip())
+                    for name in programs:
+                        name = name.strip().lower()
+                        program, _ = SocialOutreachProgram.objects.get_or_create(name=name)
+                        program.church.add(location)
+                except (ValueError, SyntaxError) as e:
+                    print(f"Invalid outreach program list format: {row.get('Social Outreach Services')}. Error: {e}")
 
     print("Church data imported successfully.")
 
