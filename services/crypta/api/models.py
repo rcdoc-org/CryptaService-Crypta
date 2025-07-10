@@ -872,6 +872,11 @@ class Church_Detail(models.Model):
     schoolType = models.CharField(max_length=255,choices=choice_schoolType, null=True, blank=True,)
     is_nonParochialSchoolUsingFacilities = models.BooleanField(default=False, null=True, blank=True,)
     notes = models.TextField(null=True, blank=True,)
+    temp_officeContact = models.CharField(max_length=255, null=True, blank=True,)
+    temp_officeContactEmail = models.EmailField(
+        max_length=255,
+        null=True, blank=True,
+    )
 
     class Meta:
         ordering = ['lkp_location_id__name']
