@@ -5,6 +5,7 @@ manifest*/
 0*.py
 *.sql
 *.csv
+*.xlsx
 init.sql
 tmp
 .DS_Store
