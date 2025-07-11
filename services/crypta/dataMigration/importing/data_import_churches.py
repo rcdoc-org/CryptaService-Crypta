@@ -222,6 +222,8 @@ def import_churches(csv_file):
                     'schoolType': row.get('School Type') if pd.notna(row.get('School Type')) else None,
                     'is_nonParochialSchoolUsingFacilities': parse_bool(row.get('Non-parochial School Using Facilities')),
                     'lkp_rectoryAddress_id': rectory_address,
+                    'temp_officeContact': row.get('Office Contact Person', ''),
+                    'temp_officeContactEmail': row.get('Office Contact Email', ''),
                 }
             )
             
@@ -614,7 +616,7 @@ def parse_date(date_str):
 
 if __name__ == "__main__":
     # Path to the CSV file
-    csv_file = '/Users/kbgreenberg/Documents/Github/CryptaApp/crypta/backend/api/data/Churches (6).csv'
+    csv_file = '/Users/kbgreenberg/Documents/Github/CryptaApp/crypta/services/crypta/dataMigration/raw/Churches(2).csv'
 
     # Run the import function
     import_churches(csv_file)

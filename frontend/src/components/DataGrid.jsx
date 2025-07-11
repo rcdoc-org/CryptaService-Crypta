@@ -12,13 +12,17 @@ const DataGrid = ({ columns, data, options = {} }) => {
   // turn your column defs into AG-Grid’s format
   console.log('Data: ', data);
   const columnDefs = useMemo(() =>
-    columns.map(col => ({
-      headerName: col.title,
-      field: col.field,
-      sortable: Boolean(col.sorter),
-      filter: Boolean(col.headerFilter),
-      resizable: true,
-    }))
+    columns.map(col => {
+      const { title, field, sorter, headerFilter, ...rest } = col;
+      return {
+        headerName: title,
+        field,
+        sortable: Boolean(sorter),
+        filter: Boolean(headerFilter),
+        resizable: true,
+        ...rest,
+      };
+    })
   , [columns]);
 
   // sensible defaults for every column
@@ -36,6 +40,7 @@ const DataGrid = ({ columns, data, options = {} }) => {
         rowData={data}
         columnDefs={columnDefs}
         defaultColDef={defaultColDef}
+        frameworkComponents={options.frameworkComponents}
         pagination={true}
         paginationPageSize={options.paginationSize ?? 20}
         rowSelection="single"

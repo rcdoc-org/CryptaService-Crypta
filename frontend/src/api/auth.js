@@ -31,6 +31,7 @@ export const fetchCryptaGroups = () => authApi.get('/crypta_groups/');
 export const fetchQueryPermissions = () => authApi.get('/query_permissions/');
 
 export const createUser = (data) => authApi.post('/users/register/', data);
+export const updateUser = (id, data) => authApi.patch(`/users/${id}/`, data);
 export const deleteUser = (id) => authApi.delete(`/users/${id}/`);
 
 export const createRole = (data) => authApi.post('/roles/create/', data);

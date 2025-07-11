@@ -163,6 +163,7 @@ class UserOrganization(models.Model):
 class CryptaGroup(models.Model):
     name = models.CharField(max_length=255)
     description = models.CharField(max_length=255)
+    is_enabled = models.BooleanField(default=True, null=False, blank=False)
 
     def __str__(self):  # pragma: no cover - simple representation
         return str(self.name)
@@ -171,6 +172,7 @@ class CryptaGroup(models.Model):
 class UserCryptaGroup(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     group = models.ForeignKey(CryptaGroup, on_delete=models.CASCADE)
+    is_enabled = models.BooleanField(default=True, null=False, blank=False)
 
     def __str__(self):  # pragma: no cover - simple representation
         return f"{self.user.username}-{self.group.id}"

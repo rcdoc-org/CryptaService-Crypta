@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import * as bootstrap from 'bootstrap';
 import '../styles/AuthAdmin.css';
 import AsidePanel from '../components/AsidePanel';
@@ -15,6 +15,7 @@ import {
   fetchCryptaGroups,
   fetchQueryPermissions,
   createUser,
+  updateUser,
   deleteUser,
   createRole,
   deleteRole,
@@ -41,6 +42,7 @@ const columnsMap = {
     { title: 'ID', field: 'id' },
     { title: 'Email', field: 'email' },
     { title: 'Active', field: 'is_active'},
+    { title: 'Last Login', field: 'last_login'},
     { title: 'Date Joined', field: 'date_joined'},
     { title: 'Suspended', field: 'suspend'}
 
@@ -120,7 +122,32 @@ const AuthAdmin = () => {
     queryPermission: deleteQueryPermission,
   };
 
-  const columns = columnsMap[active];
+  const handleSuspendToggle = (row) => {
+    updateUser(row.id, { suspend: !row.suspend })
+      .then(loadRows);
+  };
+
+  // const columns = columnsMap[active];
+  const columns = useMemo(() => {
+    const base = columnsMap[active];
+    if (active === 'users') {
+      return base.map(col =>
+        col.field === 'suspend'
+          ? {
+              ...col,
+              cellRenderer: params => (
+                <input
+                  type="checkbox"
+                  checked={params.value}
+                  onChange={() => handleSuspendToggle(params.data)}
+                />
+              ),
+            }
+          : col
+      );
+    }
+    return base;
+  }, [active]);
 
   const loadRows = () => {
     const fetchFn = fetchMap[active];

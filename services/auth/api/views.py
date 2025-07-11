@@ -62,6 +62,22 @@ class LoggingTokenObtainPairSerializer(TokenObtainPairSerializer):
                 user_obj = User.objects.get(username=username)
             except User.DoesNotExist:
                 user_obj = None
+                
+        try:
+            logger.debug('User suspension status is: %s', user_obj.suspend)
+            if user_obj.suspend == True:
+                raise AuthenticationFailed
+        except AuthenticationFailed:
+            logger.warning('User Account is suspended for %s', username)
+            if user_obj:
+                LoginAttempt.objects.create(
+                    user=user_obj,
+                    time=timezone.now(),
+                    successful=False,
+                    ip_address=ip_address,
+                )
+            raise
+                
 
         try:
             data = super().validate(attrs)
@@ -99,6 +115,8 @@ class LoggingTokenObtainPairSerializer(TokenObtainPairSerializer):
             successful=True,
             ip_address=ip_address,
         )
+        user_obj.last_login = timezone.now()
+        user_obj.save()
 
         refresh = self.get_token(self.user)
         access = refresh.access_token
@@ -174,7 +192,7 @@ class UserListView(generics.ListAPIView):
     permission_classes = [AllowAny]
 
     def get(self, request, *args, **kwargs):
-        logger.debug('User list requested')
+        logger.debug('User list requested - class:UserListView')
         response = super().get(request, *args, **kwargs)
 
         users = list(response.data)
@@ -339,7 +357,7 @@ class QueryPermissionDetailView(generics.RetrieveDestroyAPIView):
         return super().delete(request, *args, **kwargs)
 
 
-class UserDetailView(generics.RetrieveDestroyAPIView):
+class UserDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
     permission_classes = [AllowAny]
@@ -351,6 +369,10 @@ class UserDetailView(generics.RetrieveDestroyAPIView):
     def delete(self, request, *args, **kwargs):
         logger.debug('Delete user %s', kwargs.get('pk'))
         return super().delete(request, *args, **kwargs)
+    
+    def patch(self, request, *args, **kwargs):
+        logger.debug('Patch user %s', kwargs.get('pk'))
+        return super().patch(request, *args, **kwargs)
 
 
 class VerifyMfaView(generics.GenericAPIView):
