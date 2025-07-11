@@ -357,7 +357,7 @@ class QueryPermissionDetailView(generics.RetrieveDestroyAPIView):
         return super().delete(request, *args, **kwargs)
 
 
-class UserDetailView(generics.RetrieveDestroyAPIView):
+class UserDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
     permission_classes = [AllowAny]
@@ -369,6 +369,10 @@ class UserDetailView(generics.RetrieveDestroyAPIView):
     def delete(self, request, *args, **kwargs):
         logger.debug('Delete user %s', kwargs.get('pk'))
         return super().delete(request, *args, **kwargs)
+    
+    def patch(self, request, *args, **kwargs):
+        logger.debug('Patch user %s', kwargs.get('pk'))
+        return super().patch(request, *args, **kwargs)
 
 
 class VerifyMfaView(generics.GenericAPIView):
