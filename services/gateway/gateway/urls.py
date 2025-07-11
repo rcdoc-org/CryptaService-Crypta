@@ -41,7 +41,6 @@ urlpatterns = [
     path('users/register/', CreateUserView_v1.as_view(), name='register'),
     path('users/', UsersView_v1.as_view(), name='users'),
     path('users/<int:pk>/', UsersView_v1.as_view(), name='user-detail'),
-    path('users/<int:pk>/', UsersView_v1.as_view(), name='user-update'),
     path('roles/', RolesView_v1.as_view(), name='roles'),
     path('roles/create/', RoleDetailView_v1.as_view(), name='roles-create'),
     path('roles/<int:pk>/', RoleDetailView_v1.as_view(), name='role-detail'),

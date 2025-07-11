@@ -109,6 +109,7 @@ class UsersView_v1(APIView):
     def patch(self, request, pk, *args, **kwargs):
         logger.debug('Update user %s request', pk)
         try:
+            logger.debug('Requesting %s', f'{AUTH_USERS_URL}{pk}')
             resp = requests.patch(f"{AUTH_USERS_URL}{pk}/")
             logger.info('Auth Service returned status %s', resp.status_code)
             data = resp.json() if resp.text else ''
