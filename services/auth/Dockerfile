@@ -38,6 +38,9 @@ RUN pip install --no-cache-dir -r /app/requirements.txt
 # Copy app source code
 COPY . /app
 
+RUN python3 manage.py make migrations \
+    python3 manage.py migrate
+
 # Expose Django development server port
 EXPOSE 8002
 
