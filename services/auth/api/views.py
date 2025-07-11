@@ -192,7 +192,7 @@ class UserListView(generics.ListAPIView):
     permission_classes = [AllowAny]
 
     def get(self, request, *args, **kwargs):
-        logger.debug('User list requested')
+        logger.debug('User list requested - class:UserListView')
         response = super().get(request, *args, **kwargs)
 
         users = list(response.data)
