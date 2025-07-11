@@ -16,6 +16,7 @@ class UserSerializer(serializers.ModelSerializer):
             'password',
             'is_active',
             'is_staff',
+            'last_login',
             'suspend',
             'date_joined',
             'sso_id',
