@@ -105,6 +105,17 @@ class UsersView_v1(APIView):
         except requests.RequestException as exc:
             logger.error('Failed to contact auth service: %s', exc, exc_info=True)
             return Response({'detail': 'Authentication service unavailable'}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
+    
+    def patch(self, request, pk, *args, **kwargs):
+        logger.debug('Update user %s request', pk)
+        try:
+            resp = requests.patch(f"{AUTH_USERS_URL}{pk}/")
+            logger.info('Auth Service returned status %s', resp.status_code)
+            data = resp.json() if resp.text else ''
+            return Response(data, status=resp.status_code)
+        except requests.RequestException as exc:
+            logger.error('Failed to contact auth service: %s', exc, exc_info=True)
+            return Response({'detail': 'Authentication service unavailable'}, status = status.HTTP_503_SERVICE_UNAVAILABLE)
 
     def delete(self, request, pk, *args, **kwargs):
         logger.debug('Delete user %s request', pk)
