@@ -62,6 +62,22 @@ class LoggingTokenObtainPairSerializer(TokenObtainPairSerializer):
                 user_obj = User.objects.get(username=username)
             except User.DoesNotExist:
                 user_obj = None
+                
+        try:
+            logger.debug('User suspension status is: %s', user_obj.suspend)
+            if user_obj.suspend == True:
+                raise AuthenticationFailed
+        except AuthenticationFailed:
+            logger.warning('User Account is suspended for %s', username)
+            if user_obj:
+                LoginAttempt.objects.create(
+                    user=user_obj,
+                    time=timezone.now(),
+                    successful=False,
+                    ip_address=ip_address,
+                )
+            raise
+                
 
         try:
             data = super().validate(attrs)
@@ -99,6 +115,8 @@ class LoggingTokenObtainPairSerializer(TokenObtainPairSerializer):
             successful=True,
             ip_address=ip_address,
         )
+        user_obj.last_login = timezone.now()
+        user_obj.save()
 
         refresh = self.get_token(self.user)
         access = refresh.access_token
