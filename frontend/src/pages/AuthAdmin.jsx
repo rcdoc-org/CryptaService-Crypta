@@ -41,6 +41,7 @@ const columnsMap = {
     { title: 'ID', field: 'id' },
     { title: 'Email', field: 'email' },
     { title: 'Active', field: 'is_active'},
+    { title: 'Last Login', field: 'last_login'},
     { title: 'Date Joined', field: 'date_joined'},
     { title: 'Suspended', field: 'suspend'}
 
