@@ -35,6 +35,7 @@ class UserSerializer(serializers.ModelSerializer):
         # validated_data['password_hash'] = make_password(password)
         # return super().create(validated_data)
         user = models.User(**validated_data)
+        user.suspend = True
         user.set_password(password)
         user.save()
         return user
