@@ -461,7 +461,7 @@ class MicrosoftCallbackView(generics.GenericAPIView):
 
         user, created = User.objects.get_or_create(
             sso_id=oid,
-            defaults={'username': email, 'email': email}
+            defaults={'username': email, 'email': email, 'suspend': True}
         )
         if created:
             user.set_password(secrets.token_urlsafe(12))
@@ -483,6 +483,9 @@ class MicrosoftCallbackView(generics.GenericAPIView):
             profile.department = department
             profile.save()
 
+        if user.suspend == True:
+            return Response({'detail': 'Account Suspended'}, status=status.HTTP_401_UNAUTHORIZED)
+        
         refresh = RefreshToken.for_user(user)
         access = refresh.access_token
         Token.objects.create(
