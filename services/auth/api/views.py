@@ -64,8 +64,11 @@ class LoggingTokenObtainPairSerializer(TokenObtainPairSerializer):
                 user_obj = None
                 
         try:
-            logger.debug('User suspension status is: %s', user_obj.suspend)
-            if user_obj.suspend == True:
+            if user_obj:
+                logger.debug('User suspension status is: %s', user_obj.suspend)
+                if user_obj.suspend is True:
+                    raise AuthenticationFailed
+            else:
                 raise AuthenticationFailed
         except AuthenticationFailed:
             logger.warning('User Account is suspended for %s', username)

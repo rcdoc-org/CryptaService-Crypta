@@ -103,9 +103,18 @@ class RoleFeatureSerializer(serializers.ModelSerializer):
 
 
 class TokenSerializer(serializers.ModelSerializer):
+    user_email = serializers.EmailField(source='user.email', read_only=True)
+    
     class Meta:
         model = models.Token
-        fields = '__all__'
+        fields = [
+            'token',
+            'type',
+            'expiration',
+            'created_at',
+            'revoked',
+            'user_email',
+        ]
 
 
 class OrganizationFeatureSerializer(serializers.ModelSerializer):
