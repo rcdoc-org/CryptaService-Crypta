@@ -65,7 +65,7 @@ const columnsMap = {
   ],
   login_attempts: [
     { title: 'ID', field: 'id' },
-    { title: 'Email', field: 'email' },
+    { title: 'Email', field: 'user_email' },
     { title: 'Time', field: 'time' },
     { title: 'Successful', field: 'successful' },
     { title: 'IP Address', field: 'ip_address' }

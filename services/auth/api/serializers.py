@@ -49,6 +49,8 @@ class UserProfileSerializer(serializers.ModelSerializer):
 
 
 class LoginAttemptSerializer(serializers.ModelSerializer):
+    user_email = serializers.EmailField(source='user.email', read_only=True)
+    
     class Meta:
         model = models.LoginAttempt
         fields = '__all__'
