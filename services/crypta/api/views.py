@@ -7,3 +7,6 @@ class FilterTreeView_v1(APIView):
 
 class FilterResultsView_v1(APIView):
     pass
+
+class SearchResultsView_v1(APIView):
+    pass
