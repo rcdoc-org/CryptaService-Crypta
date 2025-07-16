@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { ACCESS_TOKEN } from '../../constants';
 
 // Determine the gateway URL from the current host, falling back to an
 // environment variable if provided.  This keeps API calls working when the UI
@@ -10,6 +11,14 @@ const gatewayUrl =
 const apiClient = axios.create({
     baseURL: gatewayUrl,
     headers: { 'Content-Type': 'application/json' },
+});
+
+apiClient.interceptors.request.use((config) =>{
+    const token = localStorage.getItem(ACCESS_TOKEN);
+    if (token) {
+        config.headers['Authorization'] = `Bearer ${token}`;
+    }
+    return config
 });
 
 export const fetchFilterTree = (base, params = {}) =>

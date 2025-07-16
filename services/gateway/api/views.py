@@ -22,6 +22,7 @@ AUTH_SSO_LOGIN_URL = os.getenv('AUTH_SSO_LOGIN_URL', 'http://localhost:8002/api/
 AUTH_SSO_CALLBACK_URL = os.getenv('AUTH_SSO_CALLBACK_URL', 'http://localhost:8002/api/v1/sso/callback/')
 CRYPTA_FETCHTREE_URL = os.getenv('CRYPTA_FETCHTREE_URL', 'http://localhost:8001/api/v1/filter_tree')
 CRYPTA_FILTERRESULTS_URL = os.getenv('CRYPTA_FILTERRESULTS_URL', 'http://localhost:8001/api/v1/filter_results')
+CRYPTA_SEARCH_URL = os.getenv('CRYPTA_SEARCH_URL', 'http://localhost:8001/api/v1/search')
 
 # Create your views here.
 class CreateUserView_v1(APIView):
@@ -397,6 +398,22 @@ class FilterResultsView_v1(APIView):
         try:
             logger.debug('Forwarding fetch request to crypta service at %s', CRYPTA_FILTERRESULTS_URL)
             resp = requests.get(CRYPTA_FILTERRESULTS_URL, params=request.query_params)
+            logger.info('Crypta Service returned status %s', resp.status_code)
+            content_type = resp.headers.get('Content-Type', '')
+            data = resp.json() if content_type.startswith('application/json') else resp.text
+            return Response(data, status=resp.status_code)
+        except requests.RequestException as exc:
+            logger.error('Failed to contact crypta service: %s', exc, exc_info=True)
+            return Response({'detail': 'Crypta service unavailable'}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
+
+class SearchResultsView_v1(APIView):
+    permission_classes = [permissions.AllowAny]
+    
+    def get(self, request, *args, **kwargs):
+        logger.debug('Search Results request recieved.')
+        try:
+            logger.debug('Forwarding search request to crypta service at %s', CRYPTA_SEARCH_URL)
+            resp = requests.get(CRYPTA_SEARCH_URL, params=request.query_params)
             logger.info('Crypta Service returned status %s', resp.status_code)
             content_type = resp.headers.get('Content-Type', '')
             data = resp.json() if content_type.startswith('application/json') else resp.text

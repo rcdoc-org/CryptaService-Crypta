@@ -36,6 +36,7 @@ from api.views import (
     SSOCallbackView_v1,
     FilterTreeView_v1,
     FilterResultsView_v1,
+    SearchResultsView_v1,
 )
 
 urlpatterns = [
@@ -66,4 +67,5 @@ urlpatterns = [
     path('sso/callback/', SSOCallbackView_v1.as_view(), name='sso_callback'),
     path('filter_tree/', FilterTreeView_v1.as_view(), name='filter_tree'),
     path('filter_results/', FilterResultsView_v1.as_view(), name='filter_results'),
+    path('search/', SearchResultsView_v1.as_view(), name='search')
 ]
