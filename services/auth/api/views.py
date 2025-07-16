@@ -432,6 +432,7 @@ class MicrosoftCallbackView(generics.GenericAPIView):
 
     def get(self, request, *args, **kwargs):
         code = request.GET.get('code')
+        ip_address = request.META.get('REMOTE_ADDR') if request else ''
         if not code:
             return Response({'detail': 'missing code'}, status=status.HTTP_400_BAD_REQUEST)
 
@@ -483,8 +484,20 @@ class MicrosoftCallbackView(generics.GenericAPIView):
             profile.department = department
             profile.save()
 
-        if user.suspend == True:
-            return Response({'detail': 'Account Suspended'}, status=status.HTTP_401_UNAUTHORIZED)
+        try:
+            logger.debug('User suspension status is: %s', user_obj.suspend)
+            if user.suspend is True:
+                raise AuthenticationFailed
+        except AuthenticationFailed:
+            logger.warning('User Account is suspended for %s', username)
+            if user:
+                LoginAttempt.objects.create(
+                    user=user,
+                    time=timezone.now(),
+                    successful=False,
+                    ip_address=ip_address,
+                )
+            raise
         
         refresh = RefreshToken.for_user(user)
         access = refresh.access_token
@@ -499,6 +512,12 @@ class MicrosoftCallbackView(generics.GenericAPIView):
             token=access['jti'],
             type=Token.TokenType.ACCESS,
             expiration=datetime.fromtimestamp(access['exp'], tz=timezone.get_default_timezone()),
+        )
+        LoginAttempt.objects.create(
+            user=user,
+            time=timezone.now(),
+            successful=True,
+            ip_address=ip_address,
         )
         data = {'refresh': str(refresh), 'access': str(access)}
         logger.debug('Data: %s', data)
