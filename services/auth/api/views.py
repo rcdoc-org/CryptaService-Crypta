@@ -24,6 +24,8 @@ from .models import (
     CryptaGroup,
     QueryPermission,
     UserProfile,
+    UserCryptaGroup,
+    UserOrganization,
 )
 from .serializers import (
     UserSerializer,
@@ -123,12 +125,41 @@ class LoggingTokenObtainPairSerializer(TokenObtainPairSerializer):
 
         refresh = self.get_token(self.user)
         access = refresh.access_token
+
+        # Crypta Groups the user belongs to
+        user_groups = UserCryptaGroup.objects.filter(user=self.user, is_enabled=True) \
+            .select_related('group')
+        crypta_groups = [ug.group.name for ug in user_groups]
         
+        # Query Permissions linked to those groups
+        group_ids = [ug.group.id for ug in user_groups]
+        permissions = QueryPermission.objects.filter(group_id__in=group_ids)
+        
+        # Serialize permissions for token
+        query_permissions = [
+            {
+                'group': perm.group.name,
+                'resource': perm.resource_type,
+                'access': perm.access_type,
+                'view_limits': perm.view_limits,
+                'filters': perm.filter_conditions
+            }
+            for perm in permissions
+            ]
+        
+        # Roles and Organizations
+        user_orgs = UserOrganization.objects.filter(user=self.user)
+        user_roles = [
+            {uo.organization.name: uo.role.name}
+            for uo in user_orgs
+            ]
+
         # inject custom claims into the JWT payload
         access['username'] = self.user.username
         access['email'] = self.user.email
-        # access['roles'] = [role.name for role in self.user.roles.all()]
-        # access['query_permissions'] = [perm.code for perm in self.user.query_permissions.all()]
+        access['cryptaGroups'] = crypta_groups
+        access['queryPermissions'] = query_permissions
+        access['userRoles'] = user_roles
 
         Token.objects.create(
             user=self.user,
