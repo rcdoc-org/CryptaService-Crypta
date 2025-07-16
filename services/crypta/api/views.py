@@ -18,17 +18,20 @@ def _get_permissions(request):
 def _apply_permission_filters(qs, perms, base):
     """Filter ``qs`` using the provided permission objects."""
     logger.debug('Applying permission filters now.')
-    logger.debug('Perms: %s', perms)
-    relevant = [p for p in perms]
+    relevant = [
+        p
+        for p in perms
+        if p.get('resource') == base
+        or RELETIVE_RELATIONS.get(p.get('resource')) == base
+    ]
     if not relevant:
         return qs.none()
         # return qs
 
+    logger.debug('Relevant: %s', relevant)
     perm_q = Q()
     for perm in relevant:
-        conds = {}
-        conds.update(perm.get("view_limits") or {})
-        conds.update(perm.get("filters") or {})
+        conds = perm.get('filters') or {}
 
         sub = Q()
         for fld, val in conds.items():
