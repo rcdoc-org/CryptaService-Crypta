@@ -68,6 +68,7 @@ TEST_RUNNER = 'django.test.runner.DiscoverRunner'
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'django-insecure-1y02ji-(=#7=5m@%nh+)h(6ls+f_ui7+n78+)ivl1dmd3&g51x'
+# SECRET_KEY = 'django-insecure-ymygc$$g!1#vv(p6(#gta@=cpg_d(l_-wy))gdgpdmb$$fy4i9'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -78,11 +79,11 @@ ALLOWED_HOSTS = ['*']
 # https://www.django-rest-framework.org/api-guide/authentication/#json-web-token-authentication
 # https://django-rest-framework-simplejwt.readthedocs.io/en/latest/getting_started.html
 REST_FRAMEWORK = {
-    'DEFAULT_AUTHENTICATION_CLASSES': [
-        'rest_framework_simplejwt.authentication.JWTAuthentication',
-    ],
+    # Gateway should not validate JWT tokens itself. Authentication is
+    # delegated to the Auth service which exposes a decode endpoint.
+    'DEFAULT_AUTHENTICATION_CLASSES': [],
     'DEFAULT_PERMISSION_CLASSES': [
-        'rest_framework.permissions.IsAuthenticated',
+        'rest_framework.permissions.AllowAny',
     ],
 }
 

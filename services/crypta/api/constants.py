@@ -101,3 +101,8 @@ FIELD_LABLES = {
     
         
 }
+
+RELETIVE_RELATIONS = {
+    'priest_detail': 'person',
+    'church_detail': 'location',
+}

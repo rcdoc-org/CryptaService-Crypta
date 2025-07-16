@@ -9,7 +9,8 @@ from rest_framework.response import Response
 from rest_framework.permissions import AllowAny
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework_simplejwt.views import TokenObtainPairView
-from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework_simplejwt.tokens import RefreshToken, UntypedToken
+from rest_framework_simplejwt.exceptions import TokenError
 from rest_framework.exceptions import AuthenticationFailed
 from django.contrib.auth import get_user_model
 from django.conf import settings
@@ -189,6 +190,30 @@ class LoggingTokenObtainPairView(TokenObtainPairView):
         logger.debug('Token obtain request received')
         logger.debug('Data received: %s', request.data)
         return super().post(request, *args, **kwargs)
+
+class DecodeTokenView(generics.GenericAPIView):
+    """Validate and decode a JWT token and return it's claims."""
+
+    permission_classes = [AllowAny]
+    
+    def post(self, request, *args, **kwargs):
+        logger.debug('Request for Decoding Received')
+        token = request.data.get('token')
+        auth_header = request.headers.get('Authorization', '')
+        if not token and auth_header.startswith('Bearer '):
+            token = auth_header.split(' ', 1)[1]
+            if not token:
+                return Response({
+                    'detail': 'No token provided'}, status=status.HTTP_400_BAD_REQUEST
+                )
+            
+            try:
+                verified = UntypedToken(token)
+            except TokenError as exc:
+                logger.warning('Invalid token: %s', exc)
+                return Response({'detail': 'Invalid Token'}, status=status.HTTP_400_BAD_REQUEST)
+            
+            return Response(verified.payload)
 
 class CreateUserView(generics.CreateAPIView):
     queryset = User.objects.all()

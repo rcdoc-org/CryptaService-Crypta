@@ -1,39 +1,41 @@
 import logging
+import json
 from django.db.models import Count, Q
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import permissions
-import jwt
 
 from .models import Person, Location
-from .constants import DYNAMIC_FILTER_FIELDS, FIELD_LABLES
+from .constants import DYNAMIC_FILTER_FIELDS, FIELD_LABLES, RELETIVE_RELATIONS
 
 logger = logging.getLogger('api')
 
-def _decode_permissions(request):
-    """Return query permissions embedded in the JWT access token."""
-    auth = request.headers.get("Authorization", "")
-    if auth.startswith("Bearer "):
-        token = auth.split(" ", 1)[1]
-        try:
-            payload = jwt.decode(token, options={"verify_signature": False})
-            return payload.get("queryPermissions", [])
-        except jwt.PyJWTError as exc:
-            logger.warning("Failed to decode access token: %s", exc)
-    return []
+def _get_permissions(request):
+    """Return query permissions passed via Gateway."""
+    logger.debug('Get Permission function called.')
+    raw = request.headers.get("X-Query-Permissions", "[]")
+    try:
+        raw_json = json.loads(raw)
+        return raw_json
+    except json.JSONDecodeError as exc:
+        logger.warning("Failed to parse permissions header: %s", exc)
+        return []
 
 def _apply_permission_filters(qs, perms, base):
     """Filter ``qs`` using the provided permission objects."""
-    relevant = [p for p in perms if p.get("resource") == base]
+    logger.debug('Applying permission filters now.')
+    logger.debug('Perms: %s', perms)
+    relevant = [p for p in perms]
     if not relevant:
         return qs.none()
-    
+        # return qs
+
     perm_q = Q()
     for perm in relevant:
         conds = {}
         conds.update(perm.get("view_limits") or {})
         conds.update(perm.get("filters") or {})
-        
+
         sub = Q()
         for fld, val in conds.items():
             if isinstance(val, list):
@@ -43,10 +45,11 @@ def _apply_permission_filters(qs, perms, base):
         if not conds:
             sub &= Q()
         perm_q |= sub
-    
+
     return qs.filter(perm_q)
 
 def _apply_user_filters(qs, filters):
+    logger.debug('Applying user filters.')
     applied = {}
     for rf in filters:
         if ":" in rf:
@@ -63,8 +66,9 @@ class FilterTreeView_v1(APIView):
         logger.debug('Filter Tree Request recieved.')
         base = request.query_params.get("base", "person")
         filters = request.query_params.getlist("filters")
+        
 
-        perms = _decode_permissions(request)
+        perms = _get_permissions(request)
 
         qs = Location.objects.all() if base == "location" else Person.objects.all()
         qs = _apply_permission_filters(qs, perms, base)
@@ -96,7 +100,7 @@ class FilterResultsView_v1(APIView):
         base = request.query_params.get("base", "person")
         filters = request.query_params.getlist("filters")
 
-        perms = _decode_permissions(request)
+        perms = _get_permissions(request)
 
         qs = Location.objects.all() if base == "location" else Person.objects.all()
         qs = _apply_permission_filters(qs, perms, base)
@@ -113,7 +117,7 @@ class SearchResultsView_v1(APIView):
     def get(self, request, *args, **kwargs):
         query = request.query_params.get("q", "").strip()
 
-        perms = _decode_permissions(request)
+        perms = _get_permissions(request)
 
         person_qs = Person.objects.filter(
             Q(name_first__icontains=query)
