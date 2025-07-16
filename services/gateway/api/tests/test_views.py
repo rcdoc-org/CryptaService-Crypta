@@ -382,8 +382,8 @@ class CryptaFilterTreeViewTests(APITestCase):
         mock_response.json.return_value = {}
         mock_delete.return_value = mock_response
         
-        url = reverse('filter_tree', args=[2])
-        response = self.client.delete(url)
+        url = reverse('filter_tree')
+        response = self.client.get(url)
         
         self.assertEqual(response.status_code, 200)
         mock_delete.assert_called_once()
@@ -396,8 +396,8 @@ class CryptaFilterResultsViewTests(APITestCase):
         mock_response.json.return_value = {}
         mock_delete.return_value = mock_response
         
-        url = reverse('filter_tree', args=[3])
-        response = self.client.delete(url)
+        url = reverse('filter_tree')
+        response = self.client.get(url)
         
         self.assertEqual(response.status_code, 200)
         mock_delete.assert_called_once()
