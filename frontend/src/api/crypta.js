@@ -12,9 +12,10 @@ const apiClient = axios.create({
     headers: { 'Content-Type': 'application/json' },
 });
 
-export const fetchFilterTree = (base) => apiClient.get(`/filter_results?base=${base}`);
-export const fetchEmailCountPreview = (params) => apiClient.get('/email_count_preview', { params });
-export const fetchSearchResults = (query) => apiClient.get('/search', { params: { q: query } });
-export const fetchDetails = (base, id) => apiClient.get(`/details/${base}/${id}`);
+export const fetchFilterTree = (base, data) => apiClient.get(`/filter_tree?base=${base}/`, data);
+export const fetchFilterResults = (base, filters, data) => apiClient.get(`/filter_results?base=${base}&filters=${filters}/`, data);
+export const fetchEmailCountPreview = (params) => apiClient.get('/email_count_preview/', { params });
+export const fetchSearchResults = (query) => apiClient.get('/search/', { params: { q: query } });
+export const fetchDetails = (base, id) => apiClient.get(`/details/${base}/${id}/`);
 
 export default apiClient;

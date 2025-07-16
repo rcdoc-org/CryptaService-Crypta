@@ -20,6 +20,8 @@ AUTH_PERMS_URL = os.getenv('AUTH_PERMS_URL', 'http://localhost:8002/api/v1/query
 AUTH_VERIFY_MFA_URL = os.getenv('AUTH_VERIFY_MFA_URL', 'http://localhost:8002/api/v1/users/verify_mfa/')
 AUTH_SSO_LOGIN_URL = os.getenv('AUTH_SSO_LOGIN_URL', 'http://localhost:8002/api/v1/sso/login/')
 AUTH_SSO_CALLBACK_URL = os.getenv('AUTH_SSO_CALLBACK_URL', 'http://localhost:8002/api/v1/sso/callback/')
+CRYPTA_FETCHTREE_URL = os.getenv('CRYPTA_FETCHTREE_URL', 'http://localhost:8001/api/v1/filter_tree')
+CRYPTA_FILTERRESULTS_URL = os.getenv('CRYPTA_FILTERRESULTS_URL', 'http://localhost:8001/api/v1/filter_results')
 
 # Create your views here.
 class CreateUserView_v1(APIView):
@@ -129,7 +131,6 @@ class UsersView_v1(APIView):
             logger.error('Failed to contact auth service: %s', exc, exc_info=True)
             return Response({'detail': 'Authentication service unavailable'}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
 
-
 class RolesView_v1(APIView):
     permission_classes = [permissions.AllowAny]
 
@@ -144,7 +145,6 @@ class RolesView_v1(APIView):
         except requests.RequestException as exc:
             logger.error('Failed to contact auth service: %s', exc, exc_info=True)
             return Response({'detail': 'Authentication service unavailable'}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
-
 
 class RoleDetailView_v1(APIView):
     permission_classes = [permissions.AllowAny]
@@ -171,7 +171,6 @@ class RoleDetailView_v1(APIView):
             logger.error('Failed to contact auth service: %s', exc, exc_info=True)
             return Response({'detail': 'Authentication service unavailable'}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
 
-
 class TokensView_v1(APIView):
     permission_classes = [permissions.AllowAny]
 
@@ -187,7 +186,6 @@ class TokensView_v1(APIView):
             logger.error('Failed to contact auth service: %s', exc, exc_info=True)
             return Response({'detail': 'Authentication service unavailable'}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
 
-
 class OrganizationsView_v1(APIView):
     permission_classes = [permissions.AllowAny]
 
@@ -202,7 +200,6 @@ class OrganizationsView_v1(APIView):
         except requests.RequestException as exc:
             logger.error('Failed to contact auth service: %s', exc, exc_info=True)
             return Response({'detail': 'Authentication service unavailable'}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
-
 
 class OrganizationDetailView_v1(APIView):
     permission_classes = [permissions.AllowAny]
@@ -229,7 +226,6 @@ class OrganizationDetailView_v1(APIView):
             logger.error('Failed to contact auth service: %s', exc, exc_info=True)
             return Response({'detail': 'Authentication service unavailable'}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
 
-
 class LoginAttemptsView_v1(APIView):
     permission_classes = [permissions.AllowAny]
 
@@ -245,8 +241,6 @@ class LoginAttemptsView_v1(APIView):
             logger.error('Failed to contact auth service: %s', exc, exc_info=True)
             return Response({'detail': 'Authentication service unavailable'}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
 
-
-
 class CryptaGroupsView_v1(APIView):
     permission_classes = [permissions.AllowAny]
 
@@ -261,7 +255,6 @@ class CryptaGroupsView_v1(APIView):
         except requests.RequestException as exc:
             logger.error('Failed to contact auth service: %s', exc, exc_info=True)
             return Response({'detail': 'Authentication service unavailable'}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
-
 
 class CryptaGroupDetailView_v1(APIView):
     permission_classes = [permissions.AllowAny]
@@ -288,7 +281,6 @@ class CryptaGroupDetailView_v1(APIView):
             logger.error('Failed to contact auth service: %s', exc, exc_info=True)
             return Response({'detail': 'Authentication service unavailable'}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
 
-
 class QueryPermissionsView_v1(APIView):
     permission_classes = [permissions.AllowAny]
 
@@ -303,7 +295,6 @@ class QueryPermissionsView_v1(APIView):
         except requests.RequestException as exc:
             logger.error('Failed to contact auth service: %s', exc, exc_info=True)
             return Response({'detail': 'Authentication service unavailable'}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
-
 
 class QueryPermissionDetailView_v1(APIView):
     permission_classes = [permissions.AllowAny]
@@ -330,7 +321,6 @@ class QueryPermissionDetailView_v1(APIView):
             logger.error('Failed to contact auth service: %s', exc, exc_info=True)
             return Response({'detail': 'Authentication service unavailable'}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
 
-
 class VerifyMfaView_v1(APIView):
     """Proxy MFA verification to the authentication service."""
 
@@ -348,7 +338,6 @@ class VerifyMfaView_v1(APIView):
         except requests.RequestException as exc:
             logger.error('Failed to contact auth service: %s', exc, exc_info=True)
             return Response({'detail': 'Authentication service unavailable'}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
-
 
 class SSOLoginView_v1(APIView):
     permission_classes = [permissions.AllowAny]
@@ -368,7 +357,6 @@ class SSOLoginView_v1(APIView):
             logger.error('Failed to contact auth service: %s', exc, exc_info=True)
             return Response({'detail': 'Authentication service unavailable'}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
 
-
 class SSOCallbackView_v1(APIView):
     permission_classes = [permissions.AllowAny]
 
@@ -382,3 +370,17 @@ class SSOCallbackView_v1(APIView):
         except requests.RequestException as exc:
             logger.error('Failed to contact auth service: %s', exc, exc_info=True)
             return Response({'detail': 'Authentication service unavailable'}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
+
+class FilterTreeView_v1(APIView):
+    permission_classes = [permissions.AllowAny]
+    
+    def get(self, request, *args, **kwargs):
+        logger.debug('Filter Tree request recieved.')
+        
+        try:
+            logger.debug('Forwarding fetch request to crypta service at %s', CRYPTA_FETCHTREE_URL)
+            logger.debug('data: %s', request.data)
+            resp = requests.get(CRYP)
+
+class FilterResultsView_v1(APIView):
+    pass 
