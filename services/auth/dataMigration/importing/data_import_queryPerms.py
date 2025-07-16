@@ -19,6 +19,12 @@ FILE = "/Users/kbgreenberg/Documents/Github/CryptaApp/crypta/services/auth/dataM
 
 # Group hierarchy logic
 GROUP_PRIORITY = ["Group 1", "Group 2", "Group 3", "Group 4"]
+GROUP_DESCRIPTIONS = {
+    'Group 1': 'Access level for Chancery.',
+    'Group 2': 'Access level for Chancery, Department Heads, & Designees.',
+    'Group 3': 'Access level for Chancery, Department Heads, Clergy, & Designees.',
+    'Group 4': 'Access level for all employees and volunteers.',
+}
 GROUP_HIERARCHY = {
     "Group 1": ["Group 1"],
     "Group 2": ["Group 1", "Group 2"],
@@ -37,10 +43,11 @@ def load_data(file_path):
 def get_group_instances():
     groups = {}
     for name in GROUP_PRIORITY:
+        description = GROUP_DESCRIPTIONS[name]
         group, _ = CryptaGroup.objects.update_or_create(
             name=name,
             defaults={
-                "description": f"Access level for {name}",
+                "description": description,
                 "is_enabled": (name == "Group 1")
             }
         )
