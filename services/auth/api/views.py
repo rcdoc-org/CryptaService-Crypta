@@ -485,11 +485,11 @@ class MicrosoftCallbackView(generics.GenericAPIView):
             profile.save()
 
         try:
-            logger.debug('User suspension status is: %s', user_obj.suspend)
+            logger.debug('User suspension status is: %s', user.suspend)
             if user.suspend is True:
                 raise AuthenticationFailed
         except AuthenticationFailed:
-            logger.warning('User Account is suspended for %s', username)
+            logger.warning('User Account is suspended for %s', user.username)
             if user:
                 LoginAttempt.objects.create(
                     user=user,
