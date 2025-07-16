@@ -13,7 +13,7 @@ logger = logging.getLogger('api')
 
 def _get_permissions(request):
     """Return query permissions passed via Gateway."""
-    return get_query_permissions
+    return get_query_permissions(request)
 
 def _apply_permission_filters(qs, perms, base):
     """Filter ``qs`` using the provided permission objects."""
