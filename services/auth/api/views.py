@@ -213,6 +213,7 @@ class DecodeTokenView(generics.GenericAPIView):
                 logger.warning('Invalid token: %s', exc)
                 return Response({'detail': 'Invalid Token'}, status=status.HTTP_400_BAD_REQUEST)
             
+            logger.debug('Decoded Token: %s', verified.payload)
             return Response(verified.payload)
 
 class CreateUserView(generics.CreateAPIView):

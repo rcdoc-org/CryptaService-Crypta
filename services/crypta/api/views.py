@@ -66,6 +66,7 @@ class FilterTreeView_v1(APIView):
         
 
         perms = _get_permissions(request)
+        logger.debug('Permission: %s', perms)
 
         qs = Location.objects.all() if base == "location" else Person.objects.all()
         qs = _apply_permission_filters(qs, perms, base)
