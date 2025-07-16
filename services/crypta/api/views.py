@@ -1,9 +1,10 @@
 import logging
-import json
 from django.db.models import Count, Q
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework import permissions
+from rest_framework import permissions, viewsets
+from .serializers import PersonSerializer, LocationSerializer
+from .utilities import get_query_permissions
 
 from .models import Person, Location
 from .constants import DYNAMIC_FILTER_FIELDS, FIELD_LABLES, RELETIVE_RELATIONS
@@ -12,14 +13,7 @@ logger = logging.getLogger('api')
 
 def _get_permissions(request):
     """Return query permissions passed via Gateway."""
-    logger.debug('Get Permission function called.')
-    raw = request.headers.get("X-Query-Permissions", "[]")
-    try:
-        raw_json = json.loads(raw)
-        return raw_json
-    except json.JSONDecodeError as exc:
-        logger.warning("Failed to parse permissions header: %s", exc)
-        return []
+    return get_query_permissions
 
 def _apply_permission_filters(qs, perms, base):
     """Filter ``qs`` using the provided permission objects."""
@@ -135,3 +129,18 @@ class SearchResultsView_v1(APIView):
         }
 
         return Response({"results": results})
+
+class PersonViewSet(viewsets.ReadOnlyModelViewSet):
+    """ViewSet providing read-only access to ``Person`` objects."""
+
+    queryset = Person.objects.all()
+    serializer_class = PersonSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+
+class LocationViewSet(viewsets.ReadOnlyModelViewSet):
+    """ViewSet providing read-only access to ``Location`` objects."""
+
+    queryset = Location.objects.all()
+    serializer_class = LocationSerializer
+    permission_classes = [permissions.IsAuthenticated]
