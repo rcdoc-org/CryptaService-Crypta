@@ -591,8 +591,8 @@ class MicrosoftCallbackView(generics.GenericAPIView):
             ]
 
         # inject custom claims into the JWT payload
-        access['username'] = self.user.username
-        access['email'] = self.user.email
+        access['username'] = user.username
+        access['email'] = user.email
         access['cryptaGroups'] = crypta_groups
         access['queryPermissions'] = query_permissions
         access['userRoles'] = user_roles
