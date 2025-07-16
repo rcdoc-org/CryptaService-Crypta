@@ -78,7 +78,7 @@ const columnsMap = {
   ],
   queryPermission: [
     { title: 'ID', field: 'id' },
-    { title: 'Group Name', field: 'group__name' },
+    { title: 'Group Name', field: 'cryptaGroup_name' },
     { title: 'Resource Type', field: 'resource_type' },
     { title: 'Access Type', field: 'access_type' },
     { title: 'View Limit', field: 'view_limits' },

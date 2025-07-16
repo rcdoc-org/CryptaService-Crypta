@@ -87,6 +87,8 @@ class UserCryptaGroupSerializer(serializers.ModelSerializer):
 
 
 class QueryPermissionSerializer(serializers.ModelSerializer):
+    cryptaGroup_name = serializers.CharField(source='group.name', read_only=True)
+    
     class Meta:
         model = models.QueryPermission
         fields = '__all__'
