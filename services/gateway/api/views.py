@@ -376,11 +376,31 @@ class FilterTreeView_v1(APIView):
     
     def get(self, request, *args, **kwargs):
         logger.debug('Filter Tree request recieved.')
-        
+
         try:
             logger.debug('Forwarding fetch request to crypta service at %s', CRYPTA_FETCHTREE_URL)
-            logger.debug('data: %s', request.data)
-            resp = requests.get(CRYP)
+            resp = requests.get(CRYPTA_FETCHTREE_URL, params=request.query_params)
+            logger.info('Crypta Service returned status %s', resp.status_code)
+            content_type = resp.headers.get('Content-Type', '')
+            data = resp.json() if content_type.startswith('application/json') else resp.text
+            return Response(data, status=resp.status_code)
+        except requests.RequestException as exc:
+            logger.error('Failed to contact crypta service: %s', exc, exc_info=True)
+            return Response({'detail': 'Crypta Service unavailable'}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
 
 class FilterResultsView_v1(APIView):
-    pass 
+    permission_classes = [permissions.AllowAny]
+    
+    def get(self, request, *args, **kwargs):
+        logger.debug('Filter Results request recieved.')
+
+        try:
+            logger.debug('Forwarding fetch request to crypta service at %s', CRYPTA_FILTERRESULTS_URL)
+            resp = requests.get(CRYPTA_FILTERRESULTS_URL, params=request.query_params)
+            logger.info('Crypta Service returned status %s', resp.status_code)
+            content_type = resp.headers.get('Content-Type', '')
+            data = resp.json() if content_type.startswith('application/json') else resp.text
+            return Response(data, status=resp.status_code)
+        except requests.RequestException as exc:
+            logger.error('Failed to contact crypta service: %s', exc, exc_info=True)
+            return Response({'detail': 'Crypta service unavailable'}, status=status.HTTP_503_SERVICE_UNAVAILABLE)

@@ -16,7 +16,13 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
+from api.views import (
+    FilterTreeView_v1,
+    FilterResultsView_v1,
+)
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('api/v1/filter_tree', FilterTreeView_v1.as_view(), name='filter_tree'),
+    path('api/v1/filter_results', FilterResultsView_v1.as_view(), name='filter_results'),
 ]
