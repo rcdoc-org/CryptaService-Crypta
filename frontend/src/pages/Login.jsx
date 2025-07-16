@@ -13,19 +13,6 @@ const Login = () => {
   const [error, setError] = useState(null);
   const [otp, setOtp] = useState('');
 
-  // const handleSsoLogin = async () => {
-  //   try {
-  //     const response = await ssoLogin();
-  //     const redirectURL = response.request.responseURL; // fallback
-  //     const locationHeader = response.headers['location']
-
-  //     // redirect
-  //     window.location.href = locationHeader || redirectURL;
-  //   } catch (err) {
-  //     console.error('SSO Login initiation failed:', err);
-  //     setError('Unable to start SSO Login.');
-  //   }
-  // };
   const handleSsoLogin = () => {
     const { data} = window.location.href = AUTH_SSO_LOGIN_URL;
     localStorage.setItem(ACCESS_TOKEN, data.access);
