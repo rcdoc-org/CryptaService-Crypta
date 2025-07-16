@@ -63,6 +63,7 @@ urlpatterns = [
     path('users/login/', LoginView_v1.as_view(), name='login'),
     path('api/v1/tokens/retrieve/', LoginView_v1.as_view(), name='get_token'),
     path('tokens/refresh/', TokenRefreshView_v1.as_view(), name='token_refresh'),
+    path('token/refresh/', TokenRefreshView_v1.as_view(), name='token_refresh2'),
     path('sso/login/', SSOLoginView_v1.as_view(), name='sso_login'),
     path('sso/callback/', SSOCallbackView_v1.as_view(), name='sso_callback'),
     path('filter_tree/', FilterTreeView_v1.as_view(), name='filter_tree'),

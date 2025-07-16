@@ -29,16 +29,22 @@ const Database = () => {
     };
 
     useEffect(() => {
-        fetchFilterTree(base, { filters: appliedFilters })
-            .then(res => setFilterTree(res.data.filter_tree));
-        fetchFilterResults(base, appliedFilters)
-            .then(res => setRows(res.data.results));
+        const timeout = setTimeout(() => {
+            fetchFilterTree(base, { filters: appliedFilters })
+                .then(res => setFilterTree(res.data.filter_tree));
+            fetchFilterResults(base, appliedFilters)
+                .then(res => setRows(res.data.results));
+        }, 250);
+
+        return () => clearTimeout(timeout);
     }, [base, appliedFilters]);
 
     const handleBaseChange = (e) => {
         const newBase = e.target.value;
-        setBase(newBase);
-        setAppliedFilters([]);
+        if (newBase !== base) {
+            setBase(newBase);
+            setAppliedFilters([]);
+        }
     };
 
     useEffect(() => {
