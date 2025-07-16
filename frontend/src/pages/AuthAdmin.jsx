@@ -52,10 +52,11 @@ const columnsMap = {
     { title: 'Name', field: 'name' }
   ],
   tokens: [
-    { title: 'ID', field: 'id' },
-    { title: 'User', field: 'user' },
+    { title: 'User', field: 'user_email' },
     { title: 'Type', field: 'type' },
-    { title: 'Revoked', field: 'revoked' }
+    { title: 'Revoked', field: 'revoked' },
+    { title: 'Expiration', field: 'expiration' },
+    { title: 'Created At', field: 'created_at' },
   ],
   organization: [
     { title: 'ID', field: 'id' },
@@ -71,7 +72,9 @@ const columnsMap = {
   ],
   cryptaGroup: [
     { title: 'ID', field: 'id' },
-    { title: 'Name', field: 'name'}
+    { title: 'Name', field: 'name'},
+    { title: 'Description', field: 'description' },
+    { title: 'Enabled', field: 'is_enabled' },
   ],
   queryPermission: [
     { title: 'ID', field: 'id' },
