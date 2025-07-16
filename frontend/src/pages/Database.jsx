@@ -5,39 +5,50 @@ import Card from '../components/Card';
 import DataGrid from '../components/DataGrid';
 import Button from '../components/Button';
 import Dropdown from '../components/Dropdown';
-import SearchBar from '../components/SearchBar'
-import { fetchFilterTree } from '../api/crypta';
+import SearchBar from '../components/SearchBar';
+import FilterTree from '../components/FilterTree';
+import { fetchFilterTree, fetchFilterResults } from '../api/crypta';
 
 const Database = () => {
     const [filterTree, setFilterTree] = useState([]);
     const [appliedFilters, setAppliedFilters] = useState([]);
     const [rows, setRows] = useState([]);
+    const [columns, setColumns] = useState([]);
+    const [base, setBase] = useState('person');
     const baseToggles = [
         { value: 'person', label: 'People' },
         { value: 'location', label: 'Locations' }
     ];
 
-    useEffect(() => {
-        fetchFilterTree('person').then(res => setFilterTree(res.data));
-        // initial fetch of rows
-        fetch('api/data?base=person').then(r => r.json()).then(data => setRows(data));
-    }, [])
-
-    const handleBaseChange = (e) => {
-        const base = e.target.value;
-        // Toggle between person/location
-        fetchFilterTree(base).then(res => setFilterTree(res.data));
-        fetch(`api/data?base=${base}`).then(r => r.json()).then(data => setRows(data));
+    const handleFilterToggle = (value) => {
+        setAppliedFilters(prev =>
+            prev.includes(value)
+                ? prev.filter(f => f !== value)
+                : [...prev, value]
+        );
     };
 
-    const columns = [
-        { title: 'Name', field: 'name', sorter: 'string', headerFilter: 'input' },
-        { title: 'Type', field: 'type', sorter: 'string' },
-        { title: 'Email', field: 'primary_email' },
-        { title: 'Phone', field: 'primary_phone' },
-        // …any other fields you want to show
-        ];
+    useEffect(() => {
+        fetchFilterTree(base, { filters: appliedFilters })
+            .then(res => setFilterTree(res.data.filter_tree));
+        fetchFilterResults(base, appliedFilters)
+            .then(res => setRows(res.data.results));
+    }, [base, appliedFilters]);
 
+    const handleBaseChange = (e) => {
+        const newBase = e.target.value;
+        setBase(newBase);
+        setAppliedFilters([]);
+    };
+
+    useEffect(() => {
+        if (rows.length > 0) {
+            const keys = Object.keys(rows[0]);
+            setColumns(keys.map(k => ({ title: k, field: k })));
+        } else {
+            setColumns([]);
+        }
+    }, [rows]);
 
     const gridOptions = {
         rowClick: (e, row) => {
@@ -71,6 +82,11 @@ return (
                                 // Implement search logic here
                                 console.log('Searching filters for:', value);
                             }}/>
+                        <FilterTree
+                            tree={filterTree}
+                            selectedFilters={appliedFilters}
+                            onToggle={handleFilterToggle}
+                            />
                     </div>
                 </AsidePanel>
                 <main className="col-md-8 p-4 bg-light">

@@ -8,7 +8,7 @@ import jwt
 from .models import Person, Location
 from .constants import DYNAMIC_FILTER_FIELDS, FIELD_LABLES
 
-logger = logging.getLogger('api');
+logger = logging.getLogger('api')
 
 def _decode_permissions(request):
     """Return query permissions embedded in the JWT access token."""
@@ -60,6 +60,7 @@ class FilterTreeView_v1(APIView):
     permission_classes = [permissions.AllowAny]
 
     def get(self, request, *args, **kwargs):
+        logger.debug('Filter Tree Request recieved.')
         base = request.query_params.get("base", "person")
         filters = request.query_params.getlist("filters")
 
