@@ -71,7 +71,8 @@ const Database = () => {
 
             return {
                 ...group,
-                options: groupMatch ? group.options : filteredOptions
+                options: groupMatch ? group.options : filteredOptions,
+                open: groupMatch || filteredOptions.length > 0
             };
     }).filter(group => group.options.length > 0); // remove empty groups
 
@@ -110,7 +111,11 @@ return (
                             }}/>
                         <FilterTree
                             // tree={filterTree}
-                            tree={filteredFilterTree}
+                            // tree={filteredFilterTree}
+                            tree={filteredFilterTree.map(group => ({
+                                ...group,
+                                searchQuery: searchQuery.toLowerCase()
+                            }))}
                             selectedFilters={appliedFilters}
                             onToggle={handleFilterToggle}
                             />
