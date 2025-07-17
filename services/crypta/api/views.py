@@ -529,12 +529,59 @@ def _get_grid_results(base, perms, filters):
             
             records.append(rec)
 
-    columns = []
-    if records:
-        for key in records[0].keys():
-            columns.append({"title": key, "field": key})
+    # columns = []
+    # if records:
+    #     for key in records[0].keys():
+    #         columns.append({"title": key, "field": key})
+    # ---- Build column metadata --------------------------------------------
+    all_fields = []
+    for rec in records:
+        for key in rec.keys():
+            if key not in all_fields:
+                all_fields.append(key)
 
-    return records, columns
+    columns = [
+        {
+            "title": key,
+            "field": key,
+            "sqlField": DISPLAY_TO_PATH.get(key, key).split("__").pop(),
+            "category": FIELD_CATEGORIES.get(key, "Other"),
+        }
+        for key in all_fields
+    ]
+
+    # ---- Compute stats_info for numeric/boolean Statistics fields ---------
+    stats_info = []
+    for col in columns:
+        if col["category"] != "Statistics":
+            continue
+
+        field = col["field"]
+        vals = [rec.get(field) for rec in records if rec.get(field) is not None]
+
+        if not vals:
+            continue
+
+        if all(isinstance(v, bool) for v in vals):
+            stats_info.append({
+                "field": field,
+                "display": col["title"],
+                "type": "boolean",
+            })
+        else:
+            try:
+                nums = [float(v) for v in vals]
+            except (TypeError, ValueError):
+                continue
+            stats_info.append({
+                "field": field,
+                "display": col["title"],
+                "type": "number",
+                "min": min(nums),
+                "max": max(nums),
+            })
+
+    return records, columns, stats_info
 
 class FilterTreeView_v1(APIView):
     permission_classes = [permissions.AllowAny]
@@ -582,9 +629,12 @@ class FilterResultsView_v1(APIView):
 
         perms = _get_permissions(request)
 
-        records, columns = _get_grid_results(base, perms, filters)
+        records, columns, stats_info = _get_grid_results(base, perms, filters)
 
-        return Response({"grid": {"data": records, "columns": columns}})
+        return Response({
+            "grid": {"data": records, "columns": columns},
+            "stats_info": stats_info,
+            })
 
 class SearchResultsView_v1(APIView):
     permission_classes = [permissions.AllowAny]
