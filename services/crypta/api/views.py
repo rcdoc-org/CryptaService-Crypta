@@ -1,6 +1,8 @@
 import logging
 import json
-from django.db.models import Count, Q
+from django.db.models import Count, Q, Model
+from django.forms.models import model_to_dict
+from django.db.models.fields.files import FileField, ImageField
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import permissions, viewsets
@@ -57,6 +59,146 @@ def _apply_user_filters(qs, filters):
         qs = qs.filter(**{f"{fld}__in": vals})
     return qs
 
+def _prefetch_for_base(qs, base):
+    """Add select_related/prefetch_related for ``base`` queryset."""
+    if base == "person":
+        return qs.select_related(
+            "lkp_residence_id",
+            "lkp_mailing_id",
+        ).prefetch_related(
+            "person_email_set",
+            "person_phone_set",
+            "person_language_set",
+            "person_facultiesgrant_set",
+            "person_degreecertificate_set",
+            "person_status_set",
+            "person_title_set",
+            "assignment_set",
+            "first_person",
+            "second_person",
+            "priest_detail_set",
+            "deacon_detail_set",
+            "lay_detail_set",
+        )
+    else:
+        return qs.select_related(
+            "lkp_physicalAddress_id",
+            "lkp_mailingAddress_id",
+            "lkp_vicariate_id",
+            "lkp_county_id",
+        ).prefetch_related(
+            "location_email_set",
+            "location_phone_set",
+            "location_status_set",
+            "church_language_set",
+            "social_outreach_program",
+            "assignment_set",
+            "churchDetail_location",
+            "campusMinistry_location",
+            "hospital_location",
+            "otherentity_detail_set",
+            "school_location",
+        )
+
+def _serialize_instance(obj):
+    """Return ``obj`` as a dict including first-level related data."""
+    # data = model_to_dict(obj, fields=[f.name for f in obj._meta.fields])
+
+    # for rel in obj._meta.get_fields():
+    #     if rel.one_to_many and rel.auto_created:
+    #         mgr = getattr(obj, rel.get_accessor_name())
+    #         data[rel.get_accessor_name()] = [
+    #             model_to_dict(child, fields=[f.name for f in child._meta.fields])
+    #             for child in mgr.all()
+    #         ]
+    #     elif rel.many_to_many and not rel.auto_created:
+    #         mgr = getattr(obj, rel.name)
+    #         data[rel.name] = [
+    #             model_to_dict(child, fields=[f.name for f in child._meta.fields])
+    #             for child in mgr.all()
+    #         ]
+    #     elif rel.many_to_many and rel.auto_created:
+    #         mgr = getattr(obj, rel.get_accessor_name())
+    #         data[rel.get_accessor_name()] = [
+    #             model_to_dict(child, fields=[f.name for f in child._meta.fields])
+    #             for child in mgr.all()
+    #         ]
+    #     elif (rel.many_to_one or rel.one_to_one) and rel.concrete:
+    #         val = getattr(obj, rel.name)
+    #         if val is not None:
+    #             data[rel.name] = model_to_dict(
+    #                 val, fields=[f.name for f in val._meta.fields]
+    #             )
+
+    # return data
+    data = {}
+
+    # Handle fields, skipping file/image fields with no file
+    for f in obj._meta.fields:
+        val = getattr(obj, f.name)
+        if isinstance(f, (FileField, ImageField)):
+            if not val:
+                continue  # skip fields with no file
+            data[f.name] = val.url if val else None
+        else:
+            data[f.name] = val
+
+    # Handle relations
+    for rel in obj._meta.get_fields():
+        if rel.one_to_many and rel.auto_created:
+            mgr = getattr(obj, rel.get_accessor_name())
+            data[rel.get_accessor_name()] = [
+                # model_to_dict(child, fields=[f.name for f in child._meta.fields])
+                _safe_model_to_dict(child)
+                for child in mgr.all()
+            ]
+        elif rel.many_to_many and not rel.auto_created:
+            mgr = getattr(obj, rel.name)
+            data[rel.name] = [
+                # model_to_dict(child, fields=[f.name for f in child._meta.fields])
+                _safe_model_to_dict(child)
+                for child in mgr.all()
+            ]
+        elif rel.many_to_many and rel.auto_created:
+            mgr = getattr(obj, rel.get_accessor_name())
+            data[rel.get_accessor_name()] = [
+                # model_to_dict(child, fields=[f.name for f in child._meta.fields])
+                _safe_model_to_dict(child)
+                for child in mgr.all()
+            ]
+        elif (rel.many_to_one or rel.one_to_one) and rel.concrete:
+            val = getattr(obj, rel.name)
+            if val is not None:
+                # data[rel.name] = model_to_dict(
+                #     val, fields=[f.name for f in val._meta.fields]
+                # )
+                data[rel.name] = _safe_model_to_dict(val)
+
+    return data
+
+def _safe_model_to_dict(obj):
+    data = {}
+    for f in obj._meta.fields:
+        val = getattr(obj, f.name)
+        if isinstance(f, (FileField, ImageField)):
+            if not val:
+                continue
+            data[f.name] = val.url if hasattr(val, "url") else None
+        elif isinstance(val, Model):
+            data[f.name] = val.pk
+        else:
+            data[f.name] = val
+    return data
+
+def _get_full_results(base, perms, filters):
+    qs = Location.objects.all() if base == "location" else Person.objects.all()
+    qs = _apply_permission_filters(qs, perms, base)
+    qs = _apply_user_filters(qs, filters)
+    qs = qs.distinct()
+    qs = _prefetch_for_base(qs, base)
+
+    return [_serialize_instance(obj) for obj in qs]
+
 def _get_filters(request):
     
     raw = request.query_params.get('filters')
@@ -68,10 +210,10 @@ def _get_filters(request):
             if isinstance(data, dict):
                 out = []
                 for key, value in data.items():
-                    if isinstance(v, list):
-                        out.extend(f"{key}: {val}" for val in value)
+                    if isinstance(value, list):
+                        out.extend(f"{key}:{val}" for val in value)
                     else:
-                        out.append(f"{key}: {value}")
+                        out.append(f"{key}:{value}")
                 return out
             return [str(data)]
         except json.JSONDecodeError:
@@ -127,12 +269,7 @@ class FilterResultsView_v1(APIView):
 
         perms = _get_permissions(request)
 
-        qs = Location.objects.all() if base == "location" else Person.objects.all()
-        qs = _apply_permission_filters(qs, perms, base)
-        qs = _apply_user_filters(qs, filters)
-        qs = qs.distinct()
-
-        data = list(qs.values())
+        data = _get_full_results(base, perms, filters)
 
         return Response({"results": data})
 
