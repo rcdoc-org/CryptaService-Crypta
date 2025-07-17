@@ -72,12 +72,21 @@ const Database = () => {
     };
 
     const applyColumns = () => {
-        const modelEl = document.getElementById('columnModal');
+        const modalEl = document.getElementById('columnModal');
         if (modalEl) {
             const instance = bootstrap.Modal.getInstance(modalEl);
             instance && instance.hide();
         }
     };
+
+    // Group all columns (excluding internal id) by category
+    const groupedColumns = allColumns
+        .filter(c => c.field !== 'id')
+        .reduce((acc, col) => {
+            const cat = col.category || 'Other';
+            (acc[cat] = acc[cat] || []).push(col);
+            return acc;
+        }, {});
 
     const exportCsv = () => {
         if (!rows.length) return;
@@ -263,19 +272,46 @@ return (
         <Modal id="columnModal" title="Choose Columns" size="modal-lg" footer={
             <button type="button" className="btn btn-primary" onClick={applyColumns}>Apply</button>
         }>
-            <form className="row g-3">
-                {allColumns.filter(c => c.field !== 'id').map(col => (
-                    <div key={col.field} className="col-6 form-check">
-                        <input
-                            className="form-check-input"
-                            type="checkbox"
-                            id={`col_${col.field}`}
-                            checked={selectedCols.has(col.field)}
-                            onChange={() => handleColumnToggle(col.field)}
-                        />
-                        <label className="form-check-label" htmlFor={`col_${col.field}`}>{col.title}</label>
-                    </div>
-                ))}
+            <form>
+                <div className="accordion" id="columnsAccordion">
+                    {Object.entries(groupedColumns).map(([cat, cols], idx) => (
+                        <div className="accordion-item" key={cat}>
+                            <h2 className="accordion-header" id={`heading${idx}`}>
+                                <button
+                                    className={`accordion-button ${idx > 0 ? 'collapsed' : ''}`}
+                                    type="button"
+                                    data-bs-toggle="collapse"
+                                    data-bs-target={`#collapse${idx}`}
+                                    aria-expanded={idx === 0}
+                                    aria-controls={`collapse${idx}`}
+                                >
+                                    {cat} ({cols.length})
+                                </button>
+                            </h2>
+                            <div
+                                id={`collapse${idx}`}
+                                className={`accordion-collapse collapse ${idx === 0 ? 'show' : ''}`}
+                                aria-labelledby={`heading${idx}`}
+                                data-bs-parent="#columnsAccordion"
+                            >
+                                <div className="accordion-body row">
+                                    {cols.map(col => (
+                                        <div key={col.field} className="col-6 form-check">
+                                            <input
+                                                className="form-check-input"
+                                                type="checkbox"
+                                                id={`col_${col.field}`}
+                                                checked={selectedCols.has(col.field)}
+                                                onChange={() => handleColumnToggle(col.field)}
+                                            />
+                                            <label className="form-check-label" htmlFor={`col_${col.field}`}>{col.title}</label>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        </div>
+                    ))}
+                </div>
             </form>
         </Modal>
 
