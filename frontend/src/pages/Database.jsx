@@ -34,7 +34,7 @@ const Database = () => {
         const timeout = setTimeout(() => {
             fetchFilterTree(base, { filters: appliedFilters })
                 .then(res => setFilterTree(res.data.filter_tree));
-            fetchFilterResults(base, appliedFilters)
+            fetchFilterResults(base, { filters: appliedFilters })
                 .then(res => setRows(res.data.results));
         }, 250);
 
@@ -109,6 +109,7 @@ return (
                                 // console.log('Searching filters for:', value);
                                 setSearchQuery(value);
                             }}/>
+                        <div id="activeFilters" className='mb-3'></div>
                         <FilterTree
                             // tree={filterTree}
                             // tree={filteredFilterTree}

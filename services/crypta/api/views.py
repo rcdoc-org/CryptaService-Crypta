@@ -1,4 +1,5 @@
 import logging
+import json
 from django.db.models import Count, Q
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -56,13 +57,38 @@ def _apply_user_filters(qs, filters):
         qs = qs.filter(**{f"{fld}__in": vals})
     return qs
 
+def _get_filters(request):
+    
+    raw = request.query_params.get('filters')
+    if raw is not None:
+        try:
+            data = json.loads(raw)
+            if isinstance(data, list):
+                return data
+            if isinstance(data, dict):
+                out = []
+                for key, value in data.items():
+                    if isinstance(v, list):
+                        out.extend(f"{key}: {val}" for val in value)
+                    else:
+                        out.append(f"{key}: {value}")
+                return out
+            return [str(data)]
+        except json.JSONDecodeError:
+            return [raw]
+    return (
+        request.query_params.getlist('filters')
+        or request.query_params.getlist('filters[]')
+    )
+
 class FilterTreeView_v1(APIView):
     permission_classes = [permissions.AllowAny]
 
     def get(self, request, *args, **kwargs):
         logger.debug('Filter Tree Request recieved.')
         base = request.query_params.get("base", "person")
-        filters = request.query_params.getlist("filters")
+        # filters = request.query_params.getlist("filters")
+        filters = _get_filters(request)
         
 
         perms = _get_permissions(request)
@@ -96,7 +122,8 @@ class FilterResultsView_v1(APIView):
 
     def get(self, request, *args, **kwargs):
         base = request.query_params.get("base", "person")
-        filters = request.query_params.getlist("filters")
+        # filters = request.query_params.getlist("filters")
+        filters = _get_filters(request)
 
         perms = _get_permissions(request)
 

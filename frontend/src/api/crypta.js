@@ -21,10 +21,24 @@ apiClient.interceptors.request.use((config) =>{
     return config
 });
 
-export const fetchFilterTree = (base, params = {}) =>
-    apiClient.get('/filter_tree/', {params: { base, ...params} });
-export const fetchFilterResults = (base, filters, params = {}) =>
-    apiClient.get('/filter_results/', { params: { base, filters, ...params} });
+// export const fetchFilterTree = (base, params = {}) =>
+//     apiClient.get('/filter_tree/', {params: { base, ...params} });
+export const fetchFilterTree = (base, params = {}) => {
+    const q = { base, ...params };
+    if (q.filters !== undefined) {
+        q.filters = JSON.stringify(q.filters);
+    }
+    return apiClient.get('/filter_tree/', { params: q });
+};
+// export const fetchFilterResults = (base, filters, params = {}) =>
+//     apiClient.get('/filter_results/', { params: { base, filters, ...params} });
+export const fetchFilterResults = (base, params = {}) => {
+    const q = { base, ...params };
+    if (q.filters !== undefined) {
+        q.filters = JSON.stringify(q.filters);
+    }
+    return apiClient.get('/filter_results/', { params: q });
+};
 export const fetchEmailCountPreview = (params) => apiClient.get('/email_count_preview/', { params });
 export const fetchSearchResults = (query) => apiClient.get('/search/', { params: { q: query } });
 export const fetchDetails = (base, id) => apiClient.get(`/details/${base}/${id}/`);
