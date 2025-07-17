@@ -15,6 +15,7 @@ const Database = () => {
     const [rows, setRows] = useState([]);
     const [columns, setColumns] = useState([]);
     const [base, setBase] = useState('person');
+    const [searchQuery, setSearchQuery] = useState('');
     const baseToggles = [
         { value: 'person', label: 'People' },
         { value: 'location', label: 'Locations' }
@@ -56,6 +57,24 @@ const Database = () => {
         }
     }, [rows]);
 
+    const filteredFilterTree = filterTree
+        .map(group => {
+            const groupMatch = 
+                group.field.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                group.display?.toLowerCase().includes(searchQuery.toLowerCase());
+
+            const filteredOptions = group.options.filter(opt => {
+                const label = typeof opt.label === 'string' ? opt.label : String(opt.label ?? '');
+                return label.toLowerCase().includes(searchQuery.toLowerCase())
+            });
+                
+
+            return {
+                ...group,
+                options: groupMatch ? group.options : filteredOptions
+            };
+    }).filter(group => group.options.length > 0); // remove empty groups
+
     const gridOptions = {
         rowClick: (e, row) => {
             const data = row.getData();
@@ -86,10 +105,12 @@ return (
                             placeholder='Search filter options...'
                             onSearch={(value) => {
                                 // Implement search logic here
-                                console.log('Searching filters for:', value);
+                                // console.log('Searching filters for:', value);
+                                setSearchQuery(value);
                             }}/>
                         <FilterTree
-                            tree={filterTree}
+                            // tree={filterTree}
+                            tree={filteredFilterTree}
                             selectedFilters={appliedFilters}
                             onToggle={handleFilterToggle}
                             />
