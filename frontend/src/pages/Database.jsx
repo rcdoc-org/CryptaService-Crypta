@@ -21,6 +21,7 @@ const Database = () => {
     const [allColumns, setAllColumns] = useState([]);
     const [selectedCols, setSelectedCols] = useState(new Set());
     const [base, setBase] = useState('person');
+    const [prevBase, setPrevBase] = useState('person');
     const [searchQuery, setSearchQuery] = useState('');
     const baseToggles = [
         { value: 'person', label: 'People' },
@@ -36,7 +37,8 @@ const Database = () => {
     };
 
     useEffect(() => {
-        console.log('UseEffect activated.')
+        const baseChanged = base !== prevBase;
+        setPrevBase(base);
         const timeout = setTimeout(() => {
             fetchFilterTree(base, { filters: appliedFilters })
                 .then(res => setFilterTree(res.data.filter_tree));
@@ -45,7 +47,20 @@ const Database = () => {
                     const grid = res.data.grid;
                     setRows(grid.data);
                     setAllColumns(grid.columns);
-                    setSelectedCols(new Set(grid.columns.map(c => c.field)));
+                    // setSelectedCols(new Set(grid.columns.map(c => c.field)));
+                    const defaults = base === 'person'
+                        ? ['First Name', 'Middle Name', 'Last Name']
+                        : ['Name', 'Type'];
+
+                    setSelectedCols(prev => {
+                        const available = new Set(grid.columns.map(c => c.field));
+                        if (prev.size === 0 || baseChanged) {
+                            const initial = defaults.filter(f => available.has(f));
+                            return new Set(initial);
+                        }
+                        const next = [...prev].filter(f => available.has(f));
+                        return new Set(next);
+                    });
                 });
         }, 250);
 
