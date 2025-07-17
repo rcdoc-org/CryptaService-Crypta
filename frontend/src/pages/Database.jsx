@@ -1,4 +1,7 @@
 import React, { useEffect, useState } from 'react';
+import * as XLSX from 'xlsx';
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
 import '../styles/Database.css';
 import AsidePanel from '../components/AsidePanel';
 import Card from '../components/Card';
@@ -93,8 +96,59 @@ const Database = () => {
         URL.revokeObjectURL(url);
     };
 
-    const exportExcel = () => exportCsv();
-    const exportPdf = () => exportCsv();
+    const exportExcel = () => {
+        if (!rows.length) return;
+        const headers = Array.from(selectedCols);
+        // Convert to array of objects, matching headers
+        const data = rows.map(row => {
+            const obj = {};
+            headers.forEach(header => {
+                obj[header] = row[header] ?? '';
+            });
+            return obj;
+        });
+
+        const worksheet = XLSX.utils.json_to_sheet(data, { header: headers });
+        const workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, worksheet, 'Results');
+
+        XLSX.writeFile(workbook, 'results.xlsx');
+    };
+    
+    const exportPdf = () => {
+        if (!rows.length) return;
+
+        const headers = Array.from(selectedCols);
+        const data = rows.map(row =>
+            headers.map(header => row[header] ?? '')
+        );
+
+        const doc = new jsPDF({
+            orientation: 'landscape',
+            unit: 'pt',
+            format: 'A4',
+        });
+
+        doc.text('Crypta Exported Results', 40, 30);
+
+        autoTable(doc, {
+            startY: 50,
+            head: [headers],
+            body: data,
+            margin: { top: 40, left: 40, right: 40 },
+            styles: {
+                fontSize: 8,
+                overflow: 'linebreak',
+                cellWidth: 'wrap',
+            },
+            headStyles: {
+                fillColor: [0, 57, 107], // Optional: theme blue
+                textColor: 255,
+            },
+        });
+
+        doc.save('results.pdf');
+    };
 
     useEffect(() => {
         const cols = allColumns.filter(c => selectedCols.has(c.field));
