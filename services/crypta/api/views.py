@@ -12,7 +12,7 @@ from .utilities import get_query_permissions
 
 from .models import Person, Location
 from .constants import (
-    DYNAMIC_FILTER_FIELDS, FIELD_LABLES, RELETIVE_RELATIONS, DISPLAY_TO_PATH,
+    DYNAMIC_FILTER_FIELDS, FIELD_LABELS, RELETIVE_RELATIONS, DISPLAY_TO_PATH,
     FIELD_CATEGORIES,
 )
 
@@ -110,12 +110,12 @@ def _prefetch_for_base(qs, base):
             "mission",
             "parish",
             "priest_detail_set",
-            "school_affiliatedParish",
             "school_parishProperty",
             "enrollment_set",
             "octoberCount_church",
             "offertory_church",
             "statusAnimarum_church",
+            "ethnicity_church",
         )
 
 def _serialize_instance(obj):
@@ -226,12 +226,6 @@ def _get_grid_results(base, perms, filters):
     if base == "person":
         for obj in qs:
             records.append({
-                # "id": obj.pk,
-                # "First Name": obj.name_first,
-                # "Last Name": obj.name_last,
-                # "Person Type": obj.personType,
-                # "Prefix": obj.prefix,
-                # "Residency Type": obj.residencyType,
                 "id":               obj.pk,
                 # core Person fields
                 "Full Name":        obj.name,
@@ -359,10 +353,7 @@ def _get_grid_results(base, perms, filters):
     else:
         for obj in qs:
             rec = {
-                # "id": obj.pk,
-                # "Name": obj.name,
-                # "Type": obj.type,
-                "id":               obj.pk,   # for the DataFrame/grid
+                "id":               obj.pk,
                 # — Basic info —
                 "Name":             obj.name,
                 "Type":             obj.type,
@@ -407,7 +398,6 @@ def _get_grid_results(base, perms, filters):
                                         for m in obj.mission.all()),
                 "Parishes":         ", ".join(p.lkp_mission_id.name
                                         for p in obj.parish.all()),
-                "Priest Count":     obj.priest_count,
             }
             
             # — Church‐specific details (if any) —
@@ -427,6 +417,25 @@ def _get_grid_results(base, perms, filters):
                                     f"{cl.lkp_language_id.name} @ {cl.massTime}"
                                     for cl in obj.church_language_set.all()
                                 ),
+                    "Site Plan":        cd.pastoralPlan.name if cd.pastoralPlan else "",
+                    "DOC Parish":        cd.is_doc,
+                    "Tax ID":           cd.tax_id or "",
+                    "Geo ID":           cd.geo_id or "",
+                    "Parish ID":        cd.parish_id or "",
+                    "Church Type":      cd.type or "",
+                    "Seating Capacity": cd.seatingCapacity or "",
+                    "Has Home School Program": cd.has_homeschoolProgram,
+                    "Has Child Card Day Care": cd.has_childCareDayCare,
+                    "Has Scouting Program": cd.has_scoutingProgram,
+                    "Has Chapel on Campus": cd.has_chapelOnCampus,
+                    "Has Adoration Chapel on Campus": cd.has_adorationChapelOnCampus,
+                    "Has Columbarium": cd.has_columbarium,
+                    "Has Cemetary": cd.has_cemetary,
+                    "Has School on Site": cd.has_schoolOnSite,
+                    "Is Non-Parochial School Using Facilities": cd.is_nonParochialSchoolUsingFacilities,
+                    "Office Contact": cd.temp_officeContact,
+                    "Office Contact Email": cd.temp_officeContactEmail,
+                    
                 }),
 
             # — Campus ministry details (if any) —
@@ -491,9 +500,7 @@ def _get_grid_results(base, perms, filters):
                     "# Lay":  sa.fullTime_other,
                     "# Staff":  sa.partTime_staff,
                     "Volunteers":  sa.volunteers,
-                    "Registered Households":  sa.registeredHouseholds,
                     "Max Mass Size":  sa.maxMass,
-                    "Seating Capacity":  sa.seatingCapacity,
                     "Baptisms 1-7":  sa.baptismAge_1_7,
                     "Baptisms 8-17":  sa.baptismAge_8_17,
                     "Baptisms 18+":  sa.baptismAge_18,
@@ -514,23 +521,7 @@ def _get_grid_results(base, perms, filters):
                     "# Volunteer Catechists":  sa.catechist_vol,
                     "RCIA/RCIC":  sa.rcia_rcic,
                     "# Volunteers Youth":  sa.volunteersWorkingYouth,
-                    "% African":  sa.percent_african,
-                    "% African-American":  sa.percent_africanAmerican,
-                    "% Asian":  sa.percent_asian,
-                    "% Hispanic":  sa.percent_hispanic,
-                    "% American-Indian":  sa.percent_americanIndian,
-                    "% Other":  sa.percent_other,
-                    "Estimate Census?":  sa.is_censusEstimate,
                     "# Referrals to Catholic Charities":  sa.referrals_catholicCharities,
-                    "HomeSchool Program?":  sa.has_homeschoolProgram,
-                    "Child Care Day Care?":  sa.has_chileCareDayCare,
-                    "Scouting Program?":  sa.has_scoutingProgram,
-                    "Chapel on Campus?":  sa.has_chapelOnCampus,
-                    "Adoration Chapel on Campus?":  sa.has_adorationChapelOnCampus,
-                    "Columbarium on Site?":  sa.has_columbarium,
-                    "Cemetery on Site?":  sa.has_cemetary,
-                    "School on Site?":  sa.has_schoolOnSite,
-                    "NonParochial School Using Facilities?":  sa.is_nonParochialSchoolUsingFacilities,
                 })
                 rec["Social Outreach Programs"] = ", ".join(
                     sop.name for sop in obj.social_outreach_program.all()
@@ -574,7 +565,7 @@ class FilterTreeView_v1(APIView):
             if opts:
                 filter_tree.append({
                     "field": path,
-                    "display": FIELD_LABLES.get(path, path.replace("__", " ").title()),
+                    "display": FIELD_LABELS.get(path, path.replace("__", " ").title()),
                     "options": opts,
                 })
 

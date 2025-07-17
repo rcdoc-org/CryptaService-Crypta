@@ -17,4 +17,4 @@ class ApplyPermissionFiltersTests(TestCase):
         ]
         qs = Person.objects.all()
         filtered = _apply_permission_filters(qs, perms, 'person')
-        self.assertQuerysetEqual(filtered, [person], transform=lambda x: x)
+        self.assertQuerySetEqual(filtered, [person], transform=lambda x: x)

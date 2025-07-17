@@ -46,7 +46,7 @@ DYNAMIC_FILTER_FIELDS = {
     ],
 }
 
-FIELD_LABLES = {
+FIELD_LABELS = {
     # person Based Filters
    # Direct CharFields / choices on Person
         'personType':                                   'Person Type',
@@ -154,7 +154,7 @@ DISPLAY_TO_PATH = {
     "# Staff":  'statusAnimarum_church__partTime_staff',
     "Volunteers":  'statusAnimarum_church__volunteers',
     "Registered Households":  'statusAnimarum_church__registeredHouseholds',
-    "Max Mass Size":  'statusAnimarum_church__maxMass',
+    "Max Mass Size":  'churchDetail_location__maxMass',
     "Seating Capacity":  'statusAnimarum_church__seatingCapacity',
     "Baptisms 1-7":  'statusAnimarum_church__baptismAge_1_7',
     "Baptisms 8-17":  'statusAnimarum_church__baptismAge_8_17',
@@ -176,23 +176,23 @@ DISPLAY_TO_PATH = {
     "# Volunteer Catechists":  'statusAnimarum_church__catechist_vol',
     "RCIA/RCIC":  'statusAnimarum_church__rcia_rcic',
     "# Volunteers Youth":  'statusAnimarum_church__volunteersWorkingYouth',
-    "% African":  'statusAnimarum_church__percent_african',
-    "% African-American":  'statusAnimarum_church__percent_africanAmerican',
-    "% Asian":  'statusAnimarum_church__percent_asian',
-    "% Hispanic":  'statusAnimarum_church__percent_hispanic',
-    "% American-Indian":  'statusAnimarum_church__percent_americanIndian',
-    "% Other":  'statusAnimarum_church__percent_other',
-    "Estimate Census?":  'statusAnimarum_church__is_censusEstimate',
+    "% African":  'ethnicity_church__percent_african',
+    "% African-American":  'ethnicity_church__percent_africanAmerican',
+    "% Asian":  'ethnicity_church__percent_asian',
+    "% Hispanic":  'ethnicity_church__percent_hispanic',
+    "% American-Indian":  'ethnicity_church__percent_americanIndian',
+    "% Other":  'ethnicity_church__percent_other',
+    "Estimate Census?":  'ethnicity_church__is_censusEstimate',
     "# Referrals to Catholic Charities":  'statusAnimarum_church__referrals_catholicCharities',
-    "HomeSchool Program?":  'statusAnimarum_church__has_homeschoolProgram',
-    "Child Care Day Care?":  'statusAnimarum_church__has_chileCareDayCare',
-    "Scouting Program?":  'statusAnimarum_church__has_scoutingProgram',
-    "Chapel on Campus?":  'statusAnimarum_church__has_chapelOnCampus',
-    "Adoration Chapel on Campus?":  'statusAnimarum_church__has_adorationChapelOnCampus',
-    "Columbarium on Site?":  'statusAnimarum_church__has_columbarium',
-    "Cemetery on Site?":  'statusAnimarum_church__has_cemetary',
-    "School on Site?":  'statusAnimarum_church__has_schoolOnSite',
-    "NonParochial School Using Facilities?":  'statusAnimarum_church__is_nonParochialSchoolUsingFacilities',
+    "HomeSchool Program?":  'churchDetail_location__has_homeschoolProgram',
+    "Child Care Day Care?":  'churchDetail_location__has_chileCareDayCare',
+    "Scouting Program?":  'churchDetail_location__has_scoutingProgram',
+    "Chapel on Campus?":  'churchDetail_location__has_chapelOnCampus',
+    "Adoration Chapel on Campus?":  'churchDetail_location__has_adorationChapelOnCampus',
+    "Columbarium on Site?":  'churchDetail_location__has_columbarium',
+    "Cemetery on Site?":  'churchDetail_location__has_cemetary',
+    "School on Site?":  'churchDetail_location__has_schoolOnSite',
+    "NonParochial School Using Facilities?":  'churchDetail_location__is_nonParochialSchoolUsingFacilities',
     'Offertory':            'offertory_church__income',
     'October Mass Count':   'octoberCount_church__week1'
 }
