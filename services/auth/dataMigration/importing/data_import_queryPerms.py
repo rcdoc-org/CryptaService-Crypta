@@ -36,8 +36,8 @@ def load_data(file_path):
     xls = pd.ExcelFile(file_path)
     df_priests = xls.parse("Priests")
     df_church = xls.parse("Church")
-    df_priests["resource_type"] = "priest_detail"
-    df_church["resource_type"] = "church_detail"
+    df_priests["source_sheet"] = "priest_detail"
+    df_church["source_sheet"] = "church_detail"
     return pd.concat([df_priests, df_church], ignore_index=True)
 
 def get_group_instances():
@@ -59,7 +59,8 @@ def build_group_resource_map(df):
 
     for _, row in df.iterrows():
         col_name = row.get("ColumnName/Relationship")
-        resource_type = row.get("resource_type")
+        # resource_type = row.get("resource_type")
+        resource_type = row.get("relatedTableName")
         if not pd.notna(col_name) or not pd.notna(resource_type):
             continue
 
@@ -76,7 +77,7 @@ def main():
     df = load_data(FILE)
 
     # ⛔ Exclude rows with 'Query' in the field name or 'DROPPED' as the relatedTableName
-    df = df.dropna(subset=["ColumnName/Relationship", "resource_type"])
+    df = df.dropna(subset=["ColumnName/Relationship", "relatedTableName"])
     df = df[~df["ColumnName/Relationship"].str.strip().str.lower().eq("query")]
     df = df[~df["relatedTableName"].fillna("").str.strip().str.lower().eq("dropped")]
     

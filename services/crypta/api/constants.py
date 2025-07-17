@@ -103,8 +103,47 @@ FIELD_LABLES = {
 }
 
 RELETIVE_RELATIONS = {
+    # Person sub-resources
     'priest_detail': 'person',
+    'deacon_detail': 'person',
+    'lay_detail': 'person',
+    'assignment': 'person',
+    'person_email': 'person',
+    'person_phone': 'person',
+    'person_language': 'person',
+    'person_facultiesGrantedModified': 'person',
+    'person_degreeCertificate': 'person',
+    'person_status': 'person',
+    'person_title': 'person',
+    'person_relationship': 'person',
+    'assignments': 'person',
+    
+    
+    # Location sub-resources
     'church_detail': 'location',
+    'school_detail': 'location',
+    'location_email': 'location',
+    'location_phone': 'location',
+    'location_status': 'location',
+    'statusAnimarum': 'location',
+    'registeredHousehold': 'location',
+    'ethnicity': 'location',
+    'offertory': 'location',
+    'octoberMassCount': 'location',
+    'buildingsOnSite': 'location',
+    'socialOutreachProgram': 'location',
+    'church_language': 'location',
+    'campusMinistry_detail': 'location',
+    'campusMinistry_language': 'location',
+    'hospital_detail': 'location',
+    'otherEntity_detail': 'location',
+    'enrollment': 'location',
+    'mission_connections': 'location',
+    'assignments': 'location',
+    'person_email': 'location',
+    'person_phone': 'location',
+    'person': 'location',
+    
 }
 
 DISPLAY_TO_PATH = {
