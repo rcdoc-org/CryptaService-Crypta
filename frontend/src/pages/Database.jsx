@@ -29,6 +29,7 @@ const Database = () => {
     };
 
     useEffect(() => {
+        console.log('UseEffect activated.')
         const timeout = setTimeout(() => {
             fetchFilterTree(base, { filters: appliedFilters })
                 .then(res => setFilterTree(res.data.filter_tree));
@@ -40,11 +41,10 @@ const Database = () => {
     }, [base, appliedFilters]);
 
     const handleBaseChange = (e) => {
+        console.log('HandleBaseChange activated.')
         const newBase = e.target.value;
-        if (newBase !== base) {
-            setBase(newBase);
-            setAppliedFilters([]);
-        }
+        setBase(newBase);
+        setAppliedFilters([]);
     };
 
     useEffect(() => {

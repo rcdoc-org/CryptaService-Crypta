@@ -7,12 +7,12 @@ const Dropdown = ({ options, onChange, id, className ='', name = ''}) => {
             id={id}
             aria-label={`${name}Toggle`}
             name= {name}
+            onChange={(e) => onChange(e)}
             >
                 {options.map((option, index) => (
                     <option
                         key={index}
                         value={option.value}
-                        onClick={ () => onChange(option.value) }
                         >
                             {option.label || option.value}
                         </option>
