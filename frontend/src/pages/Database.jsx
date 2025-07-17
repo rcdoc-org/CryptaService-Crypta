@@ -110,6 +110,9 @@ return (
                                 setSearchQuery(value);
                             }}/>
                         <div id="activeFilters" className='mb-3 d-flex flex-wrap'>
+                            {appliedFilters.length > 0 && (
+                                <span className='side-panel-header mb-2'>Active Filters</span>
+                            )}
                             {appliedFilters.map((filterStr, index) => {
                                 const [field, value] = filterStr.split(':', 2);
 
