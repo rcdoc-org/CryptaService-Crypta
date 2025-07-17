@@ -109,7 +109,34 @@ return (
                                 // console.log('Searching filters for:', value);
                                 setSearchQuery(value);
                             }}/>
-                        <div id="activeFilters" className='mb-3'></div>
+                        <div id="activeFilters" className='mb-3 d-flex flex-wrap'>
+                            {appliedFilters.map((filterStr, index) => {
+                                const [field, value] = filterStr.split(':', 2);
+
+                                // Find display & label from each tree
+                                const group = filterTree.find(g => g.field === field)
+                                const option = group?.options.find(opt => String(opt.value) === value);
+
+                                if (!group || !option) return null;
+
+                                let label = option.label?.replace('/\\u002D/g','-') ?? value;
+
+                                return (
+                                    <span
+                                        key={index}
+                                        className='badge bg-secondary me-2 mb-2 d-flex align-items-center'
+                                        style={{ cursor: 'pointer' }}
+                                        onClick={() => {
+                                            const updated = appliedFilters.filter(f => f !== filterStr);
+                                            setAppliedFilters(updated);
+                                        }}
+                                    >
+                                        {group.display}: {label}
+                                        <i className='fas fa-times ms-2' />   
+                                    </span>
+                                );
+                            })}
+                        </div>
                         <FilterTree
                             // tree={filterTree}
                             // tree={filteredFilterTree}
