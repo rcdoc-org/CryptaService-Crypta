@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import * as bootstrap from 'bootstrap';
 import * as XLSX from 'xlsx';
 import jsPDF from 'jspdf';
@@ -24,6 +24,7 @@ const Database = () => {
     const [filterTree, setFilterTree] = useState([]);
     const [appliedFilters, setAppliedFilters] = useState([]);
     const [rows, setRows] = useState([]);
+    const [unfilteredRows, setUnfilteredRows] = useState([]);
     const [columns, setColumns] = useState([]);
     const [allColumns, setAllColumns] = useState([]);
     const [selectedCols, setSelectedCols] = useState(new Set());
@@ -36,6 +37,9 @@ const Database = () => {
     const [includeParish, setIncludeParish] = useState(false);
     const [includeDiocesan, setIncludeDiocesan] = useState(false);
     const [attachmentFile, setAttachmentFile] = useState(null);
+    const [statsInfo, setStatsInfo] = useState([]);
+    const [statRanges, setStatRanges] = useState({});
+    const [statBooleans, setStatBooleans] = useState({});
     const baseToggles = [
         { value: 'person', label: 'People' },
         { value: 'location', label: 'Locations' }
@@ -58,8 +62,10 @@ const Database = () => {
             fetchFilterResults(base, { filters: appliedFilters })
                 .then(res => {
                     const grid = res.data.grid;
+                    setUnfilteredRows(grid.data);
                     setRows(grid.data);
                     setAllColumns(grid.columns);
+                    setStatsInfo(res.data.stats_info || [])
                     // setSelectedCols(new Set(grid.columns.map(c => c.field)));
                     const defaults = base === 'person'
                         ? ['First Name', 'Middle Name', 'Last Name']
@@ -87,6 +93,44 @@ const Database = () => {
         setAppliedFilters([]);
     };
 
+    // Initialize stat filter defaults whenever stats info changes
+    useEffect(() => {
+        const ranges = {};
+        const bools = {};
+        statsInfo.forEach(info => {
+            if (info.type === 'number') {
+                ranges[info.field] = { min: info.min, max: info.max };
+            } else if (info.type === 'boolean') {
+                bools[info.field] = 'all';
+            }
+        });
+        setStatRanges(ranges);
+        setStatBooleans(bools);
+    }, [statsInfo]);
+
+    // Apply stat based filtering
+    useEffect(() => {
+        const filtered = unfilteredRows.filter(row => {
+            for (const info of statsInfo) {
+                if (info.type === 'number') {
+                    const range = statRanges[info.field];
+                    if (!range) continue;
+                    const val = parseFloat(row[info.field]);
+                    if (isNaN(val)) return false;
+                    if (val < range.min || val > range.max) return false;
+                } else if (info.type === 'boolean') {
+                    const choice = statBooleans[info.field];
+                    if (choice && choice !== 'all') {
+                        const val = String(row[info.field]);
+                        if (val !== choice) return false;
+                    }
+                }
+            }
+            return true;
+        });
+        setRows(filtered);
+    }, [unfilteredRows, statRanges, statBooleans, statsInfo]);
+
     const handleColumnToggle = (field) => {
         setSelectedCols(prev => {
             const next = new Set(prev);
@@ -99,12 +143,26 @@ const Database = () => {
         });
     };
 
+    const handleRangeChange = (field, part, value) => {
+        setStatRanges(prev => {
+            const current = prev[field] || { min: 0, max: 0 };
+            const updated = { ...current, [part]: value };
+            if (updated.min > updated.max) {
+                if (part === 'min') updated.max = value;
+                else updated.min = value;
+            }
+            return { ...prev, [field]: updated };
+        });
+    };
+
+    const handleBooleanChange = (field, value) => {
+        setStatBooleans(prev => ({ ...prev, [field]: value }));
+    };
+
     const applyColumns = () => {
         const modalEl = document.getElementById('columnModal');
-        if (modalEl) {
-            const instance = bootstrap.Modal.getInstance(modalEl);
-            instance && instance.hide();
-        }
+        const instance = bootstrap.Modal.getInstance(modalEl);
+        instance && instance.hide();
     };
 
     // Group all columns (excluding internal id) by category
@@ -186,6 +244,50 @@ const Database = () => {
 
         doc.save('results.pdf');
     };
+
+    const computeSummaries = () => {
+        const visibleNumeric = statsInfo.filter(
+            s => s.type === 'number' && selectedCols.has(s.field)
+        );
+        return visibleNumeric.map(info => {
+            const nums = rows
+                .map(r => parseFloat(r[info.field]))
+                .filter(n => !isNaN(n));
+
+            if (!nums.length) {
+                return {
+                    display: info.display,
+                    min: 0,
+                    median: 0,
+                    avg: 0,
+                    max: 0,
+                    total: 0,
+                };
+            }
+
+            nums.sort((a, b) => a - b);
+            const total = nums.reduce((a, b) => a + b, 0);
+            const avg = (total / nums.length).toFixed(2);
+            const mid = Math.floor(nums.length / 2);
+            const median = nums.length % 2
+                ? nums[mid]
+                : ((nums[mid - 1] + nums[mid]) / 2);
+
+            return {
+                display: info.display,
+                min: Math.min(...nums),
+                median: median.toFixed(2),
+                avg,
+                max: Math.max(...nums),
+                total: total.toFixed(2),
+            };
+        });
+    };
+
+    const statsSummary = useMemo(
+        () => computeSummaries(),
+        [rows, statsInfo, selectedCols]
+    );
 
     const handleSendEmail = async () => {
         const recipients = [];
@@ -354,6 +456,88 @@ return (
                         selectedFilters={appliedFilters}
                         onToggle={handleFilterToggle}
                         />
+
+                    {/* Statistics Filters */}
+                    {statsInfo.length > 0 && (
+                        <div id="statsFilters" className='mt-4'>
+                            <h6>Statistics</h6>
+                            {statsInfo
+                                .filter(info => selectedCols.has(info.field))
+                                .map(info => (
+                                    info.type === 'number' ? (
+                                        <div key={info.field} className='stats-range mb-3'>
+                                            <label className='mb-2'>{info.display}:</label>
+                                            <div className='range_container'>
+                                                <div className='sliders_control mb-1'>
+                                                    <input
+                                                        type='range'
+                                                        min={info.min}
+                                                        max={info.max}
+                                                        value={statRanges[info.field]?.min ?? info.min}
+                                                        className='range-from'
+                                                        onChange={e => handleRangeChange(info.field, 'min', Number(e.target.value))}
+                                                    />
+                                                    <input
+                                                        type='range'
+                                                        min={info.min}
+                                                        max={info.max}
+                                                        value={statRanges[info.field]?.max ?? info.max}
+                                                        className='range-to'
+                                                        onChange={e => handleRangeChange(info.field, 'max', Number(e.target.value))}
+                                                        style={{ background: (() => {
+                                                            const r = statRanges[info.field] || {min: info.min, max: info.max};
+                                                            const rangeDistance = info.max - info.min;
+                                                            const fromPos = r.min - info.min;
+                                                            const toPos = r.max - info.min;
+                                                            const lowPct = (fromPos / rangeDistance) * 100;
+                                                            const highPct = (toPos / rangeDistance) * 100;
+                                                            return `linear-gradient(to right,#C6C6C6 0%,#C6C6C6 ${lowPct}%,#4a5568 ${lowPct}%,#4a5568 ${highPct}%,#C6C6C6 ${highPct}%,#C6C6C6 100%)`;
+                                                        })() }}
+                                                    />
+                                                </div>
+                                                <div className='form_control'>
+                                                    <input
+                                                        type='number'
+                                                        className='stats-val-box'
+                                                        min={info.min}
+                                                        max={info.max}
+                                                        value={statRanges[info.field]?.min ?? info.min}
+                                                        onChange={e => handleRangeChange(info.field, 'min', Number(e.target.value))}
+                                                    />
+                                                    <input
+                                                        type='number'
+                                                        className='stats-val-box'
+                                                        min={info.min}
+                                                        max={info.max}
+                                                        value={statRanges[info.field]?.max ?? info.max}
+                                                        onChange={e => handleRangeChange(info.field, 'max', Number(e.target.value))}
+                                                    />
+                                                </div>
+                                            </div>
+                                        </div>
+                                    ) : (
+                                        <div key={info.field} className='mb-3'>
+                                            <label>{info.display}:</label><br />
+                                            {['true','false','all'].map(val => (
+                                                <div className='form-check form-check-inline' key={val}>
+                                                    <input
+                                                        className='form-check-input'
+                                                        type='radio'
+                                                        name={`stat_${info.field}`}
+                                                        value={val}
+                                                        checked={(statBooleans[info.field] || 'all') === val}
+                                                        onChange={() => handleBooleanChange(info.field, val)}
+                                                    />
+                                                    <label className='form-check-label'>
+                                                        {val.charAt(0).toUpperCase() + val.slice(1)}
+                                                    </label>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    )
+                                ))}
+                        </div>
+                    )}
                 </div>
             </AsidePanel>
             <main className="col-md-8 p-4 bg-light">
@@ -364,6 +548,36 @@ return (
                     </div>
                     <DataGrid columns={columns} data={rows} options={gridOptions} />
                 </Card>
+                {statsSummary.length > 0 && (
+                    <Card title='Statistics Summary' className='mt-4'>
+                        <div className='table-responsive'>
+                            <table className='table table-sm mb-0'>
+                                <thead>
+                                    <tr>
+                                        <th>Metric</th>
+                                        <th>Min</th>
+                                        <th>Median</th>
+                                        <th>Average</th>
+                                        <th>Max</th>
+                                        <th>Total</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {statsSummary.map(s => (
+                                        <tr key={s.display}>
+                                            <td>{s.display}</td>
+                                            <td>{s.min}</td>
+                                            <td>{s.median}</td>
+                                            <td>{s.avg}</td>
+                                            <td>{s.max}</td>
+                                            <td>{s.total}</td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+                    </Card>
+                )}
             </main>
         </div>
         <Modal id="columnModal" title="Choose Columns" size="modal-lg" footer={
