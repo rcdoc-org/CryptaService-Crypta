@@ -162,7 +162,7 @@ const Database = () => {
     const applyColumns = () => {
         const modalEl = document.getElementById('columnModal');
         const instance = bootstrap.Modal.getInstance(modalEl);
-        instance && instance.hide();
+        instance.hide();
     };
 
     // Group all columns (excluding internal id) by category
