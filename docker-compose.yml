@@ -1,0 +1,47 @@
+version: "3.8"
+services:
+  frontend:
+    build: ./frontend
+    command: yarn dev         # or `npm start` for hot‐reload
+    expose:
+      - "80:80"
+    environment:
+      - CHOKIDAR_USEPOLLING=true  # on Linux for webpack
+
+  auth-api:
+    build: ./services/auth
+    expose:
+      - "8002:8002"
+    env_file:
+      - ./services/auth/.env
+
+  gateway:
+    build: ./services/gateway
+    expose:
+      - "3000:3000"
+    env_file:
+      - ./services/gateway/.env
+  
+  crypta:
+    build: ./services/crypta
+    expose:
+      - "8001:8001"
+    env_file:
+      - ./services/crypta/.env
+
+  caddy:
+    image: caddy:alpine
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      - frontend
+      - gateway
+
+volumes:
+  caddy_data:
+  caddy_config:

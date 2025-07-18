@@ -1,0 +1,20 @@
+.auth-admin-page {
+  height: calc(100vh - 56px);
+  display: flex;
+  padding: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+.auth-admin-page > .row {
+  display: flex;
+  flex: 1;
+  min-width: 0;
+}
+
+.auth-admin-page .aside-panel {
+  flex: 0 0 300px;
+  height: 100%;
+  position: sticky;
+  top: 0;
+}

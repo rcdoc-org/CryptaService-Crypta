@@ -1,0 +1,29 @@
+/* Make html/body/#root fill the screen so our main can size against it */
+html, body, #root {
+  height: 100%;
+  width: 100%;
+  margin: 0;
+}
+
+/* Your fixed header is 56px tall; this makes main fill the rest */
+.app-main {
+  min-height: calc(100vh - 56px);
+  padding-top: 56px;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Apply the gradient here so it covers the entire main area */
+.home-background {
+  margin: 0;
+  background: transparent;
+  background: linear-gradient(rgb(5,83,175), rgb(19,116,226)) no-repeat fixed;
+  background-size: 100% 100%;
+}
+
+.login-background {
+  margin: 0;
+  background: transparent;
+  background: linear-gradient(rgb(5,83,175), rgb(19,116,226)) no-repeat fixed;
+  background-size: 100% 100%;
+}

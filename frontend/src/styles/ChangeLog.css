@@ -1,0 +1,62 @@
+.container-changeLog {
+    padding: 1rem;
+}
+.container-changeLog .card {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+.container-changeLog .card-body {
+  flex: 1;
+  overflow-y: auto;
+  padding-right: 0.5rem;
+}
+.container-changeLog .card-body p {
+  text-align: left;
+}
+.container-changeLog .card-body li {
+  text-align: left;
+}
+/* give headers a subtle background */
+.card-header {
+  background-color: #f8f9fa;
+  border-bottom: none;
+  font-weight: 600;
+}
+
+/* icon accent color */
+.card-body .fa-2x {
+  color: #2272C5;
+}
+
+/* tighten up spacing on list items */
+.card-body ul.list-unstyled li {
+  margin-bottom: 0.5rem;
+}
+
+/* hover state for “View More” link */
+.card-body a.text-decoration-none:hover {
+  text-decoration: underline;
+}
+
+.card-body button {
+    border: 1px solid #000000;
+    color: black;
+    background: white;
+}
+.card-body button:hover {
+    background: linear-gradient(to right, rgb( 5,83,175), rgb(19,116,226));
+    color: white;
+    border: 1px solid black;
+}
+
+a.button {
+    border: 1px solid #000000;
+    color: black;
+    background: white;
+}
+a.button:hover {
+    background: linear-gradient(to right, rgb( 5,83,175), rgb(19,116,226));
+    color: white;
+    border: 1px solid black;
+}
