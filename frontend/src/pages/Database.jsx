@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import * as bootstrap from 'bootstrap';
 import * as XLSX from 'xlsx';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
