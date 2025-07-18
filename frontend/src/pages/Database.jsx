@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useMemo } from 'react';
-import * as bootstrap from 'bootstrap';
+const bootstrap = window.bootstrap
 import * as XLSX from 'xlsx';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
@@ -161,8 +161,20 @@ const Database = () => {
 
     const applyColumns = () => {
         const modalEl = document.getElementById('columnModal');
-        const instance = bootstrap.Modal.getInstance(modalEl);
+        const instance = bootstrap.Modal.getOrCreateInstance(modalEl);
         instance.hide();
+    };
+
+    const openEmailModal = () => {
+        // hide the Actions modal before showing the Email modal
+        const actionEl = document.getElementById('actionModal');
+        if (actionEl) {
+            const actionInstance = bootstrap.Modal.getOrCreateInstance(actionEl);
+            actionInstance.hide();
+        }
+        const emailEl = document.getElementById('emailModal');
+        const emailInstance = bootstrap.Modal.getOrCreateInstance(emailEl);
+        emailInstance.show();
     };
 
     // Group all columns (excluding internal id) by category
@@ -350,9 +362,9 @@ const Database = () => {
         try {
             await sendEmailRequest(formData);
             alert('Email Sent');
-            const modalEl = document.getElementById('emailModal')
-            const instance = bootstrap.Modal.getInstance(modalEl);
-            instance && instance.hide();
+            const modalEl = document.getElementById('emailModal');
+            const instance = bootstrap.Modal.getOrCreateInstance(modalEl);
+            instance.hide();
         } catch (err) {
             alert('Failed to send email')
         }
@@ -629,6 +641,7 @@ return (
         <Modal id="actionModal" title="Actions">
             <div className="d-grid gap-2">
                 <button className='btn result-btn btn-sm' data-bs-toggle='modal' data-bs-target='#emailModal'>Send Email</button>
+                {/* <button className='btn result-btn btn-sm' onClick={openEmailModal}>Send Email</button> */}
                 <button className="btn result-btn btn-sm" onClick={exportExcel}>Export to Excel</button>
                 <button className="btn result-btn btn-sm" onClick={exportCsv}>Export to CSV</button>
                 <button className="btn result-btn btn-sm" onClick={exportPdf}>Export to PDF</button>
