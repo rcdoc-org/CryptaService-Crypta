@@ -27,11 +27,13 @@ logger = logging.getLogger('api')
 
 def _get_permissions(request):
     """Return query permissions passed via Gateway."""
-    return get_query_permissions(request)
+    perms = get_query_permissions(request)
+    logger.debug('Retrieved query permissions: %s', perms)
+    return perms
 
 def _apply_permission_filters(qs, perms, base):
     """Filter ``qs`` using the provided permission objects."""
-    logger.debug('Applying permission filters now.')
+    logger.debug('Applying permission filters for base "%s"', base)
     relevant = [
         p
         for p in perms
@@ -42,7 +44,7 @@ def _apply_permission_filters(qs, perms, base):
         return qs.none()
         # return qs
 
-    logger.debug('Relevant: %s', relevant)
+    logger.debug('Relevant permissions: %s', relevant)
     perm_q = Q()
     for perm in relevant:
         conds = perm.get('filters') or {}
@@ -57,10 +59,12 @@ def _apply_permission_filters(qs, perms, base):
             sub &= Q()
         perm_q |= sub
 
-    return qs.filter(perm_q)
+    filtered = qs.filter(perm_q)
+    logger.info('Permission filtering produced %d results', filtered.count())
+    return filtered
 
 def _apply_user_filters(qs, filters):
-    logger.debug('Applying user filters.')
+    logger.debug('Applying user filters: %s', filters)
     applied = {}
     for rf in filters:
         if ":" in rf:
@@ -68,10 +72,12 @@ def _apply_user_filters(qs, filters):
             applied.setdefault(fld, []).append(val)
     for fld, vals in applied.items():
         qs = qs.filter(**{f"{fld}__in": vals})
+    logger.info('User filtering resulted in %d records', qs.count())
     return qs
 
 def _prefetch_for_base(qs, base):
     """Add select_related/prefetch_related for ``base`` queryset."""
+    logger.debug('Prefetching related objects for base "%s"', base)
     if base == "person":
         return qs.select_related(
             "lkp_residence_id",
@@ -127,6 +133,7 @@ def _prefetch_for_base(qs, base):
 
 def _serialize_instance(obj):
     """Return ``obj`` as a dict including first-level related data."""
+    logger.debug('Serializing instance of %s with id %s', type(obj).__name__, getattr(obj, 'id', ''))
     data = {}
 
     # Handle fields, skipping file/image fields with no file
@@ -173,6 +180,7 @@ def _serialize_instance(obj):
     return data
 
 def _safe_model_to_dict(obj):
+    logger.debug('Converting %s object to dict', type(obj).__name__)
     data = {}
     for f in obj._meta.fields:
         val = getattr(obj, f.name)
@@ -184,19 +192,23 @@ def _safe_model_to_dict(obj):
             data[f.name] = val.pk
         else:
             data[f.name] = val
+    logger.debug('Converted dict keys: %s', list(data.keys()))
     return data
 
 def _get_full_results(base, perms, filters):
+    logger.debug('Fetching full results for base "%s"', base)
     qs = Location.objects.all() if base == "location" else Person.objects.all()
     qs = _apply_permission_filters(qs, perms, base)
     qs = _apply_user_filters(qs, filters)
     qs = qs.distinct()
     qs = _prefetch_for_base(qs, base)
 
-    return [_serialize_instance(obj) for obj in qs]
+    results = [_serialize_instance(obj) for obj in qs]
+    logger.info('Returning %d full result objects', len(results))
+    return results
 
 def _get_filters(request):
-    
+    logger.debug('Parsing filter parameters')
     raw = request.query_params.get('filters')
     if raw is not None:
         try:
@@ -214,13 +226,16 @@ def _get_filters(request):
             return [str(data)]
         except json.JSONDecodeError:
             return [raw]
-    return (
+    filters = (
         request.query_params.getlist('filters')
         or request.query_params.getlist('filters[]')
     )
+    logger.debug('Parsed filters: %s', filters)
+    return filters
 
 def _get_grid_results(base, perms, filters):
     """Return simplified records + columns for the Database grid."""
+    logger.debug('Building grid results for base "%s"', base)
     qs = Location.objects.all() if base == "location" else Person.objects.all()
     qs = _apply_permission_filters(qs, perms, base)
     qs = _apply_user_filters(qs, filters)
@@ -588,6 +603,7 @@ def _get_grid_results(base, perms, filters):
                 "max": max(nums),
             })
 
+    logger.info('Grid results contain %d records', len(records))
     return records, columns, stats_info
 
 def _get_filtered_items(request):
@@ -599,12 +615,16 @@ def _get_filtered_items(request):
         base = request.GET.get('base', 'person')
         filters = request.GET.getlist('filters') or request.GET.getlist('filters[]')
 
+    logger.debug('Filtering items. base=%s filters=%s', base, filters)
+
     perms = _get_permissions(request)
 
     qs = Location.objects.all() if base == 'location' else Person.objects.all()
     qs = _apply_permission_filters(qs, perms, base)
     qs = _apply_user_filters(qs, filters)
     qs = qs.distinct()
+    count = qs.count()
+    logger.info('Filtered queryset contains %d records', count)
     return qs
 
 class FilterTreeView_v1(APIView):
@@ -707,6 +727,7 @@ def upload_temp(request):
     """Save an uploaded file into ``MEDIA_ROOT/tmp`` and return its URL."""
     if request.method == 'POST' and request.FILES.get('attachment'):
         f = request.FILES['attachment']
+        logger.debug('Uploading temporary file %s', f.name)
         ts = datetime.now().strftime('%Y%m%d%H%M%S')
         filename = f"{ts}_{f.name}"
         tmp_dir = os.path.join(settings.MEDIA_ROOT, 'tmp')
@@ -717,16 +738,19 @@ def upload_temp(request):
             for chunk in f.chunks():
                 dest.write(chunk)
 
+        logger.info('Saved temporary file to %s', save_path)
         return JsonResponse({
             'filename': filename,
             'url': settings.MEDIA_URL + f'tmp/{filename}'
         })
 
+    logger.debug('No attachment provided for upload_temp')
     return JsonResponse({'error': 'No file provided.'}, status=400)
 
 
 def _get_email_list(request, email_type_name):
     items = _get_filtered_items(request)
+    logger.debug('Fetching %s email list for %d items', email_type_name, items.count())
 
     base = request.POST.get('base', 'person')
     if base == 'location':
@@ -740,7 +764,9 @@ def _get_email_list(request, email_type_name):
             lkp_emailType_id__name__iexact=email_type_name,
         )
 
-    return list(qs.values_list('email', flat=True))
+    emails = list(qs.values_list('email', flat=True))
+    logger.info('Found %d %s emails', len(emails), email_type_name)
+    return emails
 
 
 def get_personal_list(request):
@@ -761,6 +787,7 @@ def get_diocesan_list(request):
 @csrf_exempt
 def send_email(request):
     if request.method == 'POST':
+        logger.debug('Processing send_email request')
         personal = get_personal_list(request)
         parish = get_parish_list(request)
         diocesan = get_diocesan_list(request)
@@ -804,6 +831,7 @@ def send_email(request):
             return JsonResponse({'error': 'Could not build email message. Check server log for details.'}, status=500)
 
         send_mail(msg, smptp_user=settings.EMAIL_HOST_USER, smtp_pass=settings.EMAIL_HOST_PASSWORD)
+        logger.info('Email sent to %d recipients', len(recipients))
 
         if attachment_path:
             try:
@@ -813,12 +841,14 @@ def send_email(request):
 
         return JsonResponse({'status': 'sent'})
 
+    logger.debug('send_email called with unsupported method %s', request.method)
     return JsonResponse({'detail': 'Method not allowed'}, status=405)
 
 
 @require_POST
 @csrf_exempt
 def email_count_preview(request):
+    logger.debug('Calculating email count preview')
     try:
         data = json.loads(request.body)
     except ValueError:
@@ -879,4 +909,5 @@ def email_count_preview(request):
                                .values_list('email', flat=True))
 
     unique_count = len(set(recipients))
+    logger.info('Email count preview found %d unique addresses', unique_count)
     return JsonResponse({'count': unique_count})
