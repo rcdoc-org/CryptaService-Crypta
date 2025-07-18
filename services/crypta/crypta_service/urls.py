@@ -23,6 +23,9 @@ from api.views import (
     SearchResultsView_v1,
     PersonViewSet,
     LocationViewSet,
+    upload_temp,
+    send_email,
+    email_count_preview,
 )
 
 router = DefaultRouter()
@@ -34,5 +37,8 @@ urlpatterns = [
     path('api/v1/filter_tree', FilterTreeView_v1.as_view(), name='filter_tree'),
     path('api/v1/filter_results', FilterResultsView_v1.as_view(), name='filter_results'),
     path('api/v1/search', SearchResultsView_v1.as_view(), name='search'),
+    path('api/v1/upload-tmp', upload_temp, name='upload_tmp'),
+    path('api/v1/send-email', send_email, name='send_email'),
+    path('api/v1/email-count-preview', email_count_preview, name='email_count_preview'),
     path('api/v1/', include(router.urls)),
 ]

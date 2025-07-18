@@ -37,6 +37,9 @@ from api.views import (
     FilterTreeView_v1,
     FilterResultsView_v1,
     SearchResultsView_v1,
+    UploadTempView_v1,
+    SendEmailView_v1,
+    EmailCountPreviewView_v1,
 )
 
 urlpatterns = [
@@ -68,5 +71,8 @@ urlpatterns = [
     path('sso/callback/', SSOCallbackView_v1.as_view(), name='sso_callback'),
     path('filter_tree/', FilterTreeView_v1.as_view(), name='filter_tree'),
     path('filter_results/', FilterResultsView_v1.as_view(), name='filter_results'),
-    path('search/', SearchResultsView_v1.as_view(), name='search')
+    path('search/', SearchResultsView_v1.as_view(), name='search'),
+    path('upload-tmp/', UploadTempView_v1.as_view(), name='upload_tmp'),
+    path('send-email/', SendEmailView_v1.as_view(), name='send_email'),
+    path('email-count-preview/', EmailCountPreviewView_v1.as_view(), name='email_count_preview'),
 ]

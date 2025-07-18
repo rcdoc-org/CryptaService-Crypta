@@ -39,7 +39,20 @@ export const fetchFilterResults = (base, params = {}) => {
     }
     return apiClient.get('/filter_results/', { params: q });
 };
-export const fetchEmailCountPreview = (params) => apiClient.get('/email_count_preview/', { params });
+export const fetchEmailCountPreview = (payload) =>
+    apiClient.post('/email-count-preview/', payload);
+export const uploadTempFile = (file) => {
+    const fd = new FormData();
+    fd.append('attachment', file);
+    return apiClient.post('/upload-tmp/', fd, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+    });
+};
+
+export const sendEmailRequest = (formData) =>
+    apiClient.post('/send-email/', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+    });
 export const fetchSearchResults = (query) => apiClient.get('/search/', { params: { q: query } });
 export const fetchDetails = (base, id) => apiClient.get(`/details/${base}/${id}/`);
 

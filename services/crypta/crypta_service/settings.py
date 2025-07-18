@@ -191,3 +191,16 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # https://pypi.org/project/django-cors-headers/
 CORS_ALLOW_ALL_ORIGINS = True
 CORS_ALLOW_CREDENTIALS = True
+
+# Media & Email settings
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+MEDIA_URL = '/media/'
+
+# Email Settings
+EMAIL_HOST = 'smtp.office365.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+
+# Email user service account
+EMAIL_HOST_USER = os.getenv('SERVICE_EMAIL_USER', '')
+EMAIL_HOST_PASSWORD = os.getenv('SERVICE_EMAIL_PASSWORD', '')

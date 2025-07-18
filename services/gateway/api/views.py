@@ -25,6 +25,9 @@ AUTH_DECODE_URL = os.getenv('AUTH_DECODE_URL', 'http://localhost:8002/api/v1/tok
 CRYPTA_FETCHTREE_URL = os.getenv('CRYPTA_FETCHTREE_URL', 'http://localhost:8001/api/v1/filter_tree')
 CRYPTA_FILTERRESULTS_URL = os.getenv('CRYPTA_FILTERRESULTS_URL', 'http://localhost:8001/api/v1/filter_results')
 CRYPTA_SEARCH_URL = os.getenv('CRYPTA_SEARCH_URL', 'http://localhost:8001/api/v1/search')
+CRYPTA_UPLOAD_TMP_URL = os.getenv('CRYPTA_UPLOAD_TMP_URL', 'http://localhost:8001/api/v1/upload-tmp')
+CRYPTA_SEND_EMAIL_URL = os.getenv('CRYPTA_SEND_EMAIL_URL', 'http://localhost:8001/api/v1/send-email')
+CRYPTA_EMAIL_COUNT_URL = os.getenv('CRYPTA_EMAIL_COUNT_URL', 'http://localhost:8001/api/v1/email-count-preview')
 
 # Create your views here.
 class CreateUserView_v1(APIView):
@@ -450,6 +453,57 @@ class SearchResultsView_v1(APIView):
         try:
             logger.debug('Forwarding search request to crypta service at %s', CRYPTA_SEARCH_URL)
             resp = requests.get(CRYPTA_SEARCH_URL, params=request.query_params, headers=headers)
+            logger.info('Crypta Service returned status %s', resp.status_code)
+            content_type = resp.headers.get('Content-Type', '')
+            data = resp.json() if content_type.startswith('application/json') else resp.text
+            return Response(data, status=resp.status_code)
+        except requests.RequestException as exc:
+            logger.error('Failed to contact crypta service: %s', exc, exc_info=True)
+            return Response({'detail': 'Crypta service unavailable'}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
+
+class UploadTempView_v1(APIView):
+    permission_classes = [permissions.AllowAny]
+
+    def post(self, request, *args, **kwargs):
+        logger.debug('Upload temp file request')
+        try:
+            files = None
+            if 'attachment' in request.FILES:
+                up = request.FILES['attachment']
+                files = {'attachment': (up.name, up.file, up.content_type)}
+            resp = requests.post(CRYPTA_UPLOAD_TMP_URL, files=files)
+            logger.info('Crypta Service returned status %s', resp.status_code)
+            content_type = resp.headers.get('Content-Type', '')
+            data = resp.json() if content_type.startswith('application/json') else resp.text
+            return Response(data, status=resp.status_code)
+        except requests.RequestException as exc:
+            logger.error('Failed to contact crypta service: %s', exc, exc_info=True)
+            return Response({'detail': 'Crypta service unavailable'}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
+
+
+class SendEmailView_v1(APIView):
+    permission_classes = [permissions.AllowAny]
+
+    def post(self, request, *args, **kwargs):
+        logger.debug('Send email request')
+        try:
+            resp = requests.post(CRYPTA_SEND_EMAIL_URL, data=request.data)
+            logger.info('Crypta Service returned status %s', resp.status_code)
+            content_type = resp.headers.get('Content-Type', '')
+            data = resp.json() if content_type.startswith('application/json') else resp.text
+            return Response(data, status=resp.status_code)
+        except requests.RequestException as exc:
+            logger.error('Failed to contact crypta service: %s', exc, exc_info=True)
+            return Response({'detail': 'Crypta service unavailable'}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
+
+
+class EmailCountPreviewView_v1(APIView):
+    permission_classes = [permissions.AllowAny]
+
+    def post(self, request, *args, **kwargs):
+        logger.debug('Email count preview request')
+        try:
+            resp = requests.post(CRYPTA_EMAIL_COUNT_URL, json=request.data)
             logger.info('Crypta Service returned status %s', resp.status_code)
             content_type = resp.headers.get('Content-Type', '')
             data = resp.json() if content_type.startswith('application/json') else resp.text

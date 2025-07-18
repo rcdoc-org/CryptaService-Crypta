@@ -11,7 +11,13 @@ import Modal from '../components/Modal';
 import Dropdown from '../components/Dropdown';
 import SearchBar from '../components/SearchBar';
 import FilterTree from '../components/FilterTree';
-import { fetchFilterTree, fetchFilterResults } from '../api/crypta';
+import { 
+    fetchFilterTree,
+    fetchFilterResults,
+    fetchEmailCountPreview,
+    uploadTempFile,
+    sendEmailRequest,
+} from '../api/crypta';
 
 const Database = () => {
     const [filterTree, setFilterTree] = useState([]);
@@ -23,6 +29,12 @@ const Database = () => {
     const [base, setBase] = useState('person');
     const [prevBase, setPrevBase] = useState('person');
     const [searchQuery, setSearchQuery] = useState('');
+    const [emailSubject, setEmailSubject] = useState('');
+    const [emailBody, setEmailBody] = useState('');
+    const [includePersonal, setIncludePersonal] = useState(false);
+    const [includeParish, setIncludeParish] = useState(false);
+    const [includeDiocesan, setIncludeDiocesan] = useState(false);
+    const [attachmentFile, setAttachmentFile] = useState(null);
     const baseToggles = [
         { value: 'person', label: 'People' },
         { value: 'location', label: 'Locations' }
@@ -172,6 +184,75 @@ const Database = () => {
         });
 
         doc.save('results.pdf');
+    };
+
+    const handleSendEmail = async () => {
+        const recipients = [];
+        if (includePersonal) recipients.push('Personal');
+        if (includeParish) recipients.push('Parish');
+        if (includeDiocesan) recipients.push('Diocesan');
+
+        if (!emailSubject.trim() || !emailBody.trim() || recipients.length === 0) {
+            alert("Please provide subject, body, and at least one recipient type.");
+            return;
+        }
+
+        const previewPayload = {
+            base,
+            filters: appliedFilters,
+            personalEmail: includePersonal,
+            parishEmail: includeParish,
+            diocesanEmail: includeDiocesan,
+        };
+
+        let count = 0;
+        try {
+            const { data } = await fetchEmailCountPreview(previewPayload);
+            count = data.count;
+        } catch (err) {
+            alert('Failed to get recipient count');
+            return;
+        }
+
+        const summary = 
+            `Please confirm before sending:\n\n` +
+            `Subject: ${emailSubject}\n` +
+            `Recipients: ${recipients.join(', ')}\n` +
+            `Total recipients: ${count}\n\n` +
+            `Body:\n${emailBody}`;
+
+        if (!window.confirm(summary)) return;
+
+        let attachmentPath = null;
+        if (attachmentFile) {
+            try {
+                const { data } = await uploadTempFile(attachmentFile);
+                attachmentPath = data.url;
+            } catch (err) {
+                alert('Failed to upload attachment');
+                return;
+            }
+        }
+
+        const formData = new FormData();
+        formData.append('subject', emailSubject);
+        formData.append('body', emailBody);
+        if (includePersonal) formData.append('personalEmail', 'on');
+        if (includeParish) formData.append('parishEmail', 'on');
+        if (includeDiocesan) formData.append('diocesanEmail', 'on');
+        if (attachmentPath) formData.append('temp_attachment_path', attachmentPath);
+        formData.append('base', base);
+        appliedFilters.forEach(f => formData.append('filters', f))
+
+        try {
+            await sendEmailRequest(formData);
+            alert('Email Sent');
+            const modalEl = document.getElementById('emailModal')
+            const instance = bootstrap.Modal.getInstance(modalEl);
+            instance && instance.hide();
+        } catch (err) {
+            alert('Failed to send email')
+        }
     };
 
     useEffect(() => {
@@ -332,9 +413,39 @@ return (
 
         <Modal id="actionModal" title="Actions">
             <div className="d-grid gap-2">
+                <button className='btn result-btn btn-sm' data-bs-toggle='modal' data-bs-target='#emailModal'>Send Email</button>
                 <button className="btn result-btn btn-sm" onClick={exportExcel}>Export to Excel</button>
                 <button className="btn result-btn btn-sm" onClick={exportCsv}>Export to CSV</button>
                 <button className="btn result-btn btn-sm" onClick={exportPdf}>Export to PDF</button>
+            </div>
+        </Modal>
+
+        <Modal id="emailModal" title="Send Email" size="modal-lg" footer={
+            <button type="button" className="btn btn-primary" onClick={handleSendEmail}>Send</button>
+        }>
+            <div className="mb-3 form-check form-check-inline">
+                <input type="checkbox" className="form-check-input" id="personalEmail" checked={includePersonal} onChange={e => setIncludePersonal(e.target.checked)} />
+                <label className="form-check-label" htmlFor="personalEmail">Include Personal Emails?</label>
+            </div>
+            <div className="mb-3 form-check form-check-inline">
+                <input type="checkbox" className="form-check-input" id="parishEmail" checked={includeParish} onChange={e => setIncludeParish(e.target.checked)} />
+                <label className="form-check-label" htmlFor="parishEmail">Include Parish Emails?</label>
+            </div>
+            <div className="mb-3 form-check form-check-inline">
+                <input type="checkbox" className="form-check-input" id="diocesanEmail" checked={includeDiocesan} onChange={e => setIncludeDiocesan(e.target.checked)} />
+                <label className="form-check-label" htmlFor="diocesanEmail">Include Diocesan Emails?</label>
+            </div>
+            <div className="mb-3">
+                <label htmlFor="subjectInput" className="form-label">Subject</label>
+                <input type="text" className="form-control" id="subjectInput" value={emailSubject} onChange={e => setEmailSubject(e.target.value)} />
+            </div>
+            <div className="mb-3">
+                <label htmlFor="attachmentInput" className="form-label">Attachment</label>
+                <input type="file" className="form-control" id="attachmentInput" onChange={e => setAttachmentFile(e.target.files[0])} />
+            </div>
+            <div className="mb-3">
+                <label htmlFor="bodyInput" className="form-label">Body</label>
+                <textarea className="form-control" id="bodyInput" rows="4" value={emailBody} onChange={e => setEmailBody(e.target.value)} />
             </div>
         </Modal>
     </div>

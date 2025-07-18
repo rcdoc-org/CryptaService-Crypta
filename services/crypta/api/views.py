@@ -1,16 +1,23 @@
 import logging
 import json
-from datetime import date
+from datetime import date, datetime
+import os
+from django.conf import settings
 from django.db.models import Count, Q, Model
 from django.forms.models import model_to_dict
 from django.db.models.fields.files import FileField, ImageField
+from django.http import JsonResponse
+from django.shortcuts import redirect
+from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_POST
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import permissions, viewsets
 from .serializers import PersonSerializer, LocationSerializer
 from .utilities import get_query_permissions
+from .utilities.emailingSys import message_creator, send_mail
 
-from .models import Person, Location
+from .models import Person, Location, Person_Email, Location_Email
 from .constants import (
     DYNAMIC_FILTER_FIELDS, FIELD_LABELS, RELETIVE_RELATIONS, DISPLAY_TO_PATH,
     FIELD_CATEGORIES,
@@ -583,6 +590,23 @@ def _get_grid_results(base, perms, filters):
 
     return records, columns, stats_info
 
+def _get_filtered_items(request):
+    """Return queryset of ``Person`` or ``Location`` filtered by POST data."""
+    if request.method == 'POST':
+        base = request.POST.get('base', 'person')
+        filters = request.POST.getlist('filters') or request.POST.getlist('filters[]')
+    else:
+        base = request.GET.get('base', 'person')
+        filters = request.GET.getlist('filters') or request.GET.getlist('filters[]')
+
+    perms = _get_permissions(request)
+
+    qs = Location.objects.all() if base == 'location' else Person.objects.all()
+    qs = _apply_permission_filters(qs, perms, base)
+    qs = _apply_user_filters(qs, filters)
+    qs = qs.distinct()
+    return qs
+
 class FilterTreeView_v1(APIView):
     permission_classes = [permissions.AllowAny]
 
@@ -617,7 +641,6 @@ class FilterTreeView_v1(APIView):
                 })
 
         return Response({"filter_tree": filter_tree})
-
 
 class FilterResultsView_v1(APIView):
     permission_classes = [permissions.AllowAny]
@@ -668,10 +691,192 @@ class PersonViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = PersonSerializer
     permission_classes = [permissions.IsAuthenticated]
 
-
 class LocationViewSet(viewsets.ReadOnlyModelViewSet):
     """ViewSet providing read-only access to ``Location`` objects."""
 
     queryset = Location.objects.all()
     serializer_class = LocationSerializer
     permission_classes = [permissions.IsAuthenticated]
+
+# ---------------------------------------------------------------------------
+# Email utilities
+# ---------------------------------------------------------------------------
+
+@csrf_exempt
+def upload_temp(request):
+    """Save an uploaded file into ``MEDIA_ROOT/tmp`` and return its URL."""
+    if request.method == 'POST' and request.FILES.get('attachment'):
+        f = request.FILES['attachment']
+        ts = datetime.now().strftime('%Y%m%d%H%M%S')
+        filename = f"{ts}_{f.name}"
+        tmp_dir = os.path.join(settings.MEDIA_ROOT, 'tmp')
+        os.makedirs(tmp_dir, exist_ok=True)
+
+        save_path = os.path.join(tmp_dir, filename)
+        with open(save_path, 'wb') as dest:
+            for chunk in f.chunks():
+                dest.write(chunk)
+
+        return JsonResponse({
+            'filename': filename,
+            'url': settings.MEDIA_URL + f'tmp/{filename}'
+        })
+
+    return JsonResponse({'error': 'No file provided.'}, status=400)
+
+
+def _get_email_list(request, email_type_name):
+    items = _get_filtered_items(request)
+
+    base = request.POST.get('base', 'person')
+    if base == 'location':
+        qs = Location_Email.objects.filter(
+            lkp_location_id__in=items,
+            lkp_emailType_id__name__iexact=email_type_name,
+        )
+    else:
+        qs = Person_Email.objects.filter(
+            lkp_person_id__in=items,
+            lkp_emailType_id__name__iexact=email_type_name,
+        )
+
+    return list(qs.values_list('email', flat=True))
+
+
+def get_personal_list(request):
+    """Return a list of personal email addresses from filtered items."""
+    return _get_email_list(request, 'Personal')
+
+
+def get_parish_list(request):
+    """Return a list of parish email addresses from filtered items."""
+    return _get_email_list(request, 'Parish')
+
+
+def get_diocesan_list(request):
+    """Return a list of diocesan email addresses from filtered items."""
+    return _get_email_list(request, 'Diocesan')
+
+
+@csrf_exempt
+def send_email(request):
+    if request.method == 'POST':
+        personal = get_personal_list(request)
+        parish = get_parish_list(request)
+        diocesan = get_diocesan_list(request)
+
+        logger.debug("send_email POST data: %r", dict(request.POST))
+
+        recipients = []
+        if request.POST.get('personalEmail'):
+            recipients += personal
+        if request.POST.get('parishEmail'):
+            recipients += parish
+        if request.POST.get('diocesanEmail'):
+            recipients += diocesan
+
+        sender = settings.EMAIL_HOST_USER
+        to_list = [sender]
+
+        subject = request.POST.get('subject', '')
+        body = request.POST.get('body', '')
+        body = f"Intended Recipients: {', '.join(recipients)}\n\n{body}"
+
+        attachment_url = request.POST.get('temp_attachment_path')
+        if attachment_url:
+            attachment_path = os.path.join(settings.BASE_DIR, attachment_url.lstrip('/'))
+        else:
+            attachment_path = None
+
+        try:
+            msg = message_creator(
+                sender=sender,
+                recipients=to_list,
+                subject=subject,
+                body=body,
+                attachment_path=attachment_path
+            )
+        except Exception:
+            logger.exception(
+                "message_creator failed. sender=%r recipients=%r subject=%r body=%r attachment_path=%r",
+                sender, to_list, subject, body, attachment_path
+            )
+            return JsonResponse({'error': 'Could not build email message. Check server log for details.'}, status=500)
+
+        send_mail(msg, smptp_user=settings.EMAIL_HOST_USER, smtp_pass=settings.EMAIL_HOST_PASSWORD)
+
+        if attachment_path:
+            try:
+                os.remove(attachment_path)
+            except OSError:
+                pass
+
+        return JsonResponse({'status': 'sent'})
+
+    return JsonResponse({'detail': 'Method not allowed'}, status=405)
+
+
+@require_POST
+@csrf_exempt
+def email_count_preview(request):
+    try:
+        data = json.loads(request.body)
+    except ValueError:
+        return JsonResponse({'error': 'Invalid JSON'}, status=400)
+
+    base = data.get('base', 'person')
+    raw_f = data.get('filters', [])
+
+    perms = _get_permissions(request)
+
+    qs = Location.objects.all() if base == 'location' else Person.objects.all()
+    qs = _apply_permission_filters(qs, perms, base)
+
+    applied = {}
+    for rf in raw_f:
+        if ':' not in rf:
+            continue
+        fld, val = rf.split(':', 1)
+        applied.setdefault(fld, []).append(val)
+
+    for fld, vals in applied.items():
+        qs = qs.filter(**{f"{fld}__in": vals})
+    qs = qs.distinct()
+
+    recipients = []
+    if data.get('personalEmail'):
+        if base == 'location':
+            recipients += list(Location_Email.objects
+                               .filter(lkp_location_id__in=qs,
+                                       lkp_emailType_id__name__iexact='Personal')
+                               .values_list('email', flat=True))
+        else:
+            recipients += list(Person_Email.objects
+                               .filter(lkp_person_id__in=qs,
+                                       lkp_emailType_id__name__iexact='Personal')
+                               .values_list('email', flat=True))
+    if data.get('parishEmail'):
+        if base == 'location':
+            recipients += list(Location_Email.objects
+                               .filter(lkp_location_id__in=qs,
+                                       lkp_emailType_id__name__iexact='Parish')
+                               .values_list('email', flat=True))
+        else:
+            recipients += list(Person_Email.objects
+                               .filter(lkp_person_id__in=qs,
+                                       lkp_emailType_id__name__iexact='Parish')
+                               .values_list('email', flat=True))
+    if data.get('diocesanEmail'):
+        if base == 'location':
+            recipients += list(Location_Email.objects
+                               .filter(lkp_location_id__in=qs,
+                                       lkp_emailType_id__name__iexact='Diocesan')
+                               .values_list('email', flat=True))
+        else:
+            recipients += list(Person_Email.objects
+                               .filter(lkp_person_id__in=qs,
+                                       lkp_emailType_id__name__iexact='Diocesan')
+                               .values_list('email', flat=True))
+
+    unique_count = len(set(recipients))
+    return JsonResponse({'count': unique_count})
