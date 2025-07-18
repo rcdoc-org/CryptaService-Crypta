@@ -802,7 +802,7 @@ def send_email(request):
         if request.POST.get('diocesanEmail'):
             recipients += diocesan
 
-        sender = settings.EMAIL_HOST_USER
+        sender = settings.SERVICE_EMAIL_USER
         to_list = [sender]
 
         subject = request.POST.get('subject', '')
@@ -830,7 +830,7 @@ def send_email(request):
             )
             return JsonResponse({'error': 'Could not build email message. Check server log for details.'}, status=500)
 
-        send_mail(msg, smptp_user=settings.EMAIL_HOST_USER, smtp_pass=settings.EMAIL_HOST_PASSWORD)
+        send_mail(msg, smptp_user=settings.SERVICE_EMAIL_USER, smtp_pass=settings.SERVICE_EMAIL_PASS)
         logger.info('Email sent to %d recipients', len(recipients))
 
         if attachment_path:
@@ -851,6 +851,7 @@ def email_count_preview(request):
     logger.debug('Calculating email count preview')
     try:
         data = json.loads(request.body)
+        logger.debug('Data during email_count_preview: %s', data)
     except ValueError:
         return JsonResponse({'error': 'Invalid JSON'}, status=400)
 

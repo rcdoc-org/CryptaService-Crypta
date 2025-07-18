@@ -486,8 +486,18 @@ class SendEmailView_v1(APIView):
 
     def post(self, request, *args, **kwargs):
         logger.debug('Send email request')
+        headers = {}
+        auth_header = request.headers.get('Authorization')
+        if auth_header:
+            try:
+                dec = requests.post(AUTH_DECODE_URL, headers={'Authorization': auth_header})
+                if dec.status_code == 200:
+                    perms = dec.json().get('queryPermissions', [])
+                    headers['X-Query-Permissions'] = json.dumps(perms)
+            except requests.RequestException as exc:
+                logger.error('Failed to contact auth service: %s', exc, exc_info=True)
         try:
-            resp = requests.post(CRYPTA_SEND_EMAIL_URL, data=request.data)
+            resp = requests.post(CRYPTA_SEND_EMAIL_URL, data=request.data, headers=headers)
             logger.info('Crypta Service returned status %s', resp.status_code)
             content_type = resp.headers.get('Content-Type', '')
             data = resp.json() if content_type.startswith('application/json') else resp.text
@@ -502,8 +512,19 @@ class EmailCountPreviewView_v1(APIView):
 
     def post(self, request, *args, **kwargs):
         logger.debug('Email count preview request')
+        headers = {}
+        auth_header = request.headers.get('Authorization')
+        if auth_header:
+            try:
+                dec = requests.post(AUTH_DECODE_URL, headers={'Authorization': auth_header})
+                if dec.status_code == 200:
+                    perms = dec.json().get('queryPermissions', [])
+                    headers['X-Query-Permissions'] = json.dumps(perms)
+            except requests.RequestException as exc:
+                logger.error('Failed to contact auth service: %s', exc, exc_info=True)
+            
         try:
-            resp = requests.post(CRYPTA_EMAIL_COUNT_URL, json=request.data)
+            resp = requests.post(CRYPTA_EMAIL_COUNT_URL, json=request.data, headers=headers)
             logger.info('Crypta Service returned status %s', resp.status_code)
             content_type = resp.headers.get('Content-Type', '')
             data = resp.json() if content_type.startswith('application/json') else resp.text
