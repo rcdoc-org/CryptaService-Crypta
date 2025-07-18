@@ -1,6 +1,7 @@
 import os
 import requests
 import logging
+import json
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status, permissions
@@ -20,6 +21,13 @@ AUTH_PERMS_URL = os.getenv('AUTH_PERMS_URL', 'http://localhost:8002/api/v1/query
 AUTH_VERIFY_MFA_URL = os.getenv('AUTH_VERIFY_MFA_URL', 'http://localhost:8002/api/v1/users/verify_mfa/')
 AUTH_SSO_LOGIN_URL = os.getenv('AUTH_SSO_LOGIN_URL', 'http://localhost:8002/api/v1/sso/login/')
 AUTH_SSO_CALLBACK_URL = os.getenv('AUTH_SSO_CALLBACK_URL', 'http://localhost:8002/api/v1/sso/callback/')
+AUTH_DECODE_URL = os.getenv('AUTH_DECODE_URL', 'http://localhost:8002/api/v1/tokens/decode/')
+CRYPTA_FETCHTREE_URL = os.getenv('CRYPTA_FETCHTREE_URL', 'http://localhost:8001/api/v1/filter_tree')
+CRYPTA_FILTERRESULTS_URL = os.getenv('CRYPTA_FILTERRESULTS_URL', 'http://localhost:8001/api/v1/filter_results')
+CRYPTA_SEARCH_URL = os.getenv('CRYPTA_SEARCH_URL', 'http://localhost:8001/api/v1/search')
+CRYPTA_UPLOAD_TMP_URL = os.getenv('CRYPTA_UPLOAD_TMP_URL', 'http://localhost:8001/api/v1/upload-tmp')
+CRYPTA_SEND_EMAIL_URL = os.getenv('CRYPTA_SEND_EMAIL_URL', 'http://localhost:8001/api/v1/send-email')
+CRYPTA_EMAIL_COUNT_URL = os.getenv('CRYPTA_EMAIL_COUNT_URL', 'http://localhost:8001/api/v1/email-count-preview')
 
 # Create your views here.
 class CreateUserView_v1(APIView):
@@ -129,7 +137,6 @@ class UsersView_v1(APIView):
             logger.error('Failed to contact auth service: %s', exc, exc_info=True)
             return Response({'detail': 'Authentication service unavailable'}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
 
-
 class RolesView_v1(APIView):
     permission_classes = [permissions.AllowAny]
 
@@ -144,7 +151,6 @@ class RolesView_v1(APIView):
         except requests.RequestException as exc:
             logger.error('Failed to contact auth service: %s', exc, exc_info=True)
             return Response({'detail': 'Authentication service unavailable'}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
-
 
 class RoleDetailView_v1(APIView):
     permission_classes = [permissions.AllowAny]
@@ -171,7 +177,6 @@ class RoleDetailView_v1(APIView):
             logger.error('Failed to contact auth service: %s', exc, exc_info=True)
             return Response({'detail': 'Authentication service unavailable'}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
 
-
 class TokensView_v1(APIView):
     permission_classes = [permissions.AllowAny]
 
@@ -187,7 +192,6 @@ class TokensView_v1(APIView):
             logger.error('Failed to contact auth service: %s', exc, exc_info=True)
             return Response({'detail': 'Authentication service unavailable'}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
 
-
 class OrganizationsView_v1(APIView):
     permission_classes = [permissions.AllowAny]
 
@@ -202,7 +206,6 @@ class OrganizationsView_v1(APIView):
         except requests.RequestException as exc:
             logger.error('Failed to contact auth service: %s', exc, exc_info=True)
             return Response({'detail': 'Authentication service unavailable'}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
-
 
 class OrganizationDetailView_v1(APIView):
     permission_classes = [permissions.AllowAny]
@@ -229,7 +232,6 @@ class OrganizationDetailView_v1(APIView):
             logger.error('Failed to contact auth service: %s', exc, exc_info=True)
             return Response({'detail': 'Authentication service unavailable'}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
 
-
 class LoginAttemptsView_v1(APIView):
     permission_classes = [permissions.AllowAny]
 
@@ -245,8 +247,6 @@ class LoginAttemptsView_v1(APIView):
             logger.error('Failed to contact auth service: %s', exc, exc_info=True)
             return Response({'detail': 'Authentication service unavailable'}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
 
-
-
 class CryptaGroupsView_v1(APIView):
     permission_classes = [permissions.AllowAny]
 
@@ -261,7 +261,6 @@ class CryptaGroupsView_v1(APIView):
         except requests.RequestException as exc:
             logger.error('Failed to contact auth service: %s', exc, exc_info=True)
             return Response({'detail': 'Authentication service unavailable'}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
-
 
 class CryptaGroupDetailView_v1(APIView):
     permission_classes = [permissions.AllowAny]
@@ -288,7 +287,6 @@ class CryptaGroupDetailView_v1(APIView):
             logger.error('Failed to contact auth service: %s', exc, exc_info=True)
             return Response({'detail': 'Authentication service unavailable'}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
 
-
 class QueryPermissionsView_v1(APIView):
     permission_classes = [permissions.AllowAny]
 
@@ -303,7 +301,6 @@ class QueryPermissionsView_v1(APIView):
         except requests.RequestException as exc:
             logger.error('Failed to contact auth service: %s', exc, exc_info=True)
             return Response({'detail': 'Authentication service unavailable'}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
-
 
 class QueryPermissionDetailView_v1(APIView):
     permission_classes = [permissions.AllowAny]
@@ -330,7 +327,6 @@ class QueryPermissionDetailView_v1(APIView):
             logger.error('Failed to contact auth service: %s', exc, exc_info=True)
             return Response({'detail': 'Authentication service unavailable'}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
 
-
 class VerifyMfaView_v1(APIView):
     """Proxy MFA verification to the authentication service."""
 
@@ -348,7 +344,6 @@ class VerifyMfaView_v1(APIView):
         except requests.RequestException as exc:
             logger.error('Failed to contact auth service: %s', exc, exc_info=True)
             return Response({'detail': 'Authentication service unavailable'}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
-
 
 class SSOLoginView_v1(APIView):
     permission_classes = [permissions.AllowAny]
@@ -368,7 +363,6 @@ class SSOLoginView_v1(APIView):
             logger.error('Failed to contact auth service: %s', exc, exc_info=True)
             return Response({'detail': 'Authentication service unavailable'}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
 
-
 class SSOCallbackView_v1(APIView):
     permission_classes = [permissions.AllowAny]
 
@@ -382,3 +376,159 @@ class SSOCallbackView_v1(APIView):
         except requests.RequestException as exc:
             logger.error('Failed to contact auth service: %s', exc, exc_info=True)
             return Response({'detail': 'Authentication service unavailable'}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
+
+class FilterTreeView_v1(APIView):
+    permission_classes = [permissions.AllowAny]
+    
+    def get(self, request, *args, **kwargs):
+        logger.debug('Filter Tree request recieved.')
+
+        headers = {}
+        auth_header = request.headers.get('Authorization')
+        if auth_header:
+            try:
+                dec = requests.post(AUTH_DECODE_URL, headers={'Authorization': auth_header})
+                if dec.status_code == 200:
+                    perms = dec.json().get('queryPermissions', [])
+                    headers['X-Query-Permissions'] = json.dumps(perms)
+            except requests.RequestException as exc:
+                logger.error('Failed to contact auth service: %s', exc, exc_info=True)
+                
+        try:
+            logger.debug('Forwarding fetch request to crypta service at %s', CRYPTA_FETCHTREE_URL)
+            resp = requests.get(CRYPTA_FETCHTREE_URL, params=request.query_params, headers=headers)
+            logger.info('Crypta Service returned status %s', resp.status_code)
+            content_type = resp.headers.get('Content-Type', '')
+            data = resp.json() if content_type.startswith('application/json') else resp.text
+            return Response(data, status=resp.status_code)
+        except requests.RequestException as exc:
+            logger.error('Failed to contact crypta service: %s', exc, exc_info=True)
+            return Response({'detail': 'Crypta Service unavailable'}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
+
+class FilterResultsView_v1(APIView):
+    permission_classes = [permissions.AllowAny]
+    
+    def get(self, request, *args, **kwargs):
+        logger.debug('Filter Results request recieved.')
+        
+        headers = {}
+        auth_header = request.headers.get('Authorization')
+        if auth_header:
+            try:
+                dec = requests.post(AUTH_DECODE_URL, headers={'Authorization': auth_header})
+                if dec.status_code == 200:
+                    perms = dec.json().get('queryPermissions', [])
+                    headers['X-Query-Permissions'] = json.dumps(perms)
+            except requests.RequestException as exc:
+                logger.error('Failed to contact auth service: %s', exc, exc_info=True)
+
+        try:
+            logger.debug('Forwarding fetch request to crypta service at %s', CRYPTA_FILTERRESULTS_URL)
+            resp = requests.get(CRYPTA_FILTERRESULTS_URL, params=request.query_params, headers=headers)
+            logger.info('Crypta Service returned status %s', resp.status_code)
+            content_type = resp.headers.get('Content-Type', '')
+            data = resp.json() if content_type.startswith('application/json') else resp.text
+            return Response(data, status=resp.status_code)
+        except requests.RequestException as exc:
+            logger.error('Failed to contact crypta service: %s', exc, exc_info=True)
+            return Response({'detail': 'Crypta service unavailable'}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
+
+class SearchResultsView_v1(APIView):
+    permission_classes = [permissions.AllowAny]
+    
+    def get(self, request, *args, **kwargs):
+        logger.debug('Search Results request recieved.')
+        
+        headers = {}
+        auth_header = request.headers.get('Authorization')
+        if auth_header:
+            try:
+                dec = requests.post(AUTH_DECODE_URL, headers={'Authorization': auth_header})
+                if dec.status_code == 200:
+                    perms = dec.json().get('queryPermissions', [])
+                    headers['X-Query-Permissions'] = json.dumps(perms)
+            except requests.RequestException as exc:
+                logger.error('Failed to contact auth service: %s', exc, exc_info=True)
+
+        try:
+            logger.debug('Forwarding search request to crypta service at %s', CRYPTA_SEARCH_URL)
+            resp = requests.get(CRYPTA_SEARCH_URL, params=request.query_params, headers=headers)
+            logger.info('Crypta Service returned status %s', resp.status_code)
+            content_type = resp.headers.get('Content-Type', '')
+            data = resp.json() if content_type.startswith('application/json') else resp.text
+            return Response(data, status=resp.status_code)
+        except requests.RequestException as exc:
+            logger.error('Failed to contact crypta service: %s', exc, exc_info=True)
+            return Response({'detail': 'Crypta service unavailable'}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
+
+class UploadTempView_v1(APIView):
+    permission_classes = [permissions.AllowAny]
+
+    def post(self, request, *args, **kwargs):
+        logger.debug('Upload temp file request')
+        try:
+            files = None
+            if 'attachment' in request.FILES:
+                up = request.FILES['attachment']
+                files = {'attachment': (up.name, up.file, up.content_type)}
+            resp = requests.post(CRYPTA_UPLOAD_TMP_URL, files=files)
+            logger.info('Crypta Service returned status %s', resp.status_code)
+            content_type = resp.headers.get('Content-Type', '')
+            data = resp.json() if content_type.startswith('application/json') else resp.text
+            return Response(data, status=resp.status_code)
+        except requests.RequestException as exc:
+            logger.error('Failed to contact crypta service: %s', exc, exc_info=True)
+            return Response({'detail': 'Crypta service unavailable'}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
+
+
+class SendEmailView_v1(APIView):
+    permission_classes = [permissions.AllowAny]
+
+    def post(self, request, *args, **kwargs):
+        logger.debug('Send email request')
+        headers = {}
+        auth_header = request.headers.get('Authorization')
+        if auth_header:
+            try:
+                dec = requests.post(AUTH_DECODE_URL, headers={'Authorization': auth_header})
+                if dec.status_code == 200:
+                    perms = dec.json().get('queryPermissions', [])
+                    headers['X-Query-Permissions'] = json.dumps(perms)
+            except requests.RequestException as exc:
+                logger.error('Failed to contact auth service: %s', exc, exc_info=True)
+        try:
+            resp = requests.post(CRYPTA_SEND_EMAIL_URL, data=request.data, headers=headers)
+            logger.info('Crypta Service returned status %s', resp.status_code)
+            content_type = resp.headers.get('Content-Type', '')
+            data = resp.json() if content_type.startswith('application/json') else resp.text
+            return Response(data, status=resp.status_code)
+        except requests.RequestException as exc:
+            logger.error('Failed to contact crypta service: %s', exc, exc_info=True)
+            return Response({'detail': 'Crypta service unavailable'}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
+
+
+class EmailCountPreviewView_v1(APIView):
+    permission_classes = [permissions.AllowAny]
+
+    def post(self, request, *args, **kwargs):
+        logger.debug('Email count preview request')
+        headers = {}
+        auth_header = request.headers.get('Authorization')
+        if auth_header:
+            try:
+                dec = requests.post(AUTH_DECODE_URL, headers={'Authorization': auth_header})
+                if dec.status_code == 200:
+                    perms = dec.json().get('queryPermissions', [])
+                    headers['X-Query-Permissions'] = json.dumps(perms)
+            except requests.RequestException as exc:
+                logger.error('Failed to contact auth service: %s', exc, exc_info=True)
+            
+        try:
+            resp = requests.post(CRYPTA_EMAIL_COUNT_URL, json=request.data, headers=headers)
+            logger.info('Crypta Service returned status %s', resp.status_code)
+            content_type = resp.headers.get('Content-Type', '')
+            data = resp.json() if content_type.startswith('application/json') else resp.text
+            return Response(data, status=resp.status_code)
+        except requests.RequestException as exc:
+            logger.error('Failed to contact crypta service: %s', exc, exc_info=True)
+            return Response({'detail': 'Crypta service unavailable'}, status=status.HTTP_503_SERVICE_UNAVAILABLE)

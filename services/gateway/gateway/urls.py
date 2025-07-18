@@ -34,6 +34,12 @@ from api.views import (
     VerifyMfaView_v1,
     SSOLoginView_v1,
     SSOCallbackView_v1,
+    FilterTreeView_v1,
+    FilterResultsView_v1,
+    SearchResultsView_v1,
+    UploadTempView_v1,
+    SendEmailView_v1,
+    EmailCountPreviewView_v1,
 )
 
 urlpatterns = [
@@ -60,6 +66,13 @@ urlpatterns = [
     path('users/login/', LoginView_v1.as_view(), name='login'),
     path('api/v1/tokens/retrieve/', LoginView_v1.as_view(), name='get_token'),
     path('tokens/refresh/', TokenRefreshView_v1.as_view(), name='token_refresh'),
+    path('token/refresh/', TokenRefreshView_v1.as_view(), name='token_refresh2'),
     path('sso/login/', SSOLoginView_v1.as_view(), name='sso_login'),
     path('sso/callback/', SSOCallbackView_v1.as_view(), name='sso_callback'),
+    path('filter_tree/', FilterTreeView_v1.as_view(), name='filter_tree'),
+    path('filter_results/', FilterResultsView_v1.as_view(), name='filter_results'),
+    path('search/', SearchResultsView_v1.as_view(), name='search'),
+    path('upload-tmp/', UploadTempView_v1.as_view(), name='upload_tmp'),
+    path('send-email/', SendEmailView_v1.as_view(), name='send_email'),
+    path('email-count-preview/', EmailCountPreviewView_v1.as_view(), name='email_count_preview'),
 ]

@@ -21,6 +21,13 @@ services:
       - "3000:3000"
     env_file:
       - ./services/gateway/.env
+  
+  crypta:
+    build: ./services/crypta
+    expose:
+      - "8001:8001"
+    env_file:
+      - ./services/crypta/.env
 
   caddy:
     image: caddy:alpine

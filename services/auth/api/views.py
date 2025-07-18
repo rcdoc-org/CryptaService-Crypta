@@ -9,7 +9,8 @@ from rest_framework.response import Response
 from rest_framework.permissions import AllowAny
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework_simplejwt.views import TokenObtainPairView
-from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework_simplejwt.tokens import RefreshToken, UntypedToken
+from rest_framework_simplejwt.exceptions import TokenError
 from rest_framework.exceptions import AuthenticationFailed
 from django.contrib.auth import get_user_model
 from django.conf import settings
@@ -189,6 +190,31 @@ class LoggingTokenObtainPairView(TokenObtainPairView):
         logger.debug('Token obtain request received')
         logger.debug('Data received: %s', request.data)
         return super().post(request, *args, **kwargs)
+
+class DecodeTokenView(generics.GenericAPIView):
+    """Validate and decode a JWT token and return it's claims."""
+
+    permission_classes = [AllowAny]
+    
+    def post(self, request, *args, **kwargs):
+        logger.debug('Request for Decoding Received')
+        token = request.data.get('token')
+        auth_header = request.headers.get('Authorization', '')
+        if not token and auth_header.startswith('Bearer '):
+            token = auth_header.split(' ', 1)[1]
+            if not token:
+                return Response({
+                    'detail': 'No token provided'}, status=status.HTTP_400_BAD_REQUEST
+                )
+            
+            try:
+                verified = UntypedToken(token)
+            except TokenError as exc:
+                logger.warning('Invalid token: %s', exc)
+                return Response({'detail': 'Invalid Token'}, status=status.HTTP_400_BAD_REQUEST)
+            
+            logger.debug('Decoded Token: %s', verified.payload)
+            return Response(verified.payload)
 
 class CreateUserView(generics.CreateAPIView):
     queryset = User.objects.all()
@@ -535,6 +561,42 @@ class MicrosoftCallbackView(generics.GenericAPIView):
         
         refresh = RefreshToken.for_user(user)
         access = refresh.access_token
+
+        # Crypta Groups the user belongs to
+        user_groups = UserCryptaGroup.objects.filter(user=user, is_enabled=True) \
+            .select_related('group')
+        crypta_groups = [ug.group.name for ug in user_groups]
+        
+        # Query Permissions linked to those groups
+        group_ids = [ug.group.id for ug in user_groups]
+        permissions = QueryPermission.objects.filter(group_id__in=group_ids)
+        
+        # Serialize permissions for token
+        query_permissions = [
+            {
+                'group': perm.group.name,
+                'resource': perm.resource_type,
+                'access': perm.access_type,
+                'view_limits': perm.view_limits,
+                'filters': perm.filter_conditions
+            }
+            for perm in permissions
+            ]
+        
+        # Roles and Organizations
+        user_orgs = UserOrganization.objects.filter(user=user)
+        user_roles = [
+            {uo.organization.name: uo.role.name}
+            for uo in user_orgs
+            ]
+
+        # inject custom claims into the JWT payload
+        access['username'] = user.username
+        access['email'] = user.email
+        access['cryptaGroups'] = crypta_groups
+        access['queryPermissions'] = query_permissions
+        access['userRoles'] = user_roles
+        
         Token.objects.create(
             user=user,
             token=refresh['jti'],

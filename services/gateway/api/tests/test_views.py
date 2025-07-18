@@ -10,6 +10,8 @@ REFRESH_URL = os.getenv('AUTH_REFRESH_URL', 'http://localhost:8002/api/v1/tokens
 VERIFY_URL = os.getenv('AUTH_VERIFY_MFA_URL', 'http://localhost:8002/api/v1/users/verify_mfa/')
 SSO_LOGIN_URL = os.getenv('AUTH_SSO_LOGIN_URL', 'http://localhost:8002/api/v1/sso/login/')
 SSO_CALLBACK_URL = os.getenv('AUTH_SSO_CALLBACK_URL', 'http://localhost:8002/api/v1/sso/callback/')
+CRYPTA_FETCHTREE_URL = os.getenv('CRYPTA_FETCHTREE_URL', 'http://localhost:8001/api/v1/filter_tree')
+CRYPTA_FILTERRESULTS_URL = os.getenv('CRYPTA_FILTERRESULTS_URL', 'http://localhost:8001/api/v1/filter_results')
 
 class RegisterViewTests(APITestCase):
     """Used for testing registration of users."""
@@ -372,3 +374,30 @@ class QueryPermissionDetailViewTests(APITestCase):
         self.assertEqual(response.status_code, 201)
         mock_post.assert_called_once()
 
+class CryptaFilterTreeViewTests(APITestCase):
+    @patch('api.views.requests.get')
+    def test_crypta_filter_tree_service(self, mock_delete):
+        mock_response = MagicMock()
+        mock_response.status_code = 200
+        mock_response.json.return_value = {}
+        mock_delete.return_value = mock_response
+        
+        url = reverse('filter_tree')
+        response = self.client.get(url)
+        
+        self.assertEqual(response.status_code, 200)
+        mock_delete.assert_called_once()
+
+class CryptaFilterResultsViewTests(APITestCase):
+    @patch('api.views.requests.get')
+    def test_crypta_filter_results_service(self, mock_delete):
+        mock_response = MagicMock()
+        mock_response.status_code = 200
+        mock_response.json.return_value = {}
+        mock_delete.return_value = mock_response
+        
+        url = reverse('filter_tree')
+        response = self.client.get(url)
+        
+        self.assertEqual(response.status_code, 200)
+        mock_delete.assert_called_once()
